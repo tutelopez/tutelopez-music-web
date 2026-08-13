@@ -1,0 +1,108 @@
+---
+import MainLayout from '../../layouts/MainLayout.astro';
+import { sanityClient } from 'sanity:client';
+import { PortableText } from '@portabletext/react';
+
+export async function getStaticPaths() {
+  const resources = await sanityClient.fetch(`*[_type == "resource"]{ "slug": slug.current }`);
+  
+  if (resources.length === 0) {
+      return [
+          { params: { slug: "ejemplo-worship-essentials" } },
+          { params: { slug: "ejemplo-nord-stage" } },
+          { params: { slug: "ejemplo-pad-ambiental" } }
+      ];
+  }
+
+  return resources.map((resource: any) => {
+    return {
+      params: { slug: resource.slug },
+    };
+  });
+}
+
+const { slug } = Astro.params;
+
+const query = `*[_type == "resource" && slug.current == $slug][0]{
+  title, category, description, youtubeVideoId, downloadLink, content,
+  "imageUrl": mainImage.asset->url
+}`;
+const resource = await sanityClient.fetch(query, { slug }) || {
+    title: "Plantilla Worship Essentials",
+    category: "mainstage",
+    description: "La mejor plantilla para iniciar en tu iglesia con sonidos ambientales y pianos de cola.",
+    youtubeVideoId: "dQw4w9WgXcQ",
+    downloadLink: "https://t.me/tutelopezmusic",
+    imageUrl: null
+};
+---
+
+<MainLayout title={`${resource.title} - TuteLopez Music`} description={resource.description}>
+    <article class="max-w-4xl mx-auto py-12">
+        <!-- Breadcrumb -->
+        <nav class="mb-8 text-sm text-slate-400">
+            <a href="/recursos" class="hover:text-brand transition-colors">Recursos</a>
+            <span class="mx-2">&gt;</span>
+            <span class="uppercase text-brand">{resource.category}</span>
+        </nav>
+
+        <!-- Header -->
+        <header class="mb-12 text-center">
+            <h1 class="text-4xl md:text-5xl font-extrabold mb-6 text-white">{resource.title}</h1>
+            <p class="text-xl text-slate-300 max-w-2xl mx-auto">{resource.description}</p>
+        </header>
+
+        <!-- Espacio para Anuncio (AdSense) Top -->
+        <div class="w-full h-32 glass-panel flex flex-col items-center justify-center mb-12 border-dashed border-2 border-slate-700/50">
+            <span class="text-slate-500 text-sm">Bloque de Anuncios AdSense (Top)</span>
+            <span class="text-slate-600 text-xs mt-1">Google Auto Ads o Banner Leaderboard</span>
+        </div>
+
+        <!-- Video de YouTube -->
+        <div class="glass-panel p-2 rounded-2xl mb-12 shadow-2xl shadow-brand/10">
+            <div class="relative w-full overflow-hidden rounded-xl" style="padding-top: 56.25%;">
+                <iframe 
+                    class="absolute top-0 left-0 w-full h-full"
+                    src={`https://www.youtube.com/embed/${resource.youtubeVideoId}`} 
+                    title="YouTube video player" 
+                    frameborder="0" 
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                    allowfullscreen>
+                </iframe>
+            </div>
+        </div>
+
+        <!-- Contenido del Post -->
+        {resource.content && (
+            <div class="glass-panel p-8 md:p-12 mb-12 prose prose-invert prose-lg max-w-none prose-a:text-brand hover:prose-a:text-brand-light prose-headings:text-white">
+                <PortableText value={resource.content} />
+            </div>
+        )}
+
+        <!-- Detalles y Descarga -->
+        <div class="glass-panel p-8 md:p-12 text-center max-w-2xl mx-auto mb-12 relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-brand to-purple-500"></div>
+            
+            <h2 class="text-2xl font-bold text-white mb-6">Obtén este recurso gratis</h2>
+            <p class="text-slate-400 mb-8">
+                Este archivo está alojado en nuestro canal de Telegram oficial para garantizar una descarga rápida y segura, libre de límites de velocidad.
+            </p>
+
+            <!-- Espacio para Anuncio (AdSense) cerca del botón -->
+            <div class="w-full h-24 bg-slate-900/50 rounded-lg flex items-center justify-center mb-8 border border-slate-800">
+                <span class="text-slate-500 text-sm">Anuncio AdSense (Near Button)</span>
+            </div>
+
+            <div class="flex justify-center w-full relative z-10">
+                <a href={resource.downloadLink} target="_blank" class="flex items-center gap-3 px-8 py-4 bg-brand text-white font-bold text-lg rounded-full hover:bg-brand-light transition-transform hover:scale-105 shadow-lg shadow-brand/30">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6 shrink-0 block">
+                        <line x1="22" y1="2" x2="11" y2="13"></line>
+                        <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                    </svg>
+                    <span>Descargar en Telegram</span>
+                </a>
+            </div>
+            <p class="text-xs text-slate-500 mt-4">El enlace pasará por un acortador (ej. ShrinkMe.io) para apoyar al canal.</p>
+        </div>
+    </article>
+</MainLayout>

@@ -1,0 +1,31 @@
+/*
+  The CSS in this style tag is based off of Bear Blog's default CSS.
+  https://github.com/HermanMartinus/bearblog/blob/297026a877bc2ab2b3bdfbd6b9f7961c350917dd/templates/styles/blog/default.css
+  License MIT: https://github.com/HermanMartinus/bearblog/blob/master/LICENSE.md
+ */
+
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+@theme {
+  --color-brand: #3b82f6;
+  --color-brand-light: #60a5fa;
+  --color-brand-dark: #2563eb;
+}
+
+:root {
+	--font-atkinson: 'Atkinson', sans-serif;
+}
+
+body {
+	font-family: var(--font-atkinson);
+    @apply bg-slate-950 text-slate-300 antialiased selection:bg-brand/30;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    @apply text-white font-bold tracking-tight;
+}
+
+.glass-panel {
+    @apply bg-slate-900/50 backdrop-blur-md border border-slate-800 rounded-2xl shadow-xl;
+}

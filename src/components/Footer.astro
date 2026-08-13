@@ -1,0 +1,55 @@
+---
+const today = new Date();
+---
+
+<footer>
+	&copy; {today.getFullYear()} Tute Lopez Music. Todos los derechos reservados.
+	<div class="social-links">
+		<a href="https://www.tiktok.com/@tutelopez7" target="_blank" title="TikTok">
+			<span class="sr-only">TikTok</span>
+			<svg viewBox="0 0 24 24" aria-hidden="true" width="24" height="24" fill="currentColor">
+				<path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 2.78-1.15 5.54-3.33 7.31-1.93 1.57-4.58 2.22-6.96 1.64-2.58-.62-4.78-2.54-5.59-5.11-.79-2.52-.38-5.36 1.13-7.53 1.4-2.02 3.65-3.23 6.09-3.41 0 1.4 0 2.8-.01 4.2-.95.12-1.92.51-2.61 1.2-1.03 1.04-1.35 2.67-.78 4.02.53 1.25 1.77 2.12 3.12 2.3 1.52.19 3.08-.34 4.07-1.45 1.04-1.16 1.41-2.73 1.39-4.29.02-6.52.01-13.04.01-19.56z"/>
+			</svg>
+		</a>
+		<a href="https://www.youtube.com/@TuteLopezMusic" target="_blank" title="YouTube">
+			<span class="sr-only">YouTube</span>
+			<svg viewBox="0 0 24 24" aria-hidden="true" width="24" height="24" fill="currentColor">
+				<path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/>
+			</svg>
+		</a>
+		<a href="https://t.me/+A-KBjI9PmuNlYjUx" target="_blank" title="Telegram">
+			<span class="sr-only">Telegram</span>
+			<svg viewBox="0 0 24 24" aria-hidden="true" width="24" height="24" fill="currentColor">
+				<path d="M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.14.18-.357.223-.548.223l.188-2.85 5.18-4.686c.223-.195-.054-.304-.346-.109l-6.4 4.025-2.76-.864c-.602-.19-.611-.603.125-.89l10.77-4.153c.498-.19.923.115.78.832z"/>
+			</svg>
+		</a>
+		<a href="mailto:mateojoellopezgtamix@gmail.com" target="_blank" title="Correo">
+			<span class="sr-only">Correo</span>
+			<svg viewBox="0 0 24 24" aria-hidden="true" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+				<path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+				<polyline points="22,6 12,13 2,6"></polyline>
+			</svg>
+		</a>
+	</div>
+</footer>
+<style>
+	footer {
+		padding: 2em 1em 6em 1em;
+		background: linear-gradient(var(--gray-gradient)) no-repeat;
+		color: rgb(var(--gray));
+		text-align: center;
+	}
+	.social-links {
+		display: flex;
+		justify-content: center;
+		gap: 1em;
+		margin-top: 1em;
+	}
+	.social-links a {
+		text-decoration: none;
+		color: rgb(var(--gray));
+	}
+	.social-links a:hover {
+		color: rgb(var(--gray-dark));
+	}
+</style>

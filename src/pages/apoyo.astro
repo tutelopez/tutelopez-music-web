@@ -1,0 +1,37 @@
+---
+import MainLayout from '../layouts/MainLayout.astro';
+---
+
+<MainLayout title="Apoya a TuteLopez Music" description="Tu apoyo nos permite seguir creando recursos gratuitos de alta calidad para tecladistas cristianos.">
+    <div class="max-w-3xl mx-auto py-16 px-4 sm:px-6 lg:px-8 text-center">
+        <!-- Icon/Illustration -->
+        <div class="w-24 h-24 mx-auto bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center mb-8 shadow-2xl shadow-orange-500/30">
+            <svg class="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>
+        </div>
+
+        <h1 class="text-4xl md:text-5xl font-extrabold mb-6 text-white">¡Gracias por tu Apoyo!</h1>
+        
+        <p class="text-xl text-slate-300 mb-8 leading-relaxed">
+            Todo el contenido, tutoriales y recursos que subo al canal y a esta web son 100% gratuitos. 
+            Si estos recursos han sido de bendición para ti o para tu iglesia y deseas apoyar este ministerio, puedes invitarme un café.
+        </p>
+        
+        <p class="text-slate-400 mb-12">
+            Tu donación me ayuda a pagar los servidores, mejorar el equipo y dedicar más tiempo a crear plantillas y sonidos premium para todos ustedes.
+        </p>
+
+        <!-- PayPal Button -->
+        <div class="glass-panel p-10 max-w-lg mx-auto border-[#0079C1]/30 relative overflow-hidden group">
+            <div class="absolute inset-0 bg-[#0079C1]/5 group-hover:bg-[#0079C1]/10 transition-colors"></div>
+            
+            <a href="https://paypal.me/tutelopezmusic" target="_blank" class="relative block w-full py-5 rounded-xl bg-[#0070ba] text-white font-extrabold text-xl hover:bg-[#003087] transition-all hover:scale-105 shadow-xl shadow-[#0070ba]/30 flex items-center justify-center gap-3">
+                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M7.076 21.337H2.47a.641.641 0 0 1-.633-.74L4.944.901C5.026.382 5.474 0 5.998 0h7.46c2.57 0 4.578.543 5.69 1.81 1.01 1.15 1.304 2.42 1.012 4.287-.023.143-.047.288-.077.437-.983 5.05-4.349 6.797-8.647 6.797h-2.19c-.524 0-.968.382-1.05.9l-1.12 7.106zM8.216 2.647l-2.9 18.406h1.76l1.241-7.88c.083-.518.53-.9 1.054-.9h2.188c3.55 0 6.223-1.393 7.025-5.508.026-.134.048-.266.068-.396.195-1.258.077-2.128-.602-2.902C17.388 2.705 15.86 2.647 13.458 2.647H8.216z"/></svg>
+                <span>Donar con PayPal</span>
+            </a>
+            
+            <p class="text-sm text-slate-500 mt-6 relative z-10">
+                Puedes hacer un aporte rápido de forma totalmente segura con tu tarjeta o saldo PayPal desde cualquier país.
+            </p>
+        </div>
+    </div>
+</MainLayout>

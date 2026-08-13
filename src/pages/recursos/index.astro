@@ -1,0 +1,102 @@
+---
+import MainLayout from '../../layouts/MainLayout.astro';
+import { sanityClient } from 'sanity:client';
+
+// Fetch resources from Sanity
+const resources = await sanityClient.fetch(`*[_type == "resource"] | order(_createdAt desc) {
+  title,
+  "slug": slug.current,
+  category,
+  description,
+  "imageUrl": mainImage.asset->url
+}`);
+
+// Fallback mock data if empty
+const displayResources = resources.length > 0 ? resources : [
+    { title: "Plantilla Worship Essentials", slug: "ejemplo-worship-essentials", category: "mainstage", description: "La mejor plantilla para iniciar en tu iglesia con sonidos ambientales y pianos de cola.", imageUrl: null },
+    { title: "Nord Stage 3 Pianos", slug: "ejemplo-nord-stage", category: "kontakt", description: "Librería optimizada para Kontakt con los mejores pianos del Nord Stage.", imageUrl: null },
+    { title: "Pad Ambiental Multicapa", slug: "ejemplo-pad-ambiental", category: "sintetizadores", description: "Un pad denso y atmosférico perfecto para momentos de ministración.", imageUrl: null }
+];
+
+// Get unique categories for the filter buttons
+const uniqueCategories = [...new Set(displayResources.map((r: any) => r.category))].filter(Boolean);
+const categories = ["Todos", ...uniqueCategories];
+---
+
+<MainLayout title="Recursos - TuteLopez Music" description="Explora todas nuestras librerías y plantillas.">
+    <section class="py-12">
+        <h1 class="text-4xl md:text-5xl font-bold mb-8 text-white">Todos los Recursos</h1>
+        
+        <!-- Filtros Dinámicos -->
+        <div class="flex gap-4 mb-10 overflow-x-auto pb-4 hide-scroll" id="filter-container">
+            {categories.map((cat, index) => (
+                <button 
+                    data-filter={cat === "Todos" ? "all" : cat} 
+                    class={`filter-btn px-6 py-2 rounded-full whitespace-nowrap transition-all ${index === 0 ? 'bg-brand text-white font-bold' : 'glass-panel text-slate-300 hover:text-white'}`}
+                >
+                    {cat === "Todos" ? "Todos" : (cat as String).charAt(0).toUpperCase() + (cat as String).slice(1)}
+                </button>
+            ))}
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" id="resources-grid">
+            {displayResources.map((resource: any) => (
+                <a href={`/recursos/${resource.slug}`} data-category={resource.category} class="resource-card glass-panel overflow-hidden group block">
+                    <div class="h-48 bg-slate-800 w-full flex items-center justify-center overflow-hidden">
+                        {resource.imageUrl ? (
+                            <img src={resource.imageUrl} alt={resource.title} class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                        ) : (
+                            <span class="text-slate-500">Sin Imagen</span>
+                        )}
+                    </div>
+                    <div class="p-6">
+                        <span class="text-xs font-bold text-brand uppercase tracking-wider mb-2 block">{resource.category}</span>
+                        <h3 class="text-xl font-bold mb-2 group-hover:text-brand transition-colors">{resource.title}</h3>
+                        <p class="text-slate-400 text-sm mb-4 line-clamp-2">{resource.description}</p>
+                    </div>
+                </a>
+            ))}
+        </div>
+    </section>
+</MainLayout>
+
+<style>
+    .hide-scroll::-webkit-scrollbar {
+        display: none;
+    }
+    .hide-scroll {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const buttons = document.querySelectorAll('.filter-btn');
+        const cards = document.querySelectorAll('.resource-card');
+
+        buttons.forEach(button => {
+            button.addEventListener('click', () => {
+                const filter = button.getAttribute('data-filter');
+
+                // Update active button styles
+                buttons.forEach(btn => {
+                    btn.classList.remove('bg-brand', 'text-white', 'font-bold');
+                    btn.classList.add('glass-panel', 'text-slate-300');
+                });
+                button.classList.remove('glass-panel', 'text-slate-300');
+                button.classList.add('bg-brand', 'text-white', 'font-bold');
+
+                // Filter cards visually
+                cards.forEach(c => {
+                    const card = c as HTMLElement;
+                    if (filter === 'all' || card.getAttribute('data-category') === filter) {
+                        card.style.display = 'block';
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+            });
+        });
+    });
+</script>
