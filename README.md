@@ -1,63 +1,75 @@
-# Astro Starter Kit: Blog
+# TuteLopez Music Web 🎹
 
-```sh
-npm create astro@latest -- --template blog
+Sitio web oficial de TuteLopez Music, creado para proveer recursos, plantillas, tutoriales y sonidos de alta calidad para tecladistas y músicos cristianos. 
+
+Esta plataforma está desarrollada con **Astro** y **Tailwind CSS**, y conectada a **Sanity CMS** para una fácil gestión de contenidos sin necesidad de tocar el código una vez en producción.
+
+## 🚀 Características
+
+- **Catálogo de Recursos Dinámico**: Las plantillas y librerías se obtienen directamente de Sanity CMS.
+- **Filtro de Categorías Inteligente**: Los botones de filtrado (MainStage, Kontakt, Sintetizadores) se generan automáticamente basándose en tu base de datos y filtran los recursos sin recargar la página.
+- **Diseño Moderno (Glassmorphism)**: Interfaz oscura premium con efectos translúcidos (efecto cristal) y animaciones fluidas al hacer hover.
+- **Súper Veloz y SEO Friendly**: Desarrollado estáticamente con Astro, lo que garantiza una puntuación perfecta en rendimiento y generación de Sitemap nativo para Google.
+- **Integración de PayPal**: Página dedicada `/apoyo` para recibir donaciones directas internacionales.
+- **Espacios para AdSense**: Zonas estratégicamente reservadas a lo largo de las páginas para colocar banners publicitarios una vez se monetice.
+
+## 🛠️ Tecnologías
+
+- **Framework**: [Astro](https://astro.build/)
+- **Estilos**: [Tailwind CSS](https://tailwindcss.com/) con el plugin oficial de Tipografía.
+- **Base de Datos / CMS**: [Sanity](https://www.sanity.io/)
+- **Procesador de Texto Enriquecido**: `@portabletext/react`
+
+## 💻 Instalación y Desarrollo Local
+
+Sigue estos pasos para correr y modificar el proyecto en tu propia computadora:
+
+1. **Clonar el repositorio**
+   Abre tu terminal y descarga el código:
+   ```bash
+   git clone https://github.com/tutelopez/tutelopez-music-web.git
+   cd tutelopez-music-web
+   ```
+
+2. **Instalar dependencias**
+   Instala todas las librerías necesarias ejecutando:
+   ```bash
+   npm install
+   ```
+
+3. **Iniciar el servidor local de desarrollo**
+   Una vez instalado todo, enciende el servidor con:
+   ```bash
+   npm run dev
+   ```
+   *¡Listo! Abre `http://localhost:4321` en tu navegador para ver y editar la página en tiempo real.*
+
+## 📦 Despliegue a Producción
+
+### En Servidor VPS (Nginx / Apache)
+Para compilar la página y generar los archivos finales optimizados para producción:
+
+```bash
+npm run build
 ```
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+Esto generará una carpeta llamada `dist/` en la raíz de tu proyecto. Simplemente copia el contenido de esta carpeta hacia la ruta pública de tu servidor (ej. `/var/www/html/tutelopez`) y configura Nginx para que sirva esos archivos.
 
-Features:
+### En Vercel o Netlify
+Si prefieres un entorno sin servidores, simplemente conecta este repositorio de GitHub a tu cuenta de Vercel y se desplegará automáticamente.
 
-- ✅ Minimal styling (make it your own!)
-- ✅ 100/100 Lighthouse performance
-- ✅ SEO-friendly with canonical URLs and Open Graph data
-- ✅ Sitemap support
-- ✅ RSS Feed support
-- ✅ Markdown & MDX support
+## 📝 Gestión de Contenido (Sanity CMS)
 
-## 🚀 Project Structure
-
-Inside of your Astro project, you'll see the following folders and files:
-
-```text
-├── public/
-├── src/
-│   ├── assets/
-│   ├── components/
-│   ├── content/
-│   ├── layouts/
-│   └── pages/
-├── astro.config.mjs
-├── README.md
-├── package.json
-└── tsconfig.json
-```
-
-Astro looks for `.astro` or `.md` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
-
-There's nothing special about `src/components/`, but that's where we like to put any Astro/React/Vue/Svelte/Preact components.
-
-The `src/content/` directory contains "collections" of related Markdown and MDX documents. Use `getCollection()` to retrieve posts from `src/content/blog/`, and type-check your frontmatter using an optional schema. See [Astro's Content Collections docs](https://docs.astro.build/en/guides/content-collections/) to learn more.
-
-Any static assets, like images, can be placed in the `public/` directory.
-
-## 🧞 Commands
-
-All commands are run from the root of the project, from a terminal:
-
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
-
-## 👀 Want to learn more?
-
-Check out [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
-
-## Credit
-
-This theme is based off of the lovely [Bear Blog](https://github.com/HermanMartinus/bearblog/).
+Para publicar un nuevo recurso en la web no hace falta tocar el código:
+1. Accede a tu [Panel de Control en Sanity](https://sanity.io).
+2. Crea un nuevo **Resource**.
+3. Completa los campos solicitados:
+   - **Title**: El nombre de la plantilla.
+   - **Slug**: La URL (toca "Generate" para que se llene solo).
+   - **Category**: Mainstage, Kontakt, Sintetizadores, etc.
+   - **Description**: Texto corto para la tarjeta.
+   - **Main Image**: La miniatura del post.
+   - **Content**: El cuerpo de texto detallado del recurso.
+   - **YouTube Video ID**: Por ejemplo, si el link es `youtube.com/watch?v=dQw4w9WgXcQ`, pon solo `dQw4w9WgXcQ`.
+   - **Download Link**: Tu link hacia Telegram o tu acortador.
+4. Toca **Publish**.
