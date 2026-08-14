@@ -82,13 +82,12 @@ const displayResources = latestResources.length > 0 ? latestResources : [
                 const styles = getCategoryStyles(resource.category);
                 return (
                 <a href={`/recursos/${resource.slug}`} class={`glass-panel overflow-hidden group block transition-all duration-300 border ${styles.borderClass}`}>
-                    <div class="h-48 bg-slate-800 w-full flex items-center justify-center overflow-hidden relative">
+                    <div class="h-48 bg-slate-800 w-full flex items-center justify-center overflow-hidden relative [mask-image:linear-gradient(to_bottom,black_60%,transparent_100%)]">
                         {resource.imageUrl ? (
                             <img src={resource.imageUrl} alt={resource.title} class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
                         ) : (
                             <span class="text-slate-500">Sin Imagen</span>
                         )}
-                        <div class="absolute inset-0 bg-gradient-to-t from-slate-900 to-transparent opacity-60"></div>
                     </div>
                     <div class="p-6">
                         <span class={`text-xs font-bold uppercase tracking-wider mb-2 block ${styles.textClass}`}>{resource.category}</span>

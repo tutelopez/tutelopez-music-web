@@ -55,7 +55,7 @@ const categories = ["Todos", ...uniqueCategories];
                 const styles = getCategoryStyles(resource.category);
                 return (
                 <a href={`/recursos/${resource.slug}`} data-category={resource.category} data-title={resource.title} data-description={resource.description} class={`resource-card glass-panel overflow-hidden group block transition-all duration-300 border ${styles.borderClass}`}>
-                    <div class="h-48 bg-slate-800 w-full flex items-center justify-center overflow-hidden">
+                    <div class="h-48 bg-slate-800 w-full flex items-center justify-center overflow-hidden relative [mask-image:linear-gradient(to_bottom,black_60%,transparent_100%)]">
                         {resource.imageUrl ? (
                             <img src={resource.imageUrl} alt={resource.title} class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                         ) : (
