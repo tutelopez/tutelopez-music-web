@@ -35,13 +35,28 @@ import HeaderLink from './HeaderLink.astro';
 
             <!-- Mobile menu button -->
             <div class="md:hidden flex items-center">
-                <button type="button" class="text-slate-300 hover:text-white focus:outline-none p-2" aria-controls="mobile-menu" aria-expanded="false">
+                <button id="mobile-menu-btn" type="button" class="text-slate-300 hover:text-white focus:outline-none p-2" aria-controls="mobile-menu" aria-expanded="false">
                     <span class="sr-only">Abrir menú principal</span>
                     <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
                     </svg>
                 </button>
             </div>
+        </div>
+    </div>
+
+    <!-- Mobile Menu -->
+    <div id="mobile-menu" class="hidden md:hidden glass-panel border-t-slate-200 dark:border-t-slate-800 absolute w-full left-0 top-full shadow-2xl rounded-t-none">
+        <div class="px-2 pt-2 pb-6 space-y-1 sm:px-3 flex flex-col">
+            <HeaderLink href="/" class="block px-3 py-2 rounded-md text-base font-medium text-slate-300 hover:text-white hover:bg-brand/20 transition-colors">Inicio</HeaderLink>
+            <HeaderLink href="/recursos" class="block px-3 py-2 rounded-md text-base font-medium text-slate-300 hover:text-white hover:bg-brand/20 transition-colors">Recursos</HeaderLink>
+            <HeaderLink href="/equipo" class="block px-3 py-2 rounded-md text-base font-medium text-slate-300 hover:text-white hover:bg-brand/20 transition-colors">Mi Equipo</HeaderLink>
+            <HeaderLink href="/contacto" class="block px-3 py-2 rounded-md text-base font-medium text-slate-300 hover:text-white hover:bg-brand/20 transition-colors">Contacto</HeaderLink>
+            
+            <a href="/apoyo" class="mt-4 mx-3 px-6 py-3 rounded-full bg-gradient-to-r from-yellow-500 to-orange-500 text-white text-base font-bold shadow-lg shadow-orange-500/30 text-center flex items-center justify-center gap-2">
+                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                Apoyar
+            </a>
         </div>
     </div>
 </header>
@@ -75,5 +90,15 @@ import HeaderLink from './HeaderLink.astro';
                 localStorage.setItem('theme', 'dark');
             }
         });
+
+        // Mobile Menu Toggle
+        const mobileBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+
+        if (mobileBtn && mobileMenu) {
+            mobileBtn.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
+            });
+        }
     });
 </script>
