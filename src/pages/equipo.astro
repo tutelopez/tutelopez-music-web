@@ -1,0 +1,80 @@
+---
+import MainLayout from '../layouts/MainLayout.astro';
+import { sanityClient } from 'sanity:client';
+
+// Fetch gear from Sanity
+const gear = await sanityClient.fetch(`*[_type == "gear"] | order(category asc, _createdAt desc) {
+  name,
+  category,
+  description,
+  affiliateLink,
+  "imageUrl": image.asset->url
+}`);
+
+// Fallback mock data if empty (so the page looks good before adding to Sanity)
+const displayGear = gear.length > 0 ? gear : [
+    { name: "Nord Stage 3 88", category: "teclados", description: "Mi teclado principal para pianos acústicos y eléctricos.", affiliateLink: "https://amazon.com", imageUrl: null },
+    { name: "Arturia KeyLab MkII", category: "teclados", description: "Controlador MIDI principal para controlar MainStage y sintetizadores.", affiliateLink: "https://amazon.com", imageUrl: null },
+    { name: "Focusrite Scarlett 4i4", category: "audio", description: "Interfaz de audio confiable para rutear todas mis secuencias y teclados.", affiliateLink: "https://amazon.com", imageUrl: null },
+    { name: "MacBook Pro M2 Max", category: "software", description: "El cerebro de todo. Corre MainStage, Logic Pro y Kontakt sin problemas.", affiliateLink: "https://amazon.com", imageUrl: null },
+];
+
+const categoriesMap: Record<string, string> = {
+    teclados: 'Teclados / Controladores',
+    audio: 'Audio / Interfaces',
+    software: 'Computadoras / Software',
+    accesorios: 'Accesorios'
+};
+---
+
+<MainLayout title="Mi Equipo - TuteLopez Music" description="Descubre el hardware y software que utilizo en mis producciones y presentaciones en vivo.">
+    <section class="py-12 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-16">
+            <h1 class="text-4xl md:text-5xl font-extrabold mb-6 text-white">Mi Equipamiento</h1>
+            <p class="text-xl text-slate-400 max-w-2xl mx-auto">
+                Aquí tienes la lista completa del hardware y software que utilizo día a día para crear sonidos, tutoriales y tocar en vivo.
+            </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {displayGear.map((item: any) => (
+                <div class="glass-panel overflow-hidden flex flex-col h-full">
+                    <div class="h-56 bg-slate-800 w-full flex items-center justify-center overflow-hidden p-6 relative">
+                        {item.imageUrl ? (
+                            <img src={item.imageUrl} alt={item.name} class="w-full h-full object-contain hover:scale-110 transition-transform duration-500" />
+                        ) : (
+                            <span class="text-slate-500">Sin Imagen</span>
+                        )}
+                        <div class="absolute top-4 left-4">
+                            <span class="px-3 py-1 bg-slate-900/80 text-brand text-xs font-bold rounded-full border border-slate-700 backdrop-blur-md">
+                                {categoriesMap[item.category] || item.category}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="p-6 flex flex-col flex-grow">
+                        <h3 class="text-2xl font-bold mb-3 text-white">{item.name}</h3>
+                        <p class="text-slate-400 text-sm mb-6 flex-grow">{item.description}</p>
+                        
+                        {item.affiliateLink ? (
+                            <a href={item.affiliateLink} target="_blank" rel="noopener noreferrer" class="w-full py-3 bg-brand/10 hover:bg-brand/20 border border-brand/30 text-brand font-bold rounded-xl transition-colors flex items-center justify-center gap-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <circle cx="9" cy="21" r="1"></circle>
+                                    <circle cx="20" cy="21" r="1"></circle>
+                                    <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                                </svg>
+                                Ver en Tienda
+                            </a>
+                        ) : null}
+                    </div>
+                </div>
+            ))}
+        </div>
+        
+        <div class="mt-16 p-8 glass-panel text-center border-dashed border-2 border-slate-700/50">
+            <h3 class="text-lg font-bold text-slate-300 mb-2">Transparencia</h3>
+            <p class="text-slate-400 text-sm">
+                Algunos de los enlaces en esta página son enlaces de afiliados. Esto significa que si haces clic y compras un artículo, TuteLopez Music recibe una pequeña comisión sin costo adicional para ti. ¡Gracias por tu apoyo!
+            </p>
+        </div>
+    </section>
+</MainLayout>

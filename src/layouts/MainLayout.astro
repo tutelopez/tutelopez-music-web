@@ -2,6 +2,7 @@
 import BaseHead from '../components/BaseHead.astro';
 import Footer from '../components/Footer.astro';
 import Header from '../components/Header.astro';
+import AntiAdblock from '../components/AntiAdblock.astro';
 
 interface Props {
 	title: string;
@@ -28,5 +29,6 @@ const { title, description } = Astro.props;
             <slot />
 		</main>
 		<Footer />
+        <AntiAdblock />
 	</body>
 </html>

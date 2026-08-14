@@ -1,0 +1,36 @@
+---
+// Newsletter.astro
+---
+
+<div class="glass-panel p-8 md:p-12 mb-16 text-center max-w-4xl mx-auto relative overflow-hidden border-2 border-brand/20">
+    <div class="absolute top-0 right-0 -mr-20 -mt-20 w-64 h-64 bg-brand/20 rounded-full blur-3xl"></div>
+    <div class="absolute bottom-0 left-0 -ml-20 -mb-20 w-64 h-64 bg-purple-500/20 rounded-full blur-3xl"></div>
+    
+    <div class="relative z-10">
+        <h2 class="text-3xl font-extrabold text-white mb-4">No te pierdas ningún lanzamiento</h2>
+        <p class="text-slate-400 mb-8 max-w-2xl mx-auto">
+            Únete a cientos de tecladistas y recibe notificaciones exclusivas en tu correo cada vez que publique una nueva librería, plantilla o tutorial gratuito. (Cero spam, prometido).
+        </p>
+        
+        <form method="POST" action="https://94b85e84.sibforms.com/serve/MUIFAG5b0-iwJ6xFYCOU0XsIueR5Rh5AgNwO7Um91-D-ZV077SXPLEhxgGXS94_qqTdz2329M120SCF8vyoPyoXrdXZSiyPX7ho1GBD0X6utqSt9hOVSJldLOH9vkz9o4GLKLRYnQhZYheVj1q9nrtxm8XEP2h8SmzTK1EeB-ZJ8OvUK9r0H0wKElARpV_DPJqMrD4ZN_gAKxsp6_A==" class="flex flex-col sm:flex-row gap-4 max-w-lg mx-auto" target="_blank">
+            <input 
+                type="email" 
+                name="EMAIL"
+                required 
+                placeholder="Ingresa tu mejor correo" 
+                class="flex-grow px-6 py-4 bg-slate-900/80 border border-slate-700 text-white rounded-full focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent transition-all placeholder-slate-500 shadow-inner"
+            />
+            <input type="text" name="email_address_check" value="" class="hidden">
+            <input type="hidden" name="locale" value="es">
+            <button 
+                type="submit" 
+                class="px-8 py-4 bg-brand hover:bg-brand-light text-white font-bold rounded-full transition-all shadow-lg shadow-brand/30 hover:scale-105 whitespace-nowrap"
+            >
+                ¡Suscribirme!
+            </button>
+        </form>
+        <p class="text-xs text-slate-500 mt-4">
+            Al suscribirte, aceptas recibir nuestros correos. Podrás darte de baja en cualquier momento.
+        </p>
+    </div>
+</div>

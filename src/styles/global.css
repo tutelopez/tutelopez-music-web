@@ -13,19 +13,21 @@
   --color-brand-dark: #2563eb;
 }
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 :root {
 	--font-atkinson: 'Atkinson', sans-serif;
 }
 
 body {
 	font-family: var(--font-atkinson);
-    @apply bg-slate-950 text-slate-300 antialiased selection:bg-brand/30;
+    @apply bg-slate-50 text-slate-800 dark:bg-slate-950 dark:text-slate-300 antialiased selection:bg-brand/30 transition-colors duration-300;
 }
 
 h1, h2, h3, h4, h5, h6 {
-    @apply text-white font-bold tracking-tight;
+    @apply text-slate-900 dark:text-white font-bold tracking-tight;
 }
 
 .glass-panel {
-    @apply bg-slate-900/50 backdrop-blur-md border border-slate-800 rounded-2xl shadow-xl;
+    @apply bg-white/70 dark:bg-slate-900/50 backdrop-blur-md border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xl transition-colors duration-300;
 }

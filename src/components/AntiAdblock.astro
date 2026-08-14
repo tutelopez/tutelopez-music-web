@@ -1,0 +1,81 @@
+---
+// AntiAdblock.astro
+---
+
+<div id="adblock-modal" class="fixed inset-0 z-[9999] bg-slate-950/90 backdrop-blur-xl hidden flex-col items-center justify-center p-4 transition-opacity duration-500">
+    <div class="glass-panel p-8 md:p-12 max-w-lg w-full text-center border-2 border-red-500/50 shadow-2xl shadow-red-500/20 relative overflow-hidden">
+        <div class="absolute top-0 right-0 w-32 h-32 bg-red-500/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
+        
+        <div class="w-20 h-20 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-6 text-red-500">
+            <svg class="w-10 h-10" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+            </svg>
+        </div>
+        
+        <h2 class="text-3xl font-bold text-white mb-4">Bloqueador Detectado</h2>
+        <p class="text-slate-300 mb-8 leading-relaxed">
+            Notamos que estás usando un AdBlocker. Todos los recursos en esta web son 100% gratuitos y de alta calidad. Para poder seguir manteniendo los servidores, dependemos de la publicidad.
+        </p>
+        
+        <div class="bg-slate-800/50 rounded-xl p-4 mb-8 text-sm text-slate-400 border border-slate-700">
+            Por favor, añade <strong class="text-white">tutelopezmusic.com</strong> a la lista blanca de tu bloqueador o páusalo temporalmente para acceder al contenido.
+        </div>
+        
+        <button onclick="window.location.reload()" class="w-full px-6 py-4 bg-brand hover:bg-brand-light text-white font-bold rounded-xl transition-all shadow-lg shadow-brand/30">
+            Ya lo desactivé, recargar página
+        </button>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // Method 1: Check for known ad scripts using a fetch request
+        // Using no-cors so we don't get cors issues, we just want to see if the network request is blocked
+        const checkAdblock = async () => {
+            try {
+                await fetch('https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js', {
+                    method: 'HEAD',
+                    mode: 'no-cors',
+                    cache: 'no-store'
+                });
+                // Request succeeded, probably no adblocker
+                checkCosmeticAdblock();
+            } catch (error) {
+                // Request failed (blocked by adblocker at network level)
+                showModal();
+            }
+        };
+
+        // Method 2: Check for cosmetic filtering (CSS hiding)
+        const checkCosmeticAdblock = () => {
+            const bait = document.createElement('div');
+            bait.className = 'ad-banner adsbygoogle ad-placement';
+            bait.style.height = '1px';
+            bait.style.width = '1px';
+            bait.style.position = 'absolute';
+            bait.style.left = '-999px';
+            document.body.appendChild(bait);
+            
+            setTimeout(() => {
+                const isBlocked = bait.offsetHeight === 0 || window.getComputedStyle(bait).display === 'none';
+                if (isBlocked) {
+                    showModal();
+                }
+                bait.remove();
+            }, 100);
+        };
+
+        const showModal = () => {
+            const modal = document.getElementById('adblock-modal');
+            if (modal) {
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+                // Disable scrolling
+                document.body.style.overflow = 'hidden';
+            }
+        };
+
+        // We delay the check slightly so it doesn't block initial page load performance
+        setTimeout(checkAdblock, 500);
+    });
+</script>
