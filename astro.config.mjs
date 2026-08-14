@@ -11,7 +11,7 @@ import sanity from '@sanity/astro';
 
 // https://astro.build/config
 export default defineConfig({
-  site: 'https://example.com',
+  site: 'https://tutelopezmusic.com',
   integrations: [
     mdx(), 
     sitemap(), 
