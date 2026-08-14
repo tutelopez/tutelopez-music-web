@@ -1,6 +1,7 @@
 ---
 import MainLayout from '../../layouts/MainLayout.astro';
 import { sanityClient } from 'sanity:client';
+import { getCategoryStyles } from '../../utils/neonStyles';
 
 // Fetch resources from Sanity
 const resources = await sanityClient.fetch(`*[_type == "resource"] | order(_createdAt desc) {
@@ -50,8 +51,10 @@ const categories = ["Todos", ...uniqueCategories];
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" id="resources-grid">
-            {displayResources.map((resource: any) => (
-                <a href={`/recursos/${resource.slug}`} data-category={resource.category} data-title={resource.title} data-description={resource.description} class="resource-card glass-panel overflow-hidden group block">
+            {displayResources.map((resource: any) => {
+                const styles = getCategoryStyles(resource.category);
+                return (
+                <a href={`/recursos/${resource.slug}`} data-category={resource.category} data-title={resource.title} data-description={resource.description} class={`resource-card glass-panel overflow-hidden group block transition-all duration-300 border ${styles.borderClass}`}>
                     <div class="h-48 bg-slate-800 w-full flex items-center justify-center overflow-hidden">
                         {resource.imageUrl ? (
                             <img src={resource.imageUrl} alt={resource.title} class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
@@ -60,12 +63,13 @@ const categories = ["Todos", ...uniqueCategories];
                         )}
                     </div>
                     <div class="p-6">
-                        <span class="text-xs font-bold text-brand uppercase tracking-wider mb-2 block">{resource.category}</span>
-                        <h3 class="text-xl font-bold mb-2 group-hover:text-brand transition-colors">{resource.title}</h3>
+                        <span class={`text-xs font-bold uppercase tracking-wider mb-2 block ${styles.textClass}`}>{resource.category}</span>
+                        <h3 class={`text-xl font-bold mb-2 transition-colors group-hover:${styles.textClass}`}>{resource.title}</h3>
                         <p class="text-slate-400 text-sm mb-4 line-clamp-2">{resource.description}</p>
                     </div>
                 </a>
-            ))}
+                );
+            })}
         </div>
     </section>
 </MainLayout>

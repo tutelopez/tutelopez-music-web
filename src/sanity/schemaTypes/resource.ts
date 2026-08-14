@@ -29,6 +29,7 @@ export default {
           { title: 'Kontakt', value: 'kontakt' },
           { title: 'Sintetizadores', value: 'sintetizadores' },
           { title: 'Tutoriales', value: 'tutoriales' },
+          { title: 'Software', value: 'software' },
         ],
       },
       validation: (Rule: any) => Rule.required(),
