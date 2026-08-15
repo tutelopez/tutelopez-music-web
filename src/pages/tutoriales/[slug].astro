@@ -1,0 +1,87 @@
+---
+import BaseHead from '../../components/BaseHead.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import FormattedDate from '../../components/FormattedDate.astro';
+import { sanityClient } from 'sanity:client';
+import { PortableText } from 'astro-portabletext';
+
+export async function getStaticPaths() {
+  const tutorials = await sanityClient.fetch(`*[_type == "tutorial"]{ slug }`);
+  
+  return tutorials.map((tutorial) => {
+    return {
+      params: { slug: tutorial.slug.current },
+    };
+  });
+}
+
+const { slug } = Astro.params;
+
+const tutorial = await sanityClient.fetch(`*[_type == "tutorial" && slug.current == $slug][0]{
+  title,
+  publishedAt,
+  body,
+  excerpt,
+  "imageUrl": mainImage.asset->url
+}`, { slug });
+
+if (!tutorial) {
+  return Astro.redirect('/404');
+}
+---
+
+<html lang="en">
+	<head>
+		<BaseHead title={tutorial.title} description={tutorial.excerpt} />
+		<style>
+			.hero-image {
+				width: 100%;
+				margin-top: 2rem;
+			}
+			.hero-image img {
+				display: block;
+				margin: 0 auto;
+				border-radius: 12px;
+				box-shadow: 0 10px 25px -5px rgba(249, 115, 22, 0.2);
+			}
+			.title {
+				margin-bottom: 1em;
+				padding: 1em 0;
+				text-align: center;
+				line-height: 1;
+			}
+			.title h1 {
+				margin: 0 0 0.5em 0;
+			}
+			.date {
+				margin-bottom: 0.5em;
+				color: rgb(var(--gray));
+			}
+		</style>
+	</head>
+
+	<body>
+		<Header />
+		<main class="w-full max-w-[100%] m-0 pt-16">
+			<article>
+				<div class="hero-image px-4 max-w-5xl mx-auto">
+					{tutorial.imageUrl && <img width={1020} height={510} src={tutorial.imageUrl} alt={tutorial.title} class="w-full object-cover" />}
+				</div>
+				<div class="prose dark:prose-invert prose-strong:text-orange-500 prose-a:text-brand dark:prose-a:text-orange-500 hover:prose-a:text-brand-light prose-a:no-underline hover:prose-a:underline mx-auto max-w-3xl mt-12 px-4">
+					<div class="title">
+						<div class="date">
+							<FormattedDate date={new Date(tutorial.publishedAt)} />
+						</div>
+						<h1>{tutorial.title}</h1>
+						<hr />
+					</div>
+                    
+                    <PortableText value={tutorial.body} />
+                    
+				</div>
+			</article>
+		</main>
+		<Footer />
+	</body>
+</html>
