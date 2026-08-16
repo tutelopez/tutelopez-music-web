@@ -57,7 +57,13 @@ export default {
     },
     {
       name: 'downloadLink',
-      title: 'Enlace de Descarga (Telegram o Acortador)',
+      title: 'Enlace de Descarga (Telegram o principal)',
+      type: 'url',
+    },
+    {
+      name: 'teraboxLink',
+      title: 'Enlace de Descarga (Terabox)',
+      description: 'Opción alternativa de descarga',
       type: 'url',
     },
     {

@@ -24,7 +24,7 @@ export async function getStaticPaths() {
 const { slug } = Astro.params;
 
 const query = `*[_type == "resource" && slug.current == $slug][0]{
-  title, category, description, youtubeVideoId, downloadLink, content,
+  title, category, description, youtubeVideoId, downloadLink, teraboxLink, content,
   "imageUrl": mainImage.asset->url
 }`;
 const resource = await sanityClient.fetch(query, { slug }) || {
@@ -113,14 +113,27 @@ const relatedResources = await sanityClient.fetch(relatedQuery, { slug }) || [];
                 </script>
             </div>
 
-            <div class="flex justify-center w-full relative z-10">
-                <a href={resource.downloadLink} target="_blank" class="flex items-center gap-3 px-8 py-4 bg-brand text-white font-bold text-lg rounded-full hover:bg-brand-light transition-transform hover:scale-105 shadow-lg shadow-brand/30">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6 shrink-0 block">
-                        <line x1="22" y1="2" x2="11" y2="13"></line>
-                        <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-                    </svg>
-                    <span>Descargar en Telegram</span>
-                </a>
+            <div class="flex flex-col items-center gap-4 w-full relative z-10">
+                {resource.teraboxLink && (
+                    <a href={resource.teraboxLink} target="_blank" class="flex items-center justify-center gap-3 w-full sm:w-auto px-8 py-4 bg-orange-500 text-white font-bold text-lg rounded-full hover:bg-orange-400 transition-transform hover:scale-105 shadow-lg shadow-orange-500/30">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6 shrink-0 block">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="7 10 12 15 17 10"></polyline>
+                            <line x1="12" y1="15" x2="12" y2="3"></line>
+                        </svg>
+                        <span>Descargar en Terabox</span>
+                    </a>
+                )}
+                
+                {resource.downloadLink && (
+                    <a href={resource.downloadLink} target="_blank" class="flex items-center justify-center gap-3 w-full sm:w-auto px-8 py-4 bg-brand text-white font-bold text-lg rounded-full hover:bg-brand-light transition-transform hover:scale-105 shadow-lg shadow-brand/30">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6 shrink-0 block">
+                            <line x1="22" y1="2" x2="11" y2="13"></line>
+                            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                        </svg>
+                        <span>Descargar en Telegram</span>
+                    </a>
+                )}
             </div>
             <p class="text-xs text-slate-500 mt-4">El enlace pasará por un acortador (ej. ShrinkMe.io) para apoyar al canal.</p>
         </div>
