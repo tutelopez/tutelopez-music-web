@@ -26,23 +26,43 @@ const displayResources = resources.length > 0 ? resources : [
 // Get unique categories for the filter buttons
 const uniqueCategories = [...new Set(displayResources.map((r: any) => r.category))].filter(Boolean);
 const categories = ["Todos", ...uniqueCategories];
+
+// Get unique tags for the tag select
+const uniqueTags = [...new Set(displayResources.flatMap((r: any) => r.tags || []))].filter(Boolean);
+const tags = ["Todas", ...uniqueTags];
 ---
 
 <MainLayout title="Recursos - TuteLopez Music" description="Explora todas nuestras librerías y plantillas.">
     <section class="py-12">
         <h1 class="text-4xl md:text-5xl font-bold mb-8 text-white">Todos los Recursos</h1>
         
-        <!-- Buscador -->
-        <div class="mb-8 relative max-w-xl">
-            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                <svg class="h-5 w-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
+        <div class="flex flex-col md:flex-row gap-4 mb-8 max-w-3xl">
+            <!-- Buscador -->
+            <div class="relative flex-grow">
+                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                    <svg class="h-5 w-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                </div>
+                <input type="text" id="search-input" placeholder="Buscar librerías, plantillas..." class="w-full pl-11 pr-4 py-3 bg-slate-900/50 border border-slate-700 text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent transition-all placeholder-slate-500 shadow-inner">
             </div>
-            <input type="text" id="search-input" placeholder="Buscar librerías, plantillas..." class="w-full pl-11 pr-4 py-3 bg-slate-900/50 border border-slate-700 text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent transition-all placeholder-slate-500 shadow-inner">
+            
+            <!-- Etiqueta Filter -->
+            <div class="relative w-full md:w-64 shrink-0">
+                <select id="tag-filter" class="w-full pl-4 pr-10 py-3 bg-slate-900/50 border border-slate-700 text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent transition-all shadow-inner appearance-none cursor-pointer">
+                    {tags.map((tag) => (
+                        <option value={tag === "Todas" ? "all" : tag}>{tag === "Todas" ? "Todas las Etiquetas" : `#${tag}`}</option>
+                    ))}
+                </select>
+                <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
+                    <svg class="h-5 w-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                    </svg>
+                </div>
+            </div>
         </div>
         
-        <!-- Filtros Dinámicos -->
+        <!-- Filtros Dinámicos de Categoría -->
         <div class="flex gap-4 mb-10 overflow-x-auto pb-4 hide-scroll" id="filter-container">
             {categories.map((cat, index) => (
                 <button 
@@ -58,7 +78,7 @@ const categories = ["Todos", ...uniqueCategories];
             {displayResources.map((resource: any) => {
                 const styles = getCategoryStyles(resource.category);
                 return (
-                <a href={`/recursos/${resource.slug}`} data-category={resource.category} data-title={resource.title} data-description={resource.description} class={`resource-card glass-panel overflow-hidden group block transition-all duration-300 border ${styles.borderClass}`}>
+                <a href={`/recursos/${resource.slug}`} data-category={resource.category} data-title={resource.title} data-description={resource.description} data-tags={(resource.tags || []).join(',')} class={`resource-card glass-panel overflow-hidden group block transition-all duration-300 border ${styles.borderClass}`}>
                     <div class="h-48 bg-slate-800 w-full flex items-center justify-center overflow-hidden relative [mask-image:linear-gradient(to_bottom,black_60%,transparent_100%)]">
                         {resource.imageUrl ? (
                             <img src={resource.imageUrl} alt={resource.title} class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
@@ -84,6 +104,11 @@ const categories = ["Todos", ...uniqueCategories];
                 );
             })}
         </div>
+
+        <!-- Paginación -->
+        <div id="pagination-container" class="flex flex-wrap justify-center items-center gap-2 mt-12">
+            <!-- Buttons injected by JS -->
+        </div>
     </section>
 </MainLayout>
 
@@ -100,36 +125,112 @@ const categories = ["Todos", ...uniqueCategories];
 <script>
     document.addEventListener('DOMContentLoaded', () => {
         const buttons = document.querySelectorAll('.filter-btn');
-        const cards = document.querySelectorAll('.resource-card');
+        const cards = Array.from(document.querySelectorAll('.resource-card'));
         const searchInput = document.getElementById('search-input') as HTMLInputElement;
+        const tagFilter = document.getElementById('tag-filter') as HTMLSelectElement;
+        const paginationContainer = document.getElementById('pagination-container');
 
         let currentFilter = 'all';
+        let currentTag = 'all';
         let currentSearchQuery = '';
+        let currentPage = 1;
+        const itemsPerPage = 9;
+
+        function updatePaginationUI(totalPages) {
+            if (!paginationContainer) return;
+            paginationContainer.innerHTML = '';
+            
+            if (totalPages <= 1) return;
+
+            // Prev Button
+            const prevBtn = document.createElement('button');
+            prevBtn.innerText = 'Anterior';
+            prevBtn.className = `px-4 py-2 rounded-lg font-bold transition-all text-sm ${currentPage === 1 ? 'bg-slate-800/50 text-slate-600 cursor-not-allowed border border-slate-800' : 'bg-slate-800 text-slate-300 hover:bg-brand hover:text-white border border-slate-700'}`;
+            prevBtn.disabled = currentPage === 1;
+            prevBtn.addEventListener('click', () => {
+                if (currentPage > 1) {
+                    currentPage--;
+                    filterResources();
+                    window.scrollTo({ top: document.getElementById('resources-grid')?.offsetTop || 0 - 100, behavior: 'smooth' });
+                }
+            });
+            paginationContainer.appendChild(prevBtn);
+
+            // Page numbers
+            for (let i = 1; i <= totalPages; i++) {
+                const pageBtn = document.createElement('button');
+                pageBtn.innerText = i.toString();
+                pageBtn.className = `w-10 h-10 flex items-center justify-center rounded-lg font-bold transition-all ${currentPage === i ? 'bg-brand text-white shadow-lg shadow-brand/30 border border-brand' : 'bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700'}`;
+                pageBtn.addEventListener('click', () => {
+                    currentPage = i;
+                    filterResources();
+                    window.scrollTo({ top: document.getElementById('resources-grid')?.offsetTop || 0 - 100, behavior: 'smooth' });
+                });
+                paginationContainer.appendChild(pageBtn);
+            }
+
+            // Next Button
+            const nextBtn = document.createElement('button');
+            nextBtn.innerText = 'Siguiente';
+            nextBtn.className = `px-4 py-2 rounded-lg font-bold transition-all text-sm ${currentPage === totalPages ? 'bg-slate-800/50 text-slate-600 cursor-not-allowed border border-slate-800' : 'bg-slate-800 text-slate-300 hover:bg-brand hover:text-white border border-slate-700'}`;
+            nextBtn.disabled = currentPage === totalPages;
+            nextBtn.addEventListener('click', () => {
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    filterResources();
+                    window.scrollTo({ top: document.getElementById('resources-grid')?.offsetTop || 0 - 100, behavior: 'smooth' });
+                }
+            });
+            paginationContainer.appendChild(nextBtn);
+        }
 
         function filterResources() {
-            cards.forEach(c => {
+            // First step: Filter the whole list based on Search, Category, and Tag
+            const filteredCards = cards.filter(c => {
                 const card = c as HTMLElement;
                 const category = card.getAttribute('data-category');
                 const title = card.getAttribute('data-title')?.toLowerCase() || '';
                 const description = card.getAttribute('data-description')?.toLowerCase() || '';
+                const tagsStr = card.getAttribute('data-tags') || '';
+                const tagsArr = tagsStr ? tagsStr.split(',') : [];
                 
                 const matchesCategory = currentFilter === 'all' || category === currentFilter;
+                const matchesTag = currentTag === 'all' || tagsArr.includes(currentTag);
                 const matchesSearch = currentSearchQuery === '' || title.includes(currentSearchQuery) || description.includes(currentSearchQuery);
 
-                if (matchesCategory && matchesSearch) {
-                    card.style.display = 'block';
-                } else {
-                    card.style.display = 'none';
-                }
+                return matchesCategory && matchesSearch && matchesTag;
             });
+
+            // Handle Edge Cases for Pagination
+            const totalPages = Math.ceil(filteredCards.length / itemsPerPage);
+            if (currentPage > totalPages && totalPages > 0) {
+                currentPage = totalPages;
+            } else if (totalPages === 0) {
+                currentPage = 1;
+            }
+
+            // Second step: Apply Pagination limits
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            
+            cards.forEach(c => {
+                (c as HTMLElement).style.display = 'none';
+            });
+
+            filteredCards.slice(startIndex, endIndex).forEach(c => {
+                (c as HTMLElement).style.display = 'block';
+            });
+
+            // Update UI
+            updatePaginationUI(totalPages);
         }
 
         // Category Filter
         buttons.forEach(button => {
             button.addEventListener('click', () => {
                 currentFilter = button.getAttribute('data-filter') || 'all';
+                currentPage = 1; // Reset page on filter
 
-                // Update active button styles
                 buttons.forEach(btn => {
                     btn.classList.remove('bg-brand', 'text-white', 'font-bold');
                     btn.classList.add('glass-panel', 'text-slate-300');
@@ -145,8 +246,21 @@ const categories = ["Todos", ...uniqueCategories];
         if(searchInput) {
             searchInput.addEventListener('input', (e) => {
                 currentSearchQuery = (e.target as HTMLInputElement).value.toLowerCase().trim();
+                currentPage = 1; // Reset page on filter
                 filterResources();
             });
         }
+
+        // Tag Filter
+        if(tagFilter) {
+            tagFilter.addEventListener('change', (e) => {
+                currentTag = (e.target as HTMLSelectElement).value;
+                currentPage = 1; // Reset page on filter
+                filterResources();
+            });
+        }
+
+        // Initial render
+        filterResources();
     });
 </script>
