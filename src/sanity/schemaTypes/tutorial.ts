@@ -44,6 +44,15 @@ export const tutorial = defineType({
       validation: (rule) => rule.required().max(200),
     }),
     defineField({
+      name: 'tags',
+      title: 'Etiquetas',
+      type: 'array',
+      of: [{ type: 'string' }],
+      options: {
+        layout: 'tags',
+      },
+    }),
+    defineField({
       name: 'body',
       title: 'Contenido',
       type: 'array',

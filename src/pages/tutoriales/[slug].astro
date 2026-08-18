@@ -23,6 +23,7 @@ const tutorial = await sanityClient.fetch(`*[_type == "tutorial" && slug.current
   publishedAt,
   body,
   excerpt,
+  tags,
   "imageUrl": mainImage.asset->url
 }`, { slug });
 
@@ -74,6 +75,15 @@ if (!tutorial) {
 							<FormattedDate date={new Date(tutorial.publishedAt)} />
 						</div>
 						<h1>{tutorial.title}</h1>
+                        {tutorial.tags && tutorial.tags.length > 0 && (
+                            <div class="flex flex-wrap justify-center gap-2 mt-4 mb-6">
+                                {tutorial.tags.map((tag: string) => (
+                                    <span class="px-3 py-1 bg-brand/10 text-brand dark:bg-brand/20 text-sm font-semibold rounded-full">
+                                        #{tag}
+                                    </span>
+                                ))}
+                            </div>
+                        )}
 						<hr />
 					</div>
                     

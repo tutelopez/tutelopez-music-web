@@ -44,6 +44,15 @@ export default {
       validation: (Rule: any) => Rule.required(),
     },
     {
+      name: 'tags',
+      title: 'Etiquetas',
+      type: 'array',
+      of: [{ type: 'string' }],
+      options: {
+        layout: 'tags',
+      },
+    },
+    {
       name: 'mainImage',
       title: 'Imagen de Portada',
       type: 'image',

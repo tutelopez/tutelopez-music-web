@@ -24,7 +24,7 @@ export async function getStaticPaths() {
 const { slug } = Astro.params;
 
 const query = `*[_type == "resource" && slug.current == $slug][0]{
-  title, category, description, youtubeVideoId, downloadLink, teraboxLink, content,
+  title, category, description, youtubeVideoId, downloadLink, teraboxLink, content, tags,
   "imageUrl": mainImage.asset->url
 }`;
 const resource = await sanityClient.fetch(query, { slug }) || {
@@ -56,7 +56,16 @@ const relatedResources = await sanityClient.fetch(relatedQuery, { slug }) || [];
         <!-- Header -->
         <header class="mb-12 text-center">
             <h1 class="text-4xl md:text-5xl font-extrabold mb-6 text-white">{resource.title}</h1>
-            <p class="text-xl text-slate-300 max-w-2xl mx-auto">{resource.description}</p>
+            <p class="text-xl text-slate-300 max-w-2xl mx-auto mb-6">{resource.description}</p>
+            {resource.tags && resource.tags.length > 0 && (
+                <div class="flex flex-wrap justify-center gap-2">
+                    {resource.tags.map((tag: string) => (
+                        <span class="px-3 py-1 bg-slate-800/80 text-brand text-sm font-semibold rounded-full border border-slate-700/50">
+                            #{tag}
+                        </span>
+                    ))}
+                </div>
+            )}
         </header>
 
         <!-- Espacio para Anuncio (AdSense) Top -->
