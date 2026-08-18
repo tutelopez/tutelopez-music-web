@@ -20,6 +20,18 @@ export const getCategoryStyles = (category: string | undefined) => {
             borderClass: '!border-emerald-500/80 !shadow-[0_0_20px_rgba(16,185,129,0.5)] hover:!border-emerald-400 hover:!shadow-[0_0_35px_rgba(16,185,129,0.9)]',
             textClass: 'text-emerald-500 drop-shadow-[0_0_8px_rgba(16,185,129,0.8)]'
         },
+        appsmoviles: {
+            borderClass: '!border-cyan-500/80 !shadow-[0_0_20px_rgba(6,182,212,0.5)] hover:!border-cyan-400 hover:!shadow-[0_0_35px_rgba(6,182,212,0.9)]',
+            textClass: 'text-cyan-500 drop-shadow-[0_0_8px_rgba(6,182,212,0.8)]'
+        },
+        sf2: {
+            borderClass: '!border-yellow-500/80 !shadow-[0_0_20px_rgba(234,179,8,0.5)] hover:!border-yellow-400 hover:!shadow-[0_0_35px_rgba(234,179,8,0.9)]',
+            textClass: 'text-yellow-500 drop-shadow-[0_0_8px_rgba(234,179,8,0.8)]'
+        },
+        samplesmoviles: {
+            borderClass: '!border-rose-500/80 !shadow-[0_0_20px_rgba(244,63,94,0.5)] hover:!border-rose-400 hover:!shadow-[0_0_35px_rgba(244,63,94,0.9)]',
+            textClass: 'text-rose-500 drop-shadow-[0_0_8px_rgba(244,63,94,0.8)]'
+        },
     };
     
     // Default fallback (Brand color: Violet)

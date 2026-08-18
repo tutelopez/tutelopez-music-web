@@ -16,7 +16,10 @@ const resources = await sanityClient.fetch(`*[_type == "resource"] | order(_crea
 const displayResources = resources.length > 0 ? resources : [
     { title: "Plantilla Worship Essentials", slug: "ejemplo-worship-essentials", category: "mainstage", description: "La mejor plantilla para iniciar en tu iglesia con sonidos ambientales y pianos de cola.", imageUrl: null },
     { title: "Nord Stage 3 Pianos", slug: "ejemplo-nord-stage", category: "kontakt", description: "Librería optimizada para Kontakt con los mejores pianos del Nord Stage.", imageUrl: null },
-    { title: "Pad Ambiental Multicapa", slug: "ejemplo-pad-ambiental", category: "sintetizadores", description: "Un pad denso y atmosférico perfecto para momentos de ministración.", imageUrl: null }
+    { title: "Pad Ambiental Multicapa", slug: "ejemplo-pad-ambiental", category: "sintetizadores", description: "Un pad denso y atmosférico perfecto para momentos de ministración.", imageUrl: null },
+    { title: "AudioEvolution Mobile Studio", slug: "ejemplo-audioevolution", category: "appsmoviles", description: "El mejor DAW para grabar y secuenciar en dispositivos Android e iOS.", imageUrl: null },
+    { title: "Pianos Worship Livianos", slug: "ejemplo-piano-sf2", category: "sf2", description: "Librería en formato SF2 optimizada para cargar rápido en celulares.", imageUrl: null },
+    { title: "Padlab Worship Pack", slug: "ejemplo-padlab", category: "samplesmoviles", description: "Pads ambientales listos para usar en la aplicación Padlab.", imageUrl: null }
 ];
 
 // Get unique categories for the filter buttons
