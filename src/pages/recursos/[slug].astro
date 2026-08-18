@@ -68,16 +68,18 @@ const relatedResources = await sanityClient.fetch(relatedQuery, { slug }) || [];
             )}
         </header>
 
-        <!-- Espacio para Anuncio (AdSense) Top -->
+        <!-- Espacio para Anuncio Adsterra Top 728x90 -->
         <div class="w-full mb-12 flex justify-center overflow-hidden min-h-[90px]">
-            <ins class="adsbygoogle"
-                 style="display:block; width:100%; text-align:center;"
-                 data-ad-layout="in-article"
-                 data-ad-format="fluid"
-                 data-ad-client="ca-pub-6342014010339988"></ins>
-            <script>
-                 (adsbygoogle = window.adsbygoogle || []).push({});
+            <script is:inline>
+              atOptions = {
+                'key' : '3f1b1c949f78641c3024f8677898e3fe',
+                'format' : 'iframe',
+                'height' : 90,
+                'width' : 728,
+                'params' : {}
+              };
             </script>
+            <script is:inline src="https://www.highperformanceformat.com/3f1b1c949f78641c3024f8677898e3fe/invoke.js"></script>
         </div>
 
         <!-- Video de YouTube -->
@@ -110,16 +112,18 @@ const relatedResources = await sanityClient.fetch(relatedQuery, { slug }) || [];
                 Este archivo está alojado en nuestro canal de Telegram oficial para garantizar una descarga rápida y segura, libre de límites de velocidad.
             </p>
 
-            <!-- Espacio para Anuncio (AdSense) cerca del botón -->
-            <div class="w-full mt-10 flex justify-center overflow-hidden min-h-[90px]">
-                <ins class="adsbygoogle"
-                     style="display:block; width:100%; text-align:center;"
-                     data-ad-layout="in-article"
-                     data-ad-format="fluid"
-                     data-ad-client="ca-pub-6342014010339988"></ins>
-                <script>
-                     (adsbygoogle = window.adsbygoogle || []).push({});
+            <!-- Espacio para Anuncio Adsterra 300x250 cerca del botón -->
+            <div class="w-full mt-10 mb-8 flex justify-center overflow-hidden min-h-[250px]">
+                <script is:inline>
+                  atOptions = {
+                    'key' : '199b89076e1e9093fdb283a2a357e0af',
+                    'format' : 'iframe',
+                    'height' : 250,
+                    'width' : 300,
+                    'params' : {}
+                  };
                 </script>
+                <script is:inline src="https://www.highperformanceformat.com/199b89076e1e9093fdb283a2a357e0af/invoke.js"></script>
             </div>
 
             <div class="flex flex-col items-center gap-4 w-full relative z-10">
@@ -145,6 +149,12 @@ const relatedResources = await sanityClient.fetch(relatedQuery, { slug }) || [];
                 )}
             </div>
             <p class="text-xs text-slate-500 mt-4">El enlace pasará por un acortador (ej. ShrinkMe.io) para apoyar al canal.</p>
+        </div>
+
+        <!-- Adsterra Native Banner -->
+        <div class="w-full max-w-4xl mx-auto my-12">
+            <script is:inline async="async" data-cfasync="false" src="https://pl30912743.effectivecpmnetwork.com/08d06f7f3ae9c643d3e67ac54e310384/invoke.js"></script>
+            <div id="container-08d06f7f3ae9c643d3e67ac54e310384"></div>
         </div>
 
         <!-- Recursos Recomendados -->
