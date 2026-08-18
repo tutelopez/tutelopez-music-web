@@ -34,5 +34,19 @@ const { title, description } = Astro.props;
 		</main>
 		<Footer />
         <AntiAdblock />
+
+        <!-- Floating Telegram Button -->
+        <a 
+            href="https://t.me/tutelopezmusic" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            class="fixed bottom-6 right-6 z-50 flex items-center justify-center w-14 h-14 bg-[#0088cc] text-white rounded-full shadow-lg shadow-[#0088cc]/40 hover:scale-110 hover:bg-[#0077b5] transition-all duration-300"
+            aria-label="Únete a nuestro canal de Telegram"
+        >
+            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="22" y1="2" x2="11" y2="13"></line>
+                <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+            </svg>
+        </a>
 	</body>
 </html>
