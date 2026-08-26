@@ -11,7 +11,9 @@ const writeClient = process.env.SANITY_EDITOR_TOKEN ? createClient({
   token: process.env.SANITY_EDITOR_TOKEN
 }) : null;
 
-export async function translateText(text: string, targetLang = 'EN-US'): Promise<string> {
+const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
+
+export async function translateText(text: string, targetLang = 'EN-US', retries = 5): Promise<string> {
   if (!text || typeof text !== 'string') return text;
   
   if (!apiKey) {
@@ -19,34 +21,49 @@ export async function translateText(text: string, targetLang = 'EN-US'): Promise
     return text;
   }
 
-  try {
-    const url = apiKey.endsWith(':fx') 
-      ? 'https://api-free.deepl.com/v2/translate' 
-      : 'https://api.deepl.com/v2/translate';
-      
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: {
-        'Authorization': `DeepL-Auth-Key ${apiKey}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        text: [text],
-        target_lang: targetLang,
-        preserve_formatting: true
-      })
-    });
+  const url = apiKey.endsWith(':fx') 
+    ? 'https://api-free.deepl.com/v2/translate' 
+    : 'https://api.deepl.com/v2/translate';
+    
+  for (let i = 0; i < retries; i++) {
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Authorization': `DeepL-Auth-Key ${apiKey}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          text: [text],
+          target_lang: targetLang,
+          preserve_formatting: true
+        })
+      });
 
-    if (!response.ok) {
-      throw new Error(`DeepL API error: ${response.status} ${response.statusText}`);
+      if (response.status === 429 || response.status === 42901) {
+        const waitTime = Math.pow(2, i) * 1000 + Math.random() * 1000;
+        console.warn(`[DeepL] 429 Too Many Requests. Reintentando en ${Math.round(waitTime)}ms... (Intento ${i+1}/${retries})`);
+        await delay(waitTime);
+        continue;
+      }
+
+      if (!response.ok) {
+        throw new Error(`DeepL API error: ${response.status} ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      return data.translations[0].text;
+    } catch (error) {
+      if (i === retries - 1) {
+        console.error("Error definitivo en translateText tras reintentos:", error);
+        throw error; // Lanzar el error para NO guardar español en Sanity
+      }
+      const waitTime = Math.pow(2, i) * 1000 + Math.random() * 1000;
+      await delay(waitTime);
     }
-
-    const data = await response.json();
-    return data.translations[0].text;
-  } catch (error) {
-    console.error("Error en translateText:", error);
-    return text;
   }
+  
+  throw new Error("Fallo de traducción tras agotarse los reintentos.");
 }
 
 // Traducción robusta de PortableText iterando los bloques
