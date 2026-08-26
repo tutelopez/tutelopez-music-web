@@ -94,8 +94,11 @@ export async function translateDocument(doc: any, type: 'resource' | 'tutorial')
   let needsPatch = false;
   const mutations: any = {};
   
+  // FORCE RETRANSLATE PARA ARREGLAR CACHE CORRUPTO EN SANITY
+  const forceRetranslate = true;
+
   // 1. Título
-  if (doc.titleEN) {
+  if (doc.titleEN && !forceRetranslate) {
     doc.title = doc.titleEN;
   } else {
     doc.title = await translateText(doc.title, 'EN-US');
@@ -107,7 +110,7 @@ export async function translateDocument(doc: any, type: 'resource' | 'tutorial')
   const descField = type === 'resource' ? 'description' : 'excerpt';
   const descFieldEN = descField + 'EN';
   
-  if (doc[descFieldEN]) {
+  if (doc[descFieldEN] && !forceRetranslate) {
     doc[descField] = doc[descFieldEN];
   } else if (doc[descField]) {
     doc[descField] = await translateText(doc[descField], 'EN-US');
@@ -119,7 +122,7 @@ export async function translateDocument(doc: any, type: 'resource' | 'tutorial')
   const contentField = type === 'resource' ? 'content' : 'body';
   const contentFieldEN = contentField + 'EN';
   
-  if (doc[contentFieldEN]) {
+  if (doc[contentFieldEN] && !forceRetranslate) {
     doc[contentField] = doc[contentFieldEN];
   } else if (doc[contentField]) {
     doc[contentField] = await translatePortableText(doc[contentField]);
