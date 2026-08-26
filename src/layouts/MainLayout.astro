@@ -10,10 +10,12 @@ interface Props {
 }
 
 const { title, description } = Astro.props;
+const isEnglish = Astro.url.pathname.startsWith('/en');
+const currentLang = isEnglish ? 'en' : 'es';
 ---
 
 <!doctype html>
-<html lang="es">
+<html lang={currentLang}>
 	<head>
 		<BaseHead title={title} description={description} />
 	</head>

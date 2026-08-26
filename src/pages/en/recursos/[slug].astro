@@ -2,9 +2,10 @@
 import MainLayout from '../../../layouts/MainLayout.astro';
 import { sanityClient } from 'sanity:client';
 import { PortableText } from '@portabletext/react';
-import { SITE_DESCRIPTION } from '../../../consts';
+import { SITE_DESCRIPTION_EN } from '../../../consts';
+import { Image } from 'astro:assets';
 
-import { translateText } from '../../../utils/translate';
+import { translateDocument } from '../../../utils/translate';
 
 export async function getStaticPaths() {
   const resources = await sanityClient.fetch(`*[_type == "resource"]{ "slug": slug.current }`);
@@ -27,10 +28,11 @@ export async function getStaticPaths() {
 const { slug } = Astro.params;
 
 const query = `*[_type == "resource" && slug.current == $slug][0]{
-  title, category, description, youtubeVideoId, downloadLink, teraboxLink, content, tags,
+  _id, title, category, description, youtubeVideoId, downloadLink, teraboxLink, content, tags,
+  titleEN, descriptionEN, contentEN,
   "imageUrl": mainImage.asset->url
 }`;
-const resource = await sanityClient.fetch(query, { slug }) || {
+let resource = await sanityClient.fetch(query, { slug }) || {
     title: "Plantilla Worship Essentials",
     category: "mainstage",
     description: "La mejor plantilla para iniciar en tu iglesia con sonidos ambientales y pianos de cola.",
@@ -39,37 +41,38 @@ const resource = await sanityClient.fetch(query, { slug }) || {
     imageUrl: null
 };
 
-// Traducir campos clave
-resource.title = await translateText(resource.title, 'EN-US');
-resource.description = await translateText(resource.description, 'EN-US');
-if (resource.content) {
-    resource.content = await translateText(resource.content, 'EN-US');
-}
+// Traducir documento completo (con caché en Sanity)
+resource = await translateDocument(resource, 'resource');
 
 // Fetch related resources (excluding the current one)
 const relatedQuery = `*[_type == "resource" && slug.current != $slug] | order(_createdAt desc)[0...3]{
-  title, category, "slug": slug.current,
+  _id, title, category, "slug": slug.current, titleEN,
   "imageUrl": mainImage.asset->url
 }`;
 let relatedResources = await sanityClient.fetch(relatedQuery, { slug }) || [];
 
 // Traducir relacionados
 for (let i = 0; i < relatedResources.length; i++) {
-    relatedResources[i].title = await translateText(relatedResources[i].title, 'EN-US');
+    relatedResources[i] = await translateDocument(relatedResources[i], 'resource');
 }
 ---
 
-<MainLayout title={`${resource.title} - TuteLopez Music`} description={resource.description || SITE_DESCRIPTION}>
+<MainLayout title={`${resource.title} - TuteLopez Music`} description={resource.description || SITE_DESCRIPTION_EN}>
     <article class="max-w-4xl mx-auto py-12">
         <!-- Breadcrumb -->
         <nav class="mb-8 text-sm text-slate-400">
-            <a href="/recursos" class="hover:text-brand transition-colors">Recursos</a>
+            <a href="/en/recursos" class="hover:text-brand transition-colors">Recursos</a>
             <span class="mx-2">&gt;</span>
             <span class="uppercase text-brand">{resource.category}</span>
         </nav>
 
         <!-- Header -->
         <header class="mb-12 text-center">
+            <div class="mb-4 inline-block">
+                <span class="text-xs text-slate-500 bg-slate-800/50 px-3 py-1 rounded-full border border-slate-700/50">
+                    Automatically translated from Spanish
+                </span>
+            </div>
             <h1 class="text-4xl md:text-5xl font-extrabold mb-6 text-white">{resource.title}</h1>
             <p class="text-xl text-slate-300 max-w-2xl mx-auto mb-6">{resource.description}</p>
             {resource.tags && resource.tags.length > 0 && (
@@ -189,10 +192,10 @@ for (let i = 0; i < relatedResources.length; i++) {
                 <h3 class="text-2xl font-bold text-white mb-8">También podría interesarte</h3>
                 <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
                     {relatedResources.map((item: any) => (
-                        <a href={`/recursos/${item.slug}`} class="glass-panel overflow-hidden group block hover:border-brand/50 transition-colors">
+                        <a href={`/en/recursos/${item.slug}`} class="glass-panel overflow-hidden group block hover:border-brand/50 transition-colors">
                             <div class="h-32 bg-slate-800 w-full flex items-center justify-center relative overflow-hidden">
                                 {item.imageUrl ? (
-                                    <img src={item.imageUrl} alt={item.title} class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                                    <Image src={item.imageUrl} alt={item.title} width={400} height={200} class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
                                 ) : (
                                     <span class="text-slate-500 text-xs relative z-10">Sin Imagen</span>
                                 )}
@@ -216,6 +219,7 @@ for (let i = 0; i < relatedResources.length; i++) {
           "@type": "SoftwareApplication",
           "name": resource.title,
           "description": resource.description,
+          "inLanguage": "en",
           "applicationCategory": "MultimediaApplication",
           "operatingSystem": "Windows, macOS",
           "author": {
@@ -231,7 +235,7 @@ for (let i = 0; i < relatedResources.length; i++) {
               "@type": "ListItem",
               "position": 1,
               "name": "Recursos",
-              "item": `${Astro.site}recursos`
+              "item": `${Astro.site}en/recursos`
             },
             {
               "@type": "ListItem",

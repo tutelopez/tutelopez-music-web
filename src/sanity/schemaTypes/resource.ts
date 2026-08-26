@@ -84,5 +84,27 @@ export default {
       type: 'array',
       of: [{ type: 'block' }],
     },
+    {
+      name: 'titleEN',
+      title: 'Título (Inglés) - Autogenerado',
+      type: 'string',
+      readOnly: true,
+      hidden: ({currentUser}: any) => !currentUser?.roles?.some((r:any) => r.name === 'administrator')
+    },
+    {
+      name: 'descriptionEN',
+      title: 'Descripción (Inglés) - Autogenerada',
+      type: 'text',
+      readOnly: true,
+      hidden: ({currentUser}: any) => !currentUser?.roles?.some((r:any) => r.name === 'administrator')
+    },
+    {
+      name: 'contentEN',
+      title: 'Contenido (Inglés) - Autogenerado',
+      type: 'array',
+      of: [{ type: 'block' }],
+      readOnly: true,
+      hidden: ({currentUser}: any) => !currentUser?.roles?.some((r:any) => r.name === 'administrator')
+    },
   ],
 };

@@ -75,6 +75,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <meta property="og:title" content={title} />
 <meta property="og:description" content={description} />
 <meta property="og:image" content={new URL(image.src, Astro.url)} />
+<meta property="og:locale" content={Astro.url.pathname.startsWith('/en') ? 'en_US' : 'es_ES'} />
 
 <!-- Twitter -->
 <meta name="twitter:card" content="summary_large_image" />
@@ -83,7 +84,8 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
   "@context": "https://schema.org",
   "@type": "WebSite",
   "name": SITE_TITLE,
-  "url": Astro.site
+  "url": Astro.site,
+  "inLanguage": Astro.url.pathname.startsWith('/en') ? "en" : "es"
 })} />
 
 <script type="application/ld+json" set:html={JSON.stringify({
@@ -92,6 +94,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
   "name": "TuteLopez Music",
   "url": Astro.site,
   "logo": new URL("/favicon.svg", Astro.site).toString(),
+  "inLanguage": Astro.url.pathname.startsWith('/en') ? "en" : "es",
   "sameAs": [
     "https://www.youtube.com/@TuteLopezMusic",
     "https://www.tiktok.com/@tutelopez7",

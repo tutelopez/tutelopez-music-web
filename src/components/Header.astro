@@ -1,6 +1,20 @@
 ---
 import { SITE_TITLE } from '../consts';
 import HeaderLink from './HeaderLink.astro';
+
+const pathname = Astro.url.pathname;
+const isEn = pathname.startsWith('/en');
+
+let esUrl = '/';
+let enUrl = '/en';
+
+if (isEn) {
+    esUrl = pathname.replace(/^\/en/, '') || '/';
+    enUrl = pathname;
+} else {
+    esUrl = pathname;
+    enUrl = pathname === '/' ? '/en' : '/en' + (pathname.endsWith('/') ? pathname.slice(0, -1) : pathname);
+}
 ---
 
 <header class="fixed top-0 w-full z-50 glass-panel border-t-0 border-l-0 border-r-0 rounded-none bg-white/70 dark:bg-slate-950/70 backdrop-blur-lg border-b-slate-200 dark:border-b-slate-800 transition-all duration-300">
@@ -8,16 +22,16 @@ import HeaderLink from './HeaderLink.astro';
         <div class="flex items-center justify-between h-20">
             <!-- Logo -->
             <div class="flex-shrink-0 flex items-center h-full">
-                <a href="/" class="group flex items-center">
+                <a href={isEn ? "/en" : "/"} class="group flex items-center">
                     <img src="/images/tl-logo.png?v=2" alt="TL Music" class="h-16 w-auto object-contain group-hover:brightness-125 transition-all" />
                 </a>
             </div>
 
             <!-- Navigation Links -->
             <nav class="hidden md:flex items-center space-x-8">
-                <HeaderLink href="/" class="text-sm font-medium text-slate-300 hover:text-white transition-colors">Inicio</HeaderLink>
-                <HeaderLink href="/recursos" class="text-sm font-medium text-slate-300 hover:text-white transition-colors">Recursos</HeaderLink>
-                <HeaderLink href="/tutoriales" class="text-sm font-medium text-slate-300 hover:text-white transition-colors">Tutoriales</HeaderLink>
+                <HeaderLink href={isEn ? "/en" : "/"} class="text-sm font-medium text-slate-300 hover:text-white transition-colors">Inicio</HeaderLink>
+                <HeaderLink href={isEn ? "/en/recursos" : "/recursos"} class="text-sm font-medium text-slate-300 hover:text-white transition-colors">Recursos</HeaderLink>
+                <HeaderLink href={isEn ? "/en/tutoriales" : "/tutoriales"} class="text-sm font-medium text-slate-300 hover:text-white transition-colors">Tutoriales</HeaderLink>
                 <HeaderLink href="/equipo" class="text-sm font-medium text-slate-300 hover:text-white transition-colors">Mi Equipo</HeaderLink>
                 <HeaderLink href="/contacto" class="text-sm font-medium text-slate-300 hover:text-white transition-colors">Contacto</HeaderLink>
                 
@@ -32,10 +46,23 @@ import HeaderLink from './HeaderLink.astro';
                     <svg id="theme-toggle-dark-icon" class="hidden w-5 h-5 text-slate-300" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path></svg>
                     <svg id="theme-toggle-light-icon" class="hidden w-5 h-5 text-yellow-500" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4.22 4.22a1 1 0 011.415 0l.884.884a1 1 0 01-1.414 1.415l-.884-.884a1 1 0 010-1.415zM12 10a2 2 0 11-4 0 2 2 0 014 0zM10 16a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zm-4.22-4.22a1 1 0 01-1.415 0l-.884-.884a1 1 0 011.414-1.415l.884.884a1 1 0 010 1.415zM2 10a1 1 0 011-1h1a1 1 0 110 2H3a1 1 0 01-1-1zm14 0a1 1 0 011-1h1a1 1 0 110 2h-1a1 1 0 01-1-1zM5.28 14.72a1 1 0 010 1.415l-.884.884a1 1 0 01-1.414-1.415l.884-.884a1 1 0 011.415 0zM14.72 5.28a1 1 0 010-1.415l.884-.884a1 1 0 011.414 1.415l-.884.884a1 1 0 01-1.415 0z"></path></svg>
                 </button>
+                
+                <!-- Language Switcher -->
+                <div class="ml-4 flex items-center bg-slate-100 dark:bg-slate-800 rounded-full p-1 border border-slate-200 dark:border-slate-700">
+                    <a href={esUrl} class={`text-xs font-bold px-3 py-1.5 rounded-full transition-colors ${!isEn ? 'bg-white dark:bg-slate-700 text-brand shadow-sm' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}>ES</a>
+                    <a href={enUrl} class={`text-xs font-bold px-3 py-1.5 rounded-full transition-colors ${isEn ? 'bg-white dark:bg-slate-700 text-brand shadow-sm' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}>EN</a>
+                </div>
             </nav>
 
-            <!-- Mobile menu button -->
-            <div class="md:hidden flex items-center">
+            <!-- Mobile actions -->
+            <div class="md:hidden flex items-center gap-4">
+                <!-- Mobile Language Switcher -->
+                <div class="flex items-center bg-slate-100 dark:bg-slate-800 rounded-full p-0.5 border border-slate-200 dark:border-slate-700">
+                    <a href={esUrl} class={`text-[10px] font-bold px-2 py-1 rounded-full transition-colors ${!isEn ? 'bg-white dark:bg-slate-700 text-brand shadow-sm' : 'text-slate-500'}`}>ES</a>
+                    <a href={enUrl} class={`text-[10px] font-bold px-2 py-1 rounded-full transition-colors ${isEn ? 'bg-white dark:bg-slate-700 text-brand shadow-sm' : 'text-slate-500'}`}>EN</a>
+                </div>
+                
+                <!-- Mobile menu button -->
                 <button id="mobile-menu-btn" type="button" class="text-slate-300 hover:text-white focus:outline-none p-2" aria-controls="mobile-menu" aria-expanded="false">
                     <span class="sr-only">Abrir menú principal</span>
                     <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -49,9 +76,9 @@ import HeaderLink from './HeaderLink.astro';
     <!-- Mobile Menu -->
     <div id="mobile-menu" class="hidden md:hidden bg-slate-50 dark:bg-slate-950 border-t border-t-slate-200 dark:border-t-slate-800 absolute w-full left-0 top-full shadow-2xl rounded-b-2xl">
         <div class="px-2 pt-2 pb-6 space-y-1 sm:px-3 flex flex-col">
-            <HeaderLink href="/" class="block px-3 py-2 rounded-md text-base font-medium text-slate-300 hover:text-white hover:bg-brand/20 transition-colors">Inicio</HeaderLink>
-            <HeaderLink href="/recursos" class="block px-3 py-2 rounded-md text-base font-medium text-slate-300 hover:text-white hover:bg-brand/20 transition-colors">Recursos</HeaderLink>
-            <HeaderLink href="/tutoriales" class="block px-3 py-2 rounded-md text-base font-medium text-slate-300 hover:text-white hover:bg-brand/20 transition-colors">Tutoriales</HeaderLink>
+            <HeaderLink href={isEn ? "/en" : "/"} class="block px-3 py-2 rounded-md text-base font-medium text-slate-300 hover:text-white hover:bg-brand/20 transition-colors">Inicio</HeaderLink>
+            <HeaderLink href={isEn ? "/en/recursos" : "/recursos"} class="block px-3 py-2 rounded-md text-base font-medium text-slate-300 hover:text-white hover:bg-brand/20 transition-colors">Recursos</HeaderLink>
+            <HeaderLink href={isEn ? "/en/tutoriales" : "/tutoriales"} class="block px-3 py-2 rounded-md text-base font-medium text-slate-300 hover:text-white hover:bg-brand/20 transition-colors">Tutoriales</HeaderLink>
             <HeaderLink href="/equipo" class="block px-3 py-2 rounded-md text-base font-medium text-slate-300 hover:text-white hover:bg-brand/20 transition-colors">Mi Equipo</HeaderLink>
             <HeaderLink href="/contacto" class="block px-3 py-2 rounded-md text-base font-medium text-slate-300 hover:text-white hover:bg-brand/20 transition-colors">Contacto</HeaderLink>
             

@@ -19,6 +19,9 @@ export default defineConfig({
         prefixDefaultLocale: false
     }
   },
+  image: {
+    remotePatterns: [{ protocol: 'https', hostname: 'cdn.sanity.io' }]
+  },
   integrations: [
     mdx(), 
     sitemap(), 

@@ -3,6 +3,7 @@ import MainLayout from '../../layouts/MainLayout.astro';
 import { sanityClient } from 'sanity:client';
 import { PortableText } from '@portabletext/react';
 import { SITE_DESCRIPTION } from '../../consts';
+import { Image } from 'astro:assets';
 
 export async function getStaticPaths() {
   const resources = await sanityClient.fetch(`*[_type == "resource"]{ "slug": slug.current }`);
@@ -178,7 +179,7 @@ const relatedResources = await sanityClient.fetch(relatedQuery, { slug }) || [];
                         <a href={`/recursos/${item.slug}`} class="glass-panel overflow-hidden group block hover:border-brand/50 transition-colors">
                             <div class="h-32 bg-slate-800 w-full flex items-center justify-center relative overflow-hidden">
                                 {item.imageUrl ? (
-                                    <img src={item.imageUrl} alt={item.title} class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                                    <Image src={item.imageUrl} alt={item.title} width={400} height={200} class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
                                 ) : (
                                     <span class="text-slate-500 text-xs relative z-10">Sin Imagen</span>
                                 )}
@@ -202,6 +203,7 @@ const relatedResources = await sanityClient.fetch(relatedQuery, { slug }) || [];
           "@type": "SoftwareApplication",
           "name": resource.title,
           "description": resource.description,
+          "inLanguage": "es",
           "applicationCategory": "MultimediaApplication",
           "operatingSystem": "Windows, macOS",
           "author": {

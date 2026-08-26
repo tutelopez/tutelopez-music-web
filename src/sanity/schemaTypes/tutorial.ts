@@ -62,6 +62,31 @@ export const tutorial = defineType({
       ],
       validation: (rule) => rule.required(),
     }),
+    defineField({
+      name: 'titleEN',
+      title: 'Título (Inglés) - Autogenerado',
+      type: 'string',
+      readOnly: true,
+      hidden: ({currentUser}) => !currentUser?.roles?.some(r => r.name === 'administrator')
+    }),
+    defineField({
+      name: 'excerptEN',
+      title: 'Resumen (Inglés) - Autogenerado',
+      type: 'text',
+      readOnly: true,
+      hidden: ({currentUser}) => !currentUser?.roles?.some(r => r.name === 'administrator')
+    }),
+    defineField({
+      name: 'bodyEN',
+      title: 'Contenido (Inglés) - Autogenerado',
+      type: 'array',
+      of: [
+        { type: 'block' },
+        { type: 'image' }
+      ],
+      readOnly: true,
+      hidden: ({currentUser}) => !currentUser?.roles?.some(r => r.name === 'administrator')
+    }),
   ],
   preview: {
     select: {
