@@ -1,0 +1,288 @@
+---
+import MainLayout from '../../../layouts/MainLayout.astro';
+import { sanityClient } from 'sanity:client';
+import { getCategoryStyles } from '../../../utils/neonStyles';
+import { translateDocument } from '../../../utils/translate';
+import { Image } from 'astro:assets';
+
+const query = `*[_type == "resource"] | order(_createdAt desc) {
+  _id,
+  title,
+  "slug": slug.current,
+  category,
+  description,
+  tags,
+  titleEN,
+  descriptionEN,
+  contentEN,
+  "imageUrl": mainImage.asset->url
+}`;
+let resources = await sanityClient.fetch(query) || [];
+
+for (let i = 0; i < resources.length; i++) {
+    resources[i] = await translateDocument(resources[i], 'resource');
+}
+
+// Fallback mock data if empty
+const displayResources = resources.length > 0 ? resources : [
+    { title: "Worship Essentials Template", slug: "ejemplo-worship-essentials", category: "mainstage", description: "The best template to start at your church with ambient sounds and grand pianos.", imageUrl: null },
+    { title: "Nord Stage 3 Pianos", slug: "ejemplo-nord-stage", category: "kontakt", description: "Optimized library for Kontakt with the best Nord Stage pianos.", imageUrl: null }
+];
+
+// Get unique categories for the filter buttons
+const uniqueCategories = [...new Set(displayResources.map((r: any) => r.category))].filter(Boolean);
+const categories = ["All", ...uniqueCategories];
+
+// Get unique tags for the tag select
+const uniqueTags = [...new Set(displayResources.flatMap((r: any) => r.tags || []))].filter(Boolean);
+const tags = ["All", ...uniqueTags];
+---
+
+<MainLayout title="Resources - TuteLopez Music" description="Explore all our free libraries and templates.">
+    <section class="py-12">
+        <div class="mb-4 inline-block">
+            <span class="text-xs text-slate-500 bg-slate-800/50 px-3 py-1 rounded-full border border-slate-700/50">
+                Automatically translated from Spanish
+            </span>
+        </div>
+        <h1 class="text-4xl md:text-5xl font-bold mb-8 text-white">All Resources</h1>
+        
+        <div class="flex flex-col md:flex-row gap-4 mb-8 max-w-3xl">
+            <!-- Search -->
+            <div class="relative flex-grow">
+                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                    <svg class="h-5 w-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                </div>
+                <input type="text" id="search-input" placeholder="Search libraries, templates..." class="w-full pl-11 pr-4 py-3 bg-slate-900/50 border border-slate-700 text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent transition-all placeholder-slate-500 shadow-inner">
+            </div>
+            
+            <!-- Tag Filter -->
+            <div class="relative w-full md:w-64 shrink-0">
+                <select id="tag-filter" class="w-full pl-4 pr-10 py-3 bg-slate-900/50 border border-slate-700 text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent transition-all shadow-inner appearance-none cursor-pointer">
+                    {tags.map((tag) => (
+                        <option value={tag === "All" ? "all" : tag}>{tag === "All" ? "All Tags" : `#${tag}`}</option>
+                    ))}
+                </select>
+                <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
+                    <svg class="h-5 w-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                    </svg>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Adsterra Top 728x90 -->
+        <div class="w-full mb-12 flex justify-center overflow-hidden min-h-[90px]">
+            <script is:inline>
+              atOptions = {
+                'key' : '3f1b1c949f78641c3024f8677898e3fe',
+                'format' : 'iframe',
+                'height' : 90,
+                'width' : 728,
+                'params' : {}
+              };
+            </script>
+            <script is:inline src="https://www.highperformanceformat.com/3f1b1c949f78641c3024f8677898e3fe/invoke.js"></script>
+        </div>
+
+        <!-- Dynamic Category Filters -->
+        <div class="flex gap-4 mb-10 overflow-x-auto pb-4 hide-scroll" id="filter-container">
+            {categories.map((cat, index) => (
+                <button 
+                    data-filter={cat === "All" ? "all" : cat} 
+                    class={`filter-btn px-6 py-2 rounded-full whitespace-nowrap transition-all ${index === 0 ? 'bg-brand text-white font-bold' : 'glass-panel text-slate-300 hover:text-white'}`}
+                >
+                    {cat === "All" ? "All" : (cat as String).charAt(0).toUpperCase() + (cat as String).slice(1)}
+                </button>
+            ))}
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" id="resources-grid">
+            {displayResources.map((resource: any) => {
+                const styles = getCategoryStyles(resource.category);
+                return (
+                <a href={`/en/recursos/${resource.slug}`} data-category={resource.category} data-title={resource.title} data-description={resource.description} data-tags={(resource.tags || []).join(',')} class={`resource-card glass-panel overflow-hidden group block transition-all duration-300 border ${styles.borderClass}`}>
+                    <div class="h-48 bg-slate-800 w-full flex items-center justify-center overflow-hidden relative [mask-image:linear-gradient(to_bottom,black_60%,transparent_100%)]">
+                        {resource.imageUrl ? (
+                            <Image src={resource.imageUrl} alt={resource.title} width={400} height={200} loading="lazy" class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                        ) : (
+                            <span class="text-slate-500">No Image</span>
+                        )}
+                    </div>
+                    <div class="p-6">
+                        <span class={`text-xs font-bold uppercase tracking-wider mb-2 block ${styles.textClass}`}>{resource.category}</span>
+                        <h3 class={`text-xl font-bold mb-2 transition-colors group-hover:${styles.textClass}`}>{resource.title}</h3>
+                        <p class="text-slate-400 text-sm mb-4 line-clamp-2">{resource.description}</p>
+                        {resource.tags && resource.tags.length > 0 && (
+                            <div class="flex flex-wrap gap-1 mt-auto">
+                                {resource.tags.map((tag: string) => (
+                                    <span class="px-2 py-0.5 bg-slate-800 text-slate-300 text-[10px] font-semibold rounded">
+                                        #{tag}
+                                    </span>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                </a>
+                );
+            })}
+        </div>
+
+        <!-- Pagination -->
+        <div id="pagination-container" class="flex flex-wrap justify-center items-center gap-2 mt-12">
+        </div>
+
+        <!-- Adsterra Native Banner -->
+        <div class="w-full max-w-4xl mx-auto mt-16 mb-8">
+            <script is:inline async="async" data-cfasync="false" src="https://pl30912743.effectivecpmnetwork.com/08d06f7f3ae9c643d3e67ac54e310384/invoke.js"></script>
+            <div id="container-08d06f7f3ae9c643d3e67ac54e310384"></div>
+        </div>
+    </section>
+</MainLayout>
+
+<style>
+    .hide-scroll::-webkit-scrollbar {
+        display: none;
+    }
+    .hide-scroll {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const buttons = document.querySelectorAll('.filter-btn');
+        const cards = Array.from(document.querySelectorAll('.resource-card'));
+        const searchInput = document.getElementById('search-input') as HTMLInputElement;
+        const tagFilter = document.getElementById('tag-filter') as HTMLSelectElement;
+        const paginationContainer = document.getElementById('pagination-container');
+
+        let currentFilter = 'all';
+        let currentTag = 'all';
+        let currentSearchQuery = '';
+        let currentPage = 1;
+        const itemsPerPage = 9;
+
+        function updatePaginationUI(totalPages) {
+            if (!paginationContainer) return;
+            paginationContainer.innerHTML = '';
+            
+            if (totalPages <= 1) return;
+
+            // Prev Button
+            const prevBtn = document.createElement('button');
+            prevBtn.innerText = 'Previous';
+            prevBtn.className = `px-4 py-2 rounded-lg font-bold transition-all text-sm ${currentPage === 1 ? 'bg-slate-800/50 text-slate-600 cursor-not-allowed border border-slate-800' : 'bg-slate-800 text-slate-300 hover:bg-brand hover:text-white border border-slate-700'}`;
+            prevBtn.disabled = currentPage === 1;
+            prevBtn.addEventListener('click', () => {
+                if (currentPage > 1) {
+                    currentPage--;
+                    filterResources();
+                    window.scrollTo({ top: document.getElementById('resources-grid')?.offsetTop || 0 - 100, behavior: 'smooth' });
+                }
+            });
+            paginationContainer.appendChild(prevBtn);
+
+            // Page numbers
+            for (let i = 1; i <= totalPages; i++) {
+                const pageBtn = document.createElement('button');
+                pageBtn.innerText = i.toString();
+                pageBtn.className = `w-10 h-10 flex items-center justify-center rounded-lg font-bold transition-all ${currentPage === i ? 'bg-brand text-white shadow-lg shadow-brand/30 border border-brand' : 'bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700'}`;
+                pageBtn.addEventListener('click', () => {
+                    currentPage = i;
+                    filterResources();
+                    window.scrollTo({ top: document.getElementById('resources-grid')?.offsetTop || 0 - 100, behavior: 'smooth' });
+                });
+                paginationContainer.appendChild(pageBtn);
+            }
+
+            // Next Button
+            const nextBtn = document.createElement('button');
+            nextBtn.innerText = 'Next';
+            nextBtn.className = `px-4 py-2 rounded-lg font-bold transition-all text-sm ${currentPage === totalPages ? 'bg-slate-800/50 text-slate-600 cursor-not-allowed border border-slate-800' : 'bg-slate-800 text-slate-300 hover:bg-brand hover:text-white border border-slate-700'}`;
+            nextBtn.disabled = currentPage === totalPages;
+            nextBtn.addEventListener('click', () => {
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    filterResources();
+                    window.scrollTo({ top: document.getElementById('resources-grid')?.offsetTop || 0 - 100, behavior: 'smooth' });
+                }
+            });
+            paginationContainer.appendChild(nextBtn);
+        }
+
+        function filterResources() {
+            const filteredCards = cards.filter(c => {
+                const card = c as HTMLElement;
+                const category = card.getAttribute('data-category');
+                const title = card.getAttribute('data-title')?.toLowerCase() || '';
+                const description = card.getAttribute('data-description')?.toLowerCase() || '';
+                const tagsStr = card.getAttribute('data-tags') || '';
+                const tagsArr = tagsStr ? tagsStr.split(',') : [];
+                
+                const matchesCategory = currentFilter === 'all' || category === currentFilter;
+                const matchesTag = currentTag === 'all' || tagsArr.includes(currentTag);
+                const matchesSearch = currentSearchQuery === '' || title.includes(currentSearchQuery) || description.includes(currentSearchQuery);
+
+                return matchesCategory && matchesSearch && matchesTag;
+            });
+
+            const totalPages = Math.ceil(filteredCards.length / itemsPerPage);
+            if (currentPage > totalPages && totalPages > 0) {
+                currentPage = totalPages;
+            } else if (totalPages === 0) {
+                currentPage = 1;
+            }
+
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            
+            cards.forEach(c => {
+                (c as HTMLElement).style.display = 'none';
+            });
+
+            filteredCards.slice(startIndex, endIndex).forEach(c => {
+                (c as HTMLElement).style.display = 'block';
+            });
+
+            updatePaginationUI(totalPages);
+        }
+
+        buttons.forEach(button => {
+            button.addEventListener('click', () => {
+                currentFilter = button.getAttribute('data-filter') || 'all';
+                currentPage = 1;
+
+                buttons.forEach(btn => {
+                    btn.classList.remove('bg-brand', 'text-white', 'font-bold');
+                    btn.classList.add('glass-panel', 'text-slate-300');
+                });
+                button.classList.remove('glass-panel', 'text-slate-300');
+                button.classList.add('bg-brand', 'text-white', 'font-bold');
+
+                filterResources();
+            });
+        });
+
+        if(searchInput) {
+            searchInput.addEventListener('input', (e) => {
+                currentSearchQuery = (e.target as HTMLInputElement).value.toLowerCase().trim();
+                currentPage = 1;
+                filterResources();
+            });
+        }
+
+        if(tagFilter) {
+            tagFilter.addEventListener('change', (e) => {
+                currentTag = (e.target as HTMLSelectElement).value;
+                currentPage = 1;
+                filterResources();
+            });
+        }
+
+        filterResources();
+    });
+</script>

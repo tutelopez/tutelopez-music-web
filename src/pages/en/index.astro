@@ -1,0 +1,154 @@
+---
+import MainLayout from '../../layouts/MainLayout.astro';
+import { SITE_TITLE, SITE_DESCRIPTION_EN } from '../../consts';
+import { sanityClient } from 'sanity:client';
+import Newsletter from '../../components/Newsletter.astro';
+import { getCategoryStyles } from '../../utils/neonStyles';
+import { translateDocument } from '../../utils/translate';
+import { Image } from 'astro:assets';
+
+const query = `*[_type == "resource"] | order(_createdAt desc)[0...6] {
+  _id,
+  title,
+  "slug": slug.current,
+  category,
+  "imageUrl": mainImage.asset->url,
+  description,
+  titleEN,
+  descriptionEN,
+  contentEN
+}`;
+let latestResources = await sanityClient.fetch(query) || [];
+
+for (let i = 0; i < latestResources.length; i++) {
+    latestResources[i] = await translateDocument(latestResources[i], 'resource');
+}
+
+// Mock data if no resources found yet
+const displayResources = latestResources.length > 0 ? latestResources : [
+    { title: "Worship Essentials Template", slug: "ejemplo-worship-essentials", category: "mainstage", imageUrl: null, description: "Example resource" },
+    { title: "Nord Stage 3 Pianos", slug: "ejemplo-nord-stage", category: "kontakt", imageUrl: null, description: "Example resource" },
+    { title: "Multilayer Ambient Pad", slug: "ejemplo-pad-ambiental", category: "sintetizadores", imageUrl: null, description: "Example resource" }
+];
+---
+
+<MainLayout title={`Home - ${SITE_TITLE}`} description={SITE_DESCRIPTION_EN}>
+    <!-- Hero Section -->
+    <section class="py-20 text-center relative max-w-4xl mx-auto">
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-brand/20 rounded-full blur-3xl -z-10"></div>
+        <h1 class="text-5xl md:text-7xl font-extrabold mb-6 tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-white to-slate-400">
+            Professional Libraries<br/><span class="text-brand">Free</span> for Keyboardists
+        </h1>
+        <p class="text-xl md:text-2xl text-slate-400 mb-10 max-w-2xl mx-auto leading-relaxed">
+            Download the best resources for MainStage, Kontakt, and Synthesizers. Elevate your church's sound to the next level.
+        </p>
+        <div class="flex flex-col sm:flex-row justify-center gap-4">
+            <a href="/en/recursos" class="px-8 py-4 bg-brand text-white font-bold text-lg rounded-full hover:bg-brand-light transition-transform hover:scale-105 shadow-lg shadow-brand/30">Explore Resources</a>
+            <a href="/en/about" class="px-8 py-4 glass-panel text-slate-300 font-bold text-lg hover:text-white transition-colors border border-slate-700">Learn More</a>
+        </div>
+    </section>
+
+
+    <!-- About Me Section -->
+    <section class="mb-24">
+        <div class="glass-panel p-8 md:p-12 border-t-4 border-t-brand">
+            <div class="flex flex-col md:flex-row items-center gap-10">
+                <div class="w-48 h-48 md:w-64 md:h-64 rounded-full overflow-hidden border-4 border-slate-800 shadow-2xl flex-shrink-0 relative group">
+                    <img src="/images/tl-music-creator.png" alt="TuteLopez" class="w-full h-full object-cover object-top group-hover:scale-110 transition-transform duration-500" />
+                    <div class="absolute inset-0 border-4 border-transparent group-hover:border-brand/50 rounded-full transition-colors duration-500 pointer-events-none"></div>
+                </div>
+                <div>
+                    <span class="text-brand font-bold tracking-wider uppercase text-sm mb-2 block">The Creator</span>
+                    <h2 class="text-3xl md:text-4xl font-bold mb-4 text-white">Hi, I'm Tute López</h2>
+                    <p class="text-slate-400 text-lg mb-6 leading-relaxed">
+                        I'm a keyboardist, producer, and content creator passionate about worship music. My goal is to equip church pianists with professional sounds and top-tier tools so their worship has no technical limits.
+                    </p>
+                    <a href="https://www.youtube.com/@TuteLopezMusic" target="_blank" class="inline-flex items-center gap-2 text-brand font-bold hover:text-brand-light transition-colors">
+                        Watch my YouTube tutorials &rarr;
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Latest Resources Grid -->
+    <section class="mb-20">
+        <div class="flex justify-between items-end mb-8">
+            <h2 class="text-3xl font-bold text-white">Latest Releases</h2>
+            <a href="/en/recursos" class="text-brand hover:text-brand-light font-bold text-sm uppercase tracking-wider hidden sm:block">View all &rarr;</a>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {displayResources.map((resource: any) => {
+                const styles = getCategoryStyles(resource.category);
+                return (
+                <a href={`/en/recursos/${resource.slug}`} class={`glass-panel overflow-hidden group block transition-all duration-300 border ${styles.borderClass}`}>
+                    <div class="h-48 bg-slate-800 w-full flex items-center justify-center overflow-hidden relative [mask-image:linear-gradient(to_bottom,black_60%,transparent_100%)]">
+                        {resource.imageUrl ? (
+                            <Image width={400} height={200} src={resource.imageUrl} alt={resource.title} class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                        ) : (
+                            <span class="text-slate-500">No Image</span>
+                        )}
+                    </div>
+                    <div class="p-6">
+                        <span class={`text-xs font-bold uppercase tracking-wider mb-2 block ${styles.textClass}`}>{resource.category}</span>
+                        <h3 class={`text-xl font-bold transition-colors line-clamp-2 leading-snug group-hover:${styles.textClass}`}>{resource.title}</h3>
+                        <p class="text-slate-300 text-sm mt-2 line-clamp-2">{resource.description}</p>
+                    </div>
+                </a>
+                );
+            })}
+        </div>
+    </section>
+
+    <!-- About Me Section 2 -->
+    <section class="py-20 relative">
+        <div class="max-w-5xl mx-auto glass-panel p-8 md:p-12 rounded-3xl overflow-hidden relative">
+            <div class="absolute top-0 right-0 w-64 h-64 bg-brand/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
+            <div class="flex flex-col md:flex-row gap-12 items-center relative z-10">
+                <div class="w-48 h-48 md:w-64 md:h-64 rounded-full overflow-hidden border-4 border-slate-800 shadow-2xl flex-shrink-0">
+                    <img src="/images/tl-music-creator.png" alt="TuteLopez" class="w-full h-full object-cover object-top hover:scale-110 transition-transform duration-500" />
+                </div>
+                <div>
+                    <h2 class="text-3xl md:text-4xl font-bold mb-4 text-white">Hi, I'm TuteLopez</h2>
+                    <p class="text-lg text-slate-300 mb-6 leading-relaxed">
+                        I'm a musician, Christian keyboardist, and content creator. My passion is to equip other worship musicians with professional-grade tools. 
+                        Through my videos and libraries, I seek to simplify music technology so you can focus on what really matters: worship.
+                    </p>
+                    <a href="https://youtube.com/@tutelopezmusic" target="_blank" class="inline-flex items-center gap-2 text-brand hover:text-brand-light font-bold transition-colors">
+                        Learn more about my work on YouTube &rarr;
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <Newsletter />
+
+    <!-- Telegram & Donate CTA -->
+    <section class="py-16 grid grid-cols-1 md:grid-cols-2 gap-8 max-w-6xl mx-auto">
+        <!-- Telegram CTA -->
+        <div class="glass-panel p-10 text-center flex flex-col items-center justify-center group hover:border-blue-500/50 transition-colors">
+            <div class="w-20 h-20 bg-blue-500/20 rounded-full flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                <svg class="w-10 h-10 text-blue-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.14.18-.357.223-.548.223l.188-2.85 5.18-4.686c.223-.195-.054-.304-.346-.109l-6.4 4.025-2.76-.864c-.602-.19-.611-.603.125-.89l10.77-4.153c.498-.19.923.115.78.832z"/></svg>
+            </div>
+            <h3 class="text-2xl font-bold mb-3 text-white">Join the Community</h3>
+            <p class="text-slate-300 mb-8 max-w-sm">Don't miss any free library or update. Join our official channel.</p>
+            <a href="https://t.me/tutelopezmusic" target="_blank" class="px-6 py-3 rounded-full bg-blue-500 text-white font-bold hover:bg-blue-400 transition-colors shadow-lg shadow-blue-500/25">
+                Enter Channel
+            </a>
+        </div>
+
+        <!-- Donate CTA -->
+        <div class="glass-panel p-10 text-center flex flex-col items-center justify-center group hover:border-orange-500/50 transition-colors relative overflow-hidden">
+            <div class="absolute -right-10 -bottom-10 w-40 h-40 bg-orange-500/10 rounded-full blur-3xl"></div>
+            <div class="w-20 h-20 bg-orange-500/20 rounded-full flex items-center justify-center mb-6 group-hover:scale-110 transition-transform relative z-10">
+                <svg class="w-10 h-10 text-orange-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+            </div>
+            <h3 class="text-2xl font-bold mb-3 text-white relative z-10">Support the Project</h3>
+            <p class="text-slate-300 mb-8 max-w-sm relative z-10">All this content is free. If it has been a blessing to you, buy me a coffee to keep creating.</p>
+            <a href="/apoyo" class="px-6 py-3 rounded-full bg-gradient-to-r from-orange-500 to-yellow-500 text-white font-bold hover:brightness-110 transition-all shadow-lg shadow-orange-500/25 relative z-10">
+                Donate now
+            </a>
+        </div>
+    </section>
+</MainLayout>

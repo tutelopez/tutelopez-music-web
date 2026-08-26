@@ -1,0 +1,111 @@
+---
+import MainLayout from '../../../layouts/MainLayout.astro';
+import { SITE_TITLE, SITE_DESCRIPTION_EN } from '../../../consts';
+import { sanityClient } from 'sanity:client';
+import { translateDocument } from '../../../utils/translate';
+import { Image } from 'astro:assets';
+
+const query = `*[_type == "tutorial"] | order(publishedAt desc) {
+  _id,
+  title,
+  slug,
+  publishedAt,
+  excerpt,
+  tags,
+  titleEN,
+  excerptEN,
+  bodyEN,
+  "imageUrl": mainImage.asset->url
+}`;
+let tutoriales = await sanityClient.fetch(query) || [];
+
+for (let i = 0; i < tutoriales.length; i++) {
+    tutoriales[i] = await translateDocument(tutoriales[i], 'tutorial');
+}
+---
+
+<MainLayout title={`Tutorials - ${SITE_TITLE}`} description={SITE_DESCRIPTION_EN}>
+		<div class="w-full max-w-[960px] mx-auto py-12">
+            <section class="text-center mb-16">
+                <div class="mb-4 inline-block">
+                    <span class="text-xs text-slate-500 bg-slate-800/50 px-3 py-1 rounded-full border border-slate-700/50">
+                        Automatically translated from Spanish
+                    </span>
+                </div>
+                <h1 class="text-4xl md:text-5xl font-bold mb-4 text-slate-900 dark:text-white">
+                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-orange-600">
+                        Tutorials & Guides
+                    </span>
+                </h1>
+                <p class="text-lg text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">
+                    Learn how to get the most out of your gear and software for live worship.
+                </p>
+            </section>
+
+            <!-- Adsterra Top 728x90 -->
+            <div class="w-full mb-12 flex justify-center overflow-hidden min-h-[90px]">
+                <script type="text/plain" data-category="ads" is:inline>
+                  atOptions = {
+                    'key' : '3f1b1c949f78641c3024f8677898e3fe',
+                    'format' : 'iframe',
+                    'height' : 90,
+                    'width' : 728,
+                    'params' : {}
+                  };
+                </script>
+                <script type="text/plain" data-category="ads" is:inline src="https://www.highperformanceformat.com/3f1b1c949f78641c3024f8677898e3fe/invoke.js"></script>
+            </div>
+
+			<section>
+				<ul class="flex flex-wrap gap-8 list-none m-0 p-0">
+					{
+						tutoriales.map((post) => (
+							<li class="w-full md:w-[calc(50%-1rem)] transition-all duration-200 ease-in group">
+								<a href={`/en/tutoriales/${post.slug.current}`} class="block no-underline">
+                                    <div class="glass-panel overflow-hidden group-hover:border-orange-500/50 group-hover:shadow-orange-500/20 transition-all duration-300">
+                                        <div class="aspect-video w-full overflow-hidden bg-slate-200 dark:bg-slate-800 relative">
+                                            {post.imageUrl ? (
+                                                <Image width={720} height={360} src={post.imageUrl} alt={post.title} loading="lazy" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                                            ) : (
+                                                <div class="w-full h-full flex items-center justify-center text-slate-400">No Image</div>
+                                            )}
+                                            <!-- Decorative glow -->
+                                            <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                        </div>
+                                        <div class="p-6">
+                                            <h4 class="text-2xl font-bold m-0 text-slate-900 dark:text-white group-hover:text-brand transition-colors duration-200 leading-tight">
+                                                {post.title}
+                                            </h4>
+                                            <p class="mt-2 text-slate-500 dark:text-slate-400 m-0">
+                                                {post.excerpt}
+                                            </p>
+                                            {post.tags && post.tags.length > 0 && (
+                                                <div class="mt-4 flex flex-wrap gap-2">
+                                                    {post.tags.map((tag: string) => (
+                                                        <span class="px-2 py-1 bg-brand/10 text-brand dark:bg-brand/20 text-xs font-semibold rounded-md">
+                                                            #{tag}
+                                                        </span>
+                                                    ))}
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+								</a>
+							</li>
+						))
+					}
+                    {tutoriales.length === 0 && (
+                        <div class="w-full text-center py-12">
+                            <p class="text-slate-500 dark:text-slate-400">We'll be uploading new tutorials soon.</p>
+                        </div>
+                    )}
+				</ul>
+			</section>
+
+            <!-- Adsterra Native Banner -->
+            <div class="w-full max-w-4xl mx-auto mt-16 mb-8">
+                <script type="text/plain" data-category="ads" is:inline async="async" data-cfasync="false" src="https://pl30912743.effectivecpmnetwork.com/08d06f7f3ae9c643d3e67ac54e310384/invoke.js"></script>
+                <div id="container-08d06f7f3ae9c643d3e67ac54e310384"></div>
+            </div>
+		</div>
+</MainLayout>
