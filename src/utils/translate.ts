@@ -95,7 +95,7 @@ export async function translateDocument(doc: any, type: 'resource' | 'tutorial')
   const mutations: any = {};
   
   // FORCE RETRANSLATE PARA ARREGLAR CACHE CORRUPTO EN SANITY
-  const forceRetranslate = true;
+  const forceRetranslate = false;
 
   // 1. Título
   if (doc.titleEN && !forceRetranslate) {
