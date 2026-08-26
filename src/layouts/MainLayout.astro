@@ -48,7 +48,77 @@ const { title, description } = Astro.props;
                 <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
             </svg>
         </a>
-        <!-- Adsterra Social Bar -->
-        <script is:inline src="https://pl30912742.effectivecpmnetwork.com/a1/1a/e8/a11ae890108e19a9599a545eb36fa709.js"></script>
+        <!-- Adsterra Social Bar (Requiere Consentimiento) -->
+        <script type="text/plain" data-category="ads" src="https://pl30912742.effectivecpmnetwork.com/a1/1a/e8/a11ae890108e19a9599a545eb36fa709.js"></script>
+
+        <!-- Vanilla Cookie Consent v3 -->
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orestbida/cookieconsent@v3.0.0/dist/cookieconsent.css">
+        <script type="module">
+            import 'https://cdn.jsdelivr.net/gh/orestbida/cookieconsent@v3.0.0/dist/cookieconsent.umd.js';
+            CookieConsent.run({
+                guiOptions: {
+                    consentModal: {
+                        layout: "bar inline",
+                        position: "bottom",
+                        equalWeightButtons: true,
+                        flipButtons: false
+                    },
+                    preferencesModal: {
+                        layout: "box",
+                        position: "right",
+                        equalWeightButtons: true,
+                        flipButtons: false
+                    }
+                },
+                categories: {
+                    necessary: { readOnly: true },
+                    analytics: {},
+                    ads: {}
+                },
+                language: {
+                    default: "es",
+                    autoDetect: "browser",
+                    translations: {
+                        es: {
+                            consentModal: {
+                                title: "¡Usamos cookies!",
+                                description: "Hola, este sitio web utiliza cookies esenciales para garantizar su correcto funcionamiento y cookies de seguimiento (análisis y publicidad) para comprender cómo interactúas con él. Estas últimas solo se configurarán tras tu consentimiento.",
+                                acceptAllBtn: "Aceptar todas",
+                                acceptNecessaryBtn: "Rechazar todas",
+                                showPreferencesBtn: "Gestionar preferencias"
+                            },
+                            preferencesModal: {
+                                title: "Preferencias de Privacidad",
+                                acceptAllBtn: "Aceptar todas",
+                                acceptNecessaryBtn: "Rechazar todas",
+                                savePreferencesBtn: "Guardar preferencias",
+                                closeIconLabel: "Cerrar",
+                                sections: [
+                                    {
+                                        title: "Uso de Cookies",
+                                        description: "Usamos cookies para mejorar tu experiencia, analizar el tráfico y mostrar anuncios personalizados."
+                                    },
+                                    {
+                                        title: "Cookies Estrictamente Necesarias",
+                                        description: "Estas cookies son esenciales para el funcionamiento de la web y no se pueden desactivar.",
+                                        linkedCategory: "necessary"
+                                    },
+                                    {
+                                        title: "Análisis y Estadísticas",
+                                        description: "Recopilan información anónima sobre cómo usas la web (ej. páginas más visitadas) mediante Google Tag Manager.",
+                                        linkedCategory: "analytics"
+                                    },
+                                    {
+                                        title: "Publicidad (Adsterra)",
+                                        description: "Se utilizan para mostrarte anuncios más relevantes y ayudarnos a mantener los servidores gratuitos.",
+                                        linkedCategory: "ads"
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                }
+            });
+        </script>
 	</body>
 </html>

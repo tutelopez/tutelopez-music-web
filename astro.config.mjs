@@ -12,6 +12,13 @@ import sanity from '@sanity/astro';
 // https://astro.build/config
 export default defineConfig({
   site: 'https://tutelopezmusic.com',
+  i18n: {
+    defaultLocale: 'es',
+    locales: ['es', 'en'],
+    routing: {
+        prefixDefaultLocale: false
+    }
+  },
   integrations: [
     mdx(), 
     sitemap(), 

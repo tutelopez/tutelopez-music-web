@@ -19,7 +19,7 @@ const { title, description, image = FallbackImage } = Astro.props;
 ---
 
 <!-- Google Tag Manager -->
-<script is:inline>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+<script type="text/plain" data-category="analytics" is:inline>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
 new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
 j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
@@ -29,7 +29,6 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <!-- Global Metadata -->
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6342014010339988" crossorigin="anonymous"></script>
 <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=3" />
 <link rel="sitemap" href="/sitemap-index.xml" />
 <script is:inline>
@@ -61,6 +60,11 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <!-- Canonical URL -->
 <link rel="canonical" href={canonicalURL} />
 
+<!-- hreflang for i18n -->
+<link rel="alternate" href={new URL(Astro.url.pathname.replace(/^\/en/, ''), Astro.site)} hreflang="es" />
+<link rel="alternate" href={new URL(Astro.url.pathname.startsWith('/en') ? Astro.url.pathname : `/en${Astro.url.pathname}`, Astro.site)} hreflang="en" />
+<link rel="alternate" href={new URL(Astro.url.pathname.replace(/^\/en/, ''), Astro.site)} hreflang="x-default" />
+
 <!-- Primary Meta Tags -->
 <title>{title}</title>
 <meta name="description" content={description} />
@@ -74,3 +78,23 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
 <!-- Twitter -->
 <meta name="twitter:card" content="summary_large_image" />
+
+<script type="application/ld+json" set:html={JSON.stringify({
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": SITE_TITLE,
+  "url": Astro.site
+})} />
+
+<script type="application/ld+json" set:html={JSON.stringify({
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "TuteLopez Music",
+  "url": Astro.site,
+  "logo": new URL("/favicon.svg", Astro.site).toString(),
+  "sameAs": [
+    "https://www.youtube.com/@TuteLopezMusic",
+    "https://www.tiktok.com/@tutelopez7",
+    "https://t.me/tutelopezmusic"
+  ]
+})} />

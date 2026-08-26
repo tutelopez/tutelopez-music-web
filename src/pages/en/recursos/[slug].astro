@@ -4,6 +4,8 @@ import { sanityClient } from 'sanity:client';
 import { PortableText } from '@portabletext/react';
 import { SITE_DESCRIPTION } from '../../consts';
 
+import { translateText } from '../../../utils/translate';
+
 export async function getStaticPaths() {
   const resources = await sanityClient.fetch(`*[_type == "resource"]{ "slug": slug.current }`);
   
@@ -37,12 +39,24 @@ const resource = await sanityClient.fetch(query, { slug }) || {
     imageUrl: null
 };
 
+// Traducir campos clave
+resource.title = await translateText(resource.title, 'EN-US');
+resource.description = await translateText(resource.description, 'EN-US');
+if (resource.content) {
+    resource.content = await translateText(resource.content, 'EN-US');
+}
+
 // Fetch related resources (excluding the current one)
 const relatedQuery = `*[_type == "resource" && slug.current != $slug] | order(_createdAt desc)[0...3]{
   title, category, "slug": slug.current,
   "imageUrl": mainImage.asset->url
 }`;
-const relatedResources = await sanityClient.fetch(relatedQuery, { slug }) || [];
+let relatedResources = await sanityClient.fetch(relatedQuery, { slug }) || [];
+
+// Traducir relacionados
+for (let i = 0; i < relatedResources.length; i++) {
+    relatedResources[i].title = await translateText(relatedResources[i].title, 'EN-US');
+}
 ---
 
 <MainLayout title={`${resource.title} - TuteLopez Music`} description={resource.description || SITE_DESCRIPTION}>

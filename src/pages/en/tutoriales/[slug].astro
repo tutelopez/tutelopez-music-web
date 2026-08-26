@@ -8,6 +8,8 @@ import FormattedDate from '../../components/FormattedDate.astro';
 import { sanityClient } from 'sanity:client';
 import { PortableText } from 'astro-portabletext';
 
+import { translateText } from '../../../utils/translate';
+
 export async function getStaticPaths() {
   const tutorials = await sanityClient.fetch(`*[_type == "tutorial"]{ slug }`);
   
@@ -31,6 +33,13 @@ const tutorial = await sanityClient.fetch(`*[_type == "tutorial" && slug.current
 
 if (!tutorial) {
   return Astro.redirect('/404');
+}
+
+// Traducir campos clave
+tutorial.title = await translateText(tutorial.title, 'EN-US');
+tutorial.excerpt = await translateText(tutorial.excerpt, 'EN-US');
+if (tutorial.body) {
+    tutorial.body = await translateText(tutorial.body, 'EN-US');
 }
 ---
 
