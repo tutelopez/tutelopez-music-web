@@ -12,20 +12,75 @@ const client = createClient({
   token: process.env.SANITY_EDITOR_TOKEN, // Required for writing
 });
 
+// Helper de Administrador
+function isAdmin(ctx) {
+    const adminId = process.env.ADMIN_ID || process.env.TELEGRAM_ADMIN_ID;
+    const adminUser = (process.env.ADMIN_USERNAME || process.env.TELEGRAM_ADMIN_USERNAME || '').replace('@', '').toLowerCase();
+    
+    // Si no hay variables de admin configuradas, se permite en chat privado para no bloquear al dueño
+    if (!adminId && !adminUser) {
+        return ctx.chat && ctx.chat.type === 'private';
+    }
+    
+    const isIdMatch = adminId && ctx.from && String(ctx.from.id) === String(adminId);
+    const isUserMatch = adminUser && ctx.from && ctx.from.username && ctx.from.username.toLowerCase() === adminUser;
+    
+    return Boolean(isIdMatch || isUserMatch);
+}
+
+// Helpers para Estado de Mensajes Diarios en Sanity
+async function getBotSettings() {
+    try {
+        const settings = await client.fetch(`*[_id == "bot_settings"][0]`);
+        return settings || { dailyCronPaused: false };
+    } catch (e) {
+        console.error('Error fetching bot_settings:', e);
+        return { dailyCronPaused: false };
+    }
+}
+
+async function setDailyCronPaused(paused, user) {
+    const doc = {
+        _id: 'bot_settings',
+        _type: 'botSettings',
+        dailyCronPaused: paused,
+        updatedAt: new Date().toISOString(),
+        updatedBy: user || 'Admin'
+    };
+    return await client.createOrReplace(doc);
+}
+
 // Commands
 bot.start((ctx) => {
-    ctx.reply(
-        `¡Hola ${ctx.from.first_name}! Bienvenido al asistente de TuteLopez Music 🎹\n\n` +
+    let msg = `¡Hola ${ctx.from.first_name}! Bienvenido al asistente de TuteLopez Music 🎹\n\n` +
         `Aquí tienes lo que puedo hacer por ti:\n` +
         `🔍 /buscar [recurso] - Busca librerías y plantillas.\n` +
         `❓ /ayuda - Respuestas rápidas y tutoriales.\n` +
         `📩 /pedir [recurso] - Pide una librería que no encuentres.\n` +
-        `🔔 /suscribirme - Recibe alertas de nuevos recursos VIP.`,
-        Markup.keyboard([
-            ['🔍 Buscar', '❓ Ayuda'],
-            ['📩 Pedir recurso', '🔔 Suscribirme']
-        ]).resize()
-    );
+        `🔔 /suscribirme - Recibe alertas de nuevos recursos VIP.`;
+        
+    const keyboardRows = [
+        ['🔍 Buscar', '❓ Ayuda'],
+        ['📩 Pedir recurso', '🔔 Suscribirme']
+    ];
+
+    if (isAdmin(ctx)) {
+        msg += `\n\n🛠 *Comandos de Control / Admin:*\n` +
+               `⚙️ /panel - Control de mensajes diarios (Pausar/Reanudar)\n` +
+               `⏸ /pausar - Pausar mensajes automáticos diarios\n` +
+               `▶️ /despausar - Reanudar mensajes automáticos diarios\n` +
+               `📊 /estado - Ver estado actual de mensajes\n` +
+               `📢 /enviar_ahora - Publicar un recurso ahora al canal\n` +
+               `📋 /ver_peticiones - Ver peticiones de usuarios\n` +
+               `💬 /broadcast - Enviar anuncio a suscriptores\n` +
+               `🆔 /mi_id - Ver tu ID de Telegram`;
+        keyboardRows.push(['⚙️ Panel de Control', '📊 Estado']);
+    }
+
+    ctx.reply(msg, {
+        parse_mode: 'Markdown',
+        ...Markup.keyboard(keyboardRows).resize()
+    });
 });
 
 // Mensaje de Bienvenida a nuevos miembros del grupo
@@ -176,6 +231,7 @@ bot.hears('📩 Pedir recurso', (ctx) => {
 
 // Admin commands
 bot.command('ver_peticiones', async (ctx) => {
+    if (!isAdmin(ctx)) return ctx.reply('⛔ No tienes permisos para usar este comando.');
     try {
         const requests = await client.fetch(`*[_type == "request"] | order(date desc)[0...15]`);
         if (requests.length === 0) return ctx.reply('No hay peticiones nuevas.');
@@ -191,6 +247,7 @@ bot.command('ver_peticiones', async (ctx) => {
 });
 
 bot.command('broadcast', async (ctx) => {
+    if (!isAdmin(ctx)) return ctx.reply('⛔ No tienes permisos para usar este comando.');
     const message = ctx.message.text.split(' ').slice(1).join(' ').trim();
     if (!message) return ctx.reply('Escribe el mensaje. Ejemplo: `/broadcast ¡Nuevo piano disponible!`', { parse_mode: 'Markdown' });
     
@@ -210,6 +267,161 @@ bot.command('broadcast', async (ctx) => {
         console.error("Broadcast error:", error);
         ctx.reply("Error enviando el broadcast.");
     }
+});
+
+// Control de publicaciones automáticas
+async function sendControlPanel(ctx, isEdit = false) {
+    if (!isAdmin(ctx)) {
+        return ctx.reply('⛔ No tienes permisos para ver el panel de control.');
+    }
+    try {
+        const settings = await getBotSettings();
+        const isPaused = settings.dailyCronPaused === true;
+        const statusIcon = isPaused ? '⏸' : '✅';
+        const statusText = isPaused ? '*PAUSADOS*' : '*ACTIVOS*';
+        const dateStr = settings.updatedAt ? new Date(settings.updatedAt).toLocaleString('es-ES', { timeZone: 'America/Argentina/Buenos_Aires' }) : 'N/A';
+        const userStr = settings.updatedBy || 'N/A';
+
+        const text = `⚙️ *Panel de Control - Mensajes Automáticos Diarios*\n\n` +
+                     `📡 Estado actual: ${statusIcon} ${statusText}\n` +
+                     `⏰ Horario programado: 18:00 UTC (diario)\n` +
+                     `👤 Modificado por: ${userStr}\n` +
+                     `📅 Último cambio: ${dateStr}\n\n` +
+                     `¿Qué deseas hacer? Elige una opción abajo:`;
+
+        const keyboard = Markup.inlineKeyboard([
+            [
+                isPaused 
+                    ? Markup.button.callback('▶️ Reactivar Mensajes Diarios', 'cron_resume')
+                    : Markup.button.callback('⏸ Pausar Mensajes Diarios', 'cron_pause')
+            ],
+            [
+                Markup.button.callback('🔄 Actualizar Estado', 'cron_status'),
+                Markup.button.callback('📢 Publicar Recurso Ahora', 'cron_trigger_now')
+            ]
+        ]);
+
+        if (isEdit) {
+            try {
+                await ctx.editMessageText(text, { parse_mode: 'Markdown', ...keyboard });
+            } catch (err) {
+                // Ignore if content hasn't changed
+            }
+        } else {
+            await ctx.reply(text, { parse_mode: 'Markdown', ...keyboard });
+        }
+    } catch (e) {
+        console.error('Error al generar panel de control:', e);
+        ctx.reply('❌ Error al consultar la configuración en Sanity.');
+    }
+}
+
+async function sendDailyPostNow(ctx) {
+    try {
+        const sanityQuery = `*[_type == "resource"]{
+            title,
+            "slug": slug.current,
+            category
+        }`;
+        const resources = await client.fetch(sanityQuery);
+        if (resources.length > 0) {
+            const randomResource = resources[Math.floor(Math.random() * resources.length)];
+            const message = `🎹 *¡Recurso Recomendado del Día!*\n\n` +
+                            `🔥 *${randomResource.title}*\n` +
+                            `📂 Categoría: ${randomResource.category.toUpperCase()}\n\n` +
+                            `Descárgalo gratis y ayúdanos visitando la web:\n` +
+                            `🔗 https://tutelopezmusic.com/recursos/${randomResource.slug}`;
+            
+            await bot.telegram.sendMessage('@tutelopezmusic', message, { parse_mode: 'Markdown', disable_web_page_preview: false });
+            ctx.reply(`✅ Post enviado con éxito al canal @tutelopezmusic:\n\n*${randomResource.title}*`, { parse_mode: 'Markdown' });
+        } else {
+            ctx.reply('⚠️ No se encontraron recursos en Sanity.');
+        }
+    } catch (error) {
+        console.error('Error al forzar post:', error);
+        ctx.reply(`❌ Error al enviar post: ${error.message}`);
+    }
+}
+
+// Comandos de control
+bot.command(['panel', 'control'], (ctx) => sendControlPanel(ctx));
+bot.hears('⚙️ Panel de Control', (ctx) => sendControlPanel(ctx));
+
+bot.command(['estado', 'estado_diario'], (ctx) => sendControlPanel(ctx));
+bot.hears('📊 Estado', (ctx) => sendControlPanel(ctx));
+
+bot.command(['pausar', 'pausar_diario'], async (ctx) => {
+    if (!isAdmin(ctx)) return ctx.reply('⛔ No tienes permisos para usar este comando.');
+    try {
+        const userTag = ctx.from.username ? `@${ctx.from.username}` : (ctx.from.first_name || 'Admin');
+        await setDailyCronPaused(true, userTag);
+        ctx.reply('⏸ *Mensajes automáticos diarios PAUSADOS.*\n\nEl bot no enviará el recurso automático diario a las 18:00 UTC al canal hasta que los reactives con /despausar.', {
+            parse_mode: 'Markdown',
+            ...Markup.inlineKeyboard([
+                [Markup.button.callback('▶️ Reactivar Mensajes', 'cron_resume')],
+                [Markup.button.callback('⚙️ Panel de Control', 'cron_status')]
+            ])
+        });
+    } catch (e) {
+        console.error('Error al pausar:', e);
+        ctx.reply('❌ Error al actualizar la configuración en Sanity.');
+    }
+});
+
+bot.command(['despausar', 'reanudar', 'activar', 'activar_diario'], async (ctx) => {
+    if (!isAdmin(ctx)) return ctx.reply('⛔ No tienes permisos para usar este comando.');
+    try {
+        const userTag = ctx.from.username ? `@${ctx.from.username}` : (ctx.from.first_name || 'Admin');
+        await setDailyCronPaused(false, userTag);
+        ctx.reply('▶️ *Mensajes automáticos diarios ACTIVADOS.*\n\nEl bot continuará enviando el recurso diario al canal a las 18:00 UTC con normalidad.', {
+            parse_mode: 'Markdown',
+            ...Markup.inlineKeyboard([
+                [Markup.button.callback('⏸ Pausar Mensajes', 'cron_pause')],
+                [Markup.button.callback('⚙️ Panel de Control', 'cron_status')]
+            ])
+        });
+    } catch (e) {
+        console.error('Error al despausar:', e);
+        ctx.reply('❌ Error al actualizar la configuración en Sanity.');
+    }
+});
+
+bot.command(['enviar_ahora', 'post_diario'], async (ctx) => {
+    if (!isAdmin(ctx)) return ctx.reply('⛔ No tienes permisos para usar este comando.');
+    await sendDailyPostNow(ctx);
+});
+
+bot.command('mi_id', (ctx) => {
+    ctx.reply(`🆔 Tu Telegram ID es: \`${ctx.from.id}\`\n👤 Tu usuario: @${ctx.from.username || 'sin_username'}`, { parse_mode: 'Markdown' });
+});
+
+// Callbacks de los botones del panel
+bot.action('cron_pause', async (ctx) => {
+    if (!isAdmin(ctx)) return ctx.answerCbQuery('⛔ Sin permisos.');
+    await ctx.answerCbQuery('Pausando publicaciones...');
+    const userTag = ctx.from.username ? `@${ctx.from.username}` : (ctx.from.first_name || 'Admin');
+    await setDailyCronPaused(true, userTag);
+    await sendControlPanel(ctx, true);
+});
+
+bot.action('cron_resume', async (ctx) => {
+    if (!isAdmin(ctx)) return ctx.answerCbQuery('⛔ Sin permisos.');
+    await ctx.answerCbQuery('Reactivando publicaciones...');
+    const userTag = ctx.from.username ? `@${ctx.from.username}` : (ctx.from.first_name || 'Admin');
+    await setDailyCronPaused(false, userTag);
+    await sendControlPanel(ctx, true);
+});
+
+bot.action('cron_status', async (ctx) => {
+    if (!isAdmin(ctx)) return ctx.answerCbQuery('⛔ Sin permisos.');
+    await ctx.answerCbQuery('Actualizado');
+    await sendControlPanel(ctx, true);
+});
+
+bot.action('cron_trigger_now', async (ctx) => {
+    if (!isAdmin(ctx)) return ctx.answerCbQuery('⛔ Sin permisos.');
+    await ctx.answerCbQuery('Enviando publicación al canal...');
+    await sendDailyPostNow(ctx);
 });
 
 // Entrypoint para Vercel (Serverless Function)

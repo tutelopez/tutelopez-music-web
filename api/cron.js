@@ -7,7 +7,8 @@ const client = createClient({
   projectId: process.env.SANITY_PROJECT_ID,
   dataset: process.env.SANITY_DATASET,
   useCdn: false,
-  apiVersion: '2024-03-01'
+  apiVersion: '2024-03-01',
+  token: process.env.SANITY_EDITOR_TOKEN
 });
 
 export default async function handler(req, res) {
@@ -18,6 +19,15 @@ export default async function handler(req, res) {
     }
 
     try {
+        console.log('Verificando estado de mensajes diarios...');
+        
+        // Verificar si las publicaciones diarias están pausadas
+        const settings = await client.fetch(`*[_id == "bot_settings"][0]`);
+        if (settings && settings.dailyCronPaused === true) {
+            console.log('Mensajes automáticos diarios pausados desde Telegram. Omitiendo envío.');
+            return res.status(200).json({ status: 'paused', message: 'Mensajes automáticos diarios pausados desde el bot' });
+        }
+
         console.log('Ejecutando post automático diario...');
         
         const sanityQuery = `*[_type == "resource"]{
