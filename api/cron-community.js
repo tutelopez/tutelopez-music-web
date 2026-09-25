@@ -69,6 +69,27 @@ export default async function handler(req, res) {
             return res.status(200).json({ status: 'paused', message: 'Mensajes pausados desde el bot' });
         }
 
+        console.log('Verificando día y tipo de mensaje...');
+        const isThursday = new Date().getDay() === 4;
+        const requestedType = req.query?.type;
+
+        if (requestedType === 'poll' || (isThursday && requestedType !== 'community')) {
+            console.log('Jueves de Encuesta: enviando encuesta interactiva al canal...');
+            const poll = {
+                question: "🎹 ¿Qué software o equipo usas principalmente para tocar en vivo?",
+                options: [
+                    "MainStage (Mac)",
+                    "Kontakt Standalone (PC/Mac)",
+                    "iPad (GarageBand / Cubasis / Camelot)",
+                    "Sintetizador / Teclado Hardware",
+                    "Otro (dejar en comentarios)"
+                ]
+            };
+            await bot.telegram.sendPoll('@tutelopezmusic', poll.question, poll.options, { is_anonymous: false });
+            console.log('Encuesta enviada con éxito al canal.');
+            return res.status(200).json({ status: 'Poll sent', question: poll.question });
+        }
+
         console.log('Enviando mensaje de comunidad al canal...');
         const { text, keyboard, title } = getRandomCommunityPost();
 

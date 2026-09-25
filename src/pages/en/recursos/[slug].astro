@@ -55,13 +55,18 @@ let relatedResources = await sanityClient.fetch(relatedQuery, { slug }) || [];
 for (let i = 0; i < relatedResources.length; i++) {
     relatedResources[i] = await translateDocument(relatedResources[i], 'resource');
 }
+
+import { getCompatibilityBadges } from '../../../utils/compatibility';
+const compatBadges = getCompatibilityBadges(resource.category, resource.tags, resource.title);
+const currentUrl = Astro.url.href;
+const shareText = encodeURIComponent(`🎹 Check out this free resource for keyboardists: ${resource.title}!`);
 ---
 
 <MainLayout title={`${resource.title} - TuteLopez Music`} description={resource.description || SITE_DESCRIPTION_EN}>
     <article class="max-w-4xl mx-auto py-12">
         <!-- Breadcrumb -->
         <nav class="mb-8 text-sm text-slate-400">
-            <a href="/en/recursos" class="hover:text-brand transition-colors">Recursos</a>
+            <a href="/en/recursos" class="hover:text-brand transition-colors">Resources</a>
             <span class="mx-2">&gt;</span>
             <span class="uppercase text-brand">{resource.category}</span>
         </nav>
@@ -75,6 +80,52 @@ for (let i = 0; i < relatedResources.length; i++) {
             </div>
             <h1 class="text-4xl md:text-5xl font-extrabold mb-6 text-white">{resource.title}</h1>
             <p class="text-xl text-slate-300 max-w-2xl mx-auto mb-6">{resource.description}</p>
+            
+            <!-- Badges de Compatibilidad -->
+            <div class="flex flex-wrap justify-center items-center gap-2 mb-6">
+                <span class="text-xs uppercase font-bold text-slate-400 mr-1">Compatibility:</span>
+                {compatBadges.map((badge: any) => (
+                    <span class={`text-xs px-3 py-1 rounded-full border font-semibold flex items-center gap-1.5 ${badge.color}`}>
+                        <span>{badge.icon}</span>
+                        <span>{badge.name}</span>
+                    </span>
+                ))}
+            </div>
+
+            <!-- Botones de Compartir Rápido -->
+            <div class="flex flex-wrap justify-center items-center gap-3 mb-6">
+                <span class="text-xs uppercase font-bold text-slate-400">Share:</span>
+                <a 
+                    href={`https://api.whatsapp.com/send?text=${shareText}%20${encodeURIComponent(currentUrl)}`} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#25D366]/10 text-[#25D366] hover:bg-[#25D366] hover:text-white border border-[#25D366]/30 text-xs font-semibold transition-all"
+                    title="Share on WhatsApp"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.007c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.275.072.376-.043c.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.045.072.045.419-.1.824zm-3.423-14.416c-6.627 0-12 5.373-12 12 0 2.155.57 4.179 1.564 5.929l-1.564 5.715 5.864-1.538c1.691.926 3.63 1.458 5.698 1.458 6.627 0 12-5.373 12-12s-5.373-12-12-12z"/></svg>
+                    WhatsApp
+                </a>
+                <a 
+                    href={`https://t.me/share/url?url=${encodeURIComponent(currentUrl)}&text=${shareText}`} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#0088cc]/10 text-[#0088cc] hover:bg-[#0088cc] hover:text-white border border-[#0088cc]/30 text-xs font-semibold transition-all"
+                    title="Share on Telegram"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69.01-.03.01-.14-.07-.18-.08-.05-.19-.02-.27 0-.12.03-1.98 1.25-5.58 3.69-.53.36-1.01.53-1.44.52-.47-.01-1.37-.26-2.03-.48-.82-.27-1.47-.42-1.42-.88.03-.24.3-.49.82-.76 3.2-1.39 5.34-2.31 6.41-2.76 3.05-1.28 3.69-1.5 4.11-1.5.09 0 .29.02.4.1.1.06.18.15.2.27.02.12.02.26.01.37z"/></svg>
+                    Telegram
+                </a>
+                <button 
+                    type="button" 
+                    id="copy-link-btn" 
+                    class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 text-slate-300 hover:text-white hover:bg-slate-700 border border-slate-700 text-xs font-semibold transition-all cursor-pointer"
+                    title="Copy link"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+                    <span id="copy-btn-text">Copy link</span>
+                </button>
+            </div>
+
             {resource.tags && resource.tags.length > 0 && (
                 <div class="flex flex-wrap justify-center gap-2">
                     {resource.tags.map((tag: string) => (
@@ -167,26 +218,57 @@ for (let i = 0; i < relatedResources.length; i++) {
                 <script type="text/plain" data-category="ads" is:inline src="https://www.highperformanceformat.com/199b89076e1e9093fdb283a2a357e0af/invoke.js"></script>
             </div>
 
+            <!-- Temporizador de Descarga Elegante (5s) -->
+            <div id="download-timer-box" class="hidden w-full max-w-md mx-auto mb-6 p-5 rounded-2xl bg-slate-900/90 border border-brand/50 shadow-2xl backdrop-blur-md">
+                <div class="flex items-center justify-between gap-3 mb-3">
+                    <div class="flex items-center gap-2">
+                        <span class="relative flex h-3 w-3">
+                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand opacity-75"></span>
+                            <span class="relative inline-flex rounded-full h-3 w-3 bg-brand"></span>
+                        </span>
+                        <span class="text-sm font-bold text-white">Preparing high-speed download...</span>
+                    </div>
+                    <span id="timer-countdown-badge" class="px-2.5 py-0.5 rounded-full bg-brand/20 text-brand text-xs font-mono font-bold">5s</span>
+                </div>
+                <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden mb-3">
+                    <div id="timer-progress-bar" class="bg-gradient-to-r from-brand to-purple-500 h-full w-0 transition-all duration-1000 ease-linear"></div>
+                </div>
+                <div class="flex items-center justify-between text-xs text-slate-400">
+                    <span>Verified link, high-speed & virus-free</span>
+                    <button type="button" id="skip-timer-btn" class="text-brand hover:underline font-semibold cursor-pointer">
+                        Skip waiting ➔
+                    </button>
+                </div>
+            </div>
+
             <div class="flex flex-col items-center gap-4 w-full relative z-10">
                 {resource.teraboxLink && (
-                    <a href={resource.teraboxLink} target="_blank" class="flex items-center justify-center gap-3 w-full sm:w-auto px-8 py-4 bg-orange-500 text-white font-bold text-lg rounded-full hover:bg-orange-400 transition-transform hover:scale-105 shadow-lg shadow-orange-500/30">
+                    <button 
+                        type="button" 
+                        data-download-url={resource.teraboxLink} 
+                        class="download-trigger-btn flex items-center justify-center gap-3 w-full sm:w-auto px-8 py-4 bg-orange-500 text-white font-bold text-lg rounded-full hover:bg-orange-400 transition-transform hover:scale-105 shadow-lg shadow-orange-500/30 cursor-pointer"
+                    >
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6 shrink-0 block">
                             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
                             <polyline points="7 10 12 15 17 10"></polyline>
                             <line x1="12" y1="15" x2="12" y2="3"></line>
                         </svg>
-                        <span>Descargar en Terabox</span>
-                    </a>
+                        <span>Download on Terabox</span>
+                    </button>
                 )}
                 
                 {resource.downloadLink && (
-                    <a href={resource.downloadLink} target="_blank" class="flex items-center justify-center gap-3 w-full sm:w-auto px-8 py-4 bg-brand text-white font-bold text-lg rounded-full hover:bg-brand-light transition-transform hover:scale-105 shadow-lg shadow-brand/30">
+                    <button 
+                        type="button" 
+                        data-download-url={resource.downloadLink} 
+                        class="download-trigger-btn flex items-center justify-center gap-3 w-full sm:w-auto px-8 py-4 bg-brand text-white font-bold text-lg rounded-full hover:bg-brand-light transition-transform hover:scale-105 shadow-lg shadow-brand/30 cursor-pointer"
+                    >
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6 shrink-0 block">
                             <line x1="22" y1="2" x2="11" y2="13"></line>
                             <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
                         </svg>
-                        <span>Descargar en Telegram</span>
-                    </a>
+                        <span>Download on Telegram</span>
+                    </button>
                 )}
             </div>
 
@@ -269,4 +351,80 @@ for (let i = 0; i < relatedResources.length; i++) {
         }
       ]
     })} />
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Copy Link
+            const copyBtn = document.getElementById('copy-link-btn');
+            const copyText = document.getElementById('copy-btn-text');
+            if (copyBtn) {
+                copyBtn.addEventListener('click', async () => {
+                    try {
+                        await navigator.clipboard.writeText(window.location.href);
+                        if (copyText) copyText.innerText = 'Copied!';
+                        setTimeout(() => {
+                            if (copyText) copyText.innerText = 'Copy link';
+                        }, 2000);
+                    } catch (e) {}
+                });
+            }
+
+            // Download Timer (5s)
+            const downloadButtons = document.querySelectorAll('.download-trigger-btn');
+            const timerBox = document.getElementById('download-timer-box');
+            const countdownBadge = document.getElementById('timer-countdown-badge');
+            const progressBar = document.getElementById('timer-progress-bar');
+            const skipBtn = document.getElementById('skip-timer-btn');
+
+            let countdown = 5;
+            let timerInterval: any = null;
+            let pendingUrl = '';
+
+            function startDownload(url: string) {
+                clearInterval(timerInterval);
+                if (timerBox) timerBox.classList.add('hidden');
+                window.open(url, '_blank');
+            }
+
+            downloadButtons.forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const url = btn.getAttribute('data-download-url');
+                    if (!url) return;
+                    pendingUrl = url;
+
+                    if (!timerBox) {
+                        window.open(url, '_blank');
+                        return;
+                    }
+
+                    timerBox.classList.remove('hidden');
+                    timerBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+                    countdown = 5;
+                    if (countdownBadge) countdownBadge.innerText = `${countdown}s`;
+                    if (progressBar) progressBar.style.width = '0%';
+
+                    clearInterval(timerInterval);
+                    timerInterval = setInterval(() => {
+                        countdown--;
+                        const progressPercent = ((5 - countdown) / 5) * 100;
+                        if (progressBar) progressBar.style.width = `${progressPercent}%`;
+                        if (countdownBadge) countdownBadge.innerText = `${countdown}s`;
+
+                        if (countdown <= 0) {
+                            clearInterval(timerInterval);
+                            startDownload(pendingUrl);
+                        }
+                    }, 1000);
+                });
+            });
+
+            if (skipBtn) {
+                skipBtn.addEventListener('click', () => {
+                    if (pendingUrl) startDownload(pendingUrl);
+                });
+            }
+        });
+    </script>
 </MainLayout>

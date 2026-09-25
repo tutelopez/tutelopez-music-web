@@ -2,6 +2,7 @@
 import MainLayout from '../../layouts/MainLayout.astro';
 import { sanityClient } from 'sanity:client';
 import { getCategoryStyles } from '../../utils/neonStyles';
+import { getCompatibilityBadges } from '../../utils/compatibility';
 import { Image } from 'astro:assets';
 
 // Fetch resources from Sanity
@@ -63,6 +64,23 @@ const tags = ["Todas", ...uniqueTags];
             </div>
         </div>
         
+        <!-- Chips de Etiquetas Rápidas -->
+        <div class="flex flex-wrap items-center gap-2 mb-8">
+            <span class="text-xs uppercase font-bold text-slate-400 mr-1 flex items-center gap-1.5">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-brand"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg>
+                Filtro rápido:
+            </span>
+            {['worship', 'piano', 'pads', 'ipad', 'kontakt', 'mainstage', 'sf2', 'gratis'].map((chip) => (
+                <button 
+                    type="button" 
+                    data-tag-chip={chip} 
+                    class="tag-chip px-3 py-1 text-xs font-semibold rounded-full bg-slate-800/80 text-slate-300 hover:text-white hover:bg-slate-700 border border-slate-700/60 transition-all cursor-pointer"
+                >
+                    #{chip}
+                </button>
+            ))}
+        </div>
+
         <!-- Espacio para Anuncio Adsterra Top 728x90 -->
         <div class="w-full mb-12 flex justify-center overflow-hidden min-h-[90px]">
             <script is:inline>
@@ -92,16 +110,25 @@ const tags = ["Todas", ...uniqueTags];
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" id="resources-grid">
             {displayResources.map((resource: any) => {
                 const styles = getCategoryStyles(resource.category);
+                const compatBadges = getCompatibilityBadges(resource.category, resource.tags, resource.title);
                 return (
-                <a href={`/recursos/${resource.slug}`} data-category={resource.category} data-title={resource.title} data-description={resource.description} data-tags={(resource.tags || []).join(',')} class={`resource-card glass-panel overflow-hidden group block transition-all duration-300 border ${styles.borderClass}`}>
+                <a href={`/recursos/${resource.slug}`} data-category={resource.category} data-title={resource.title} data-description={resource.description} data-tags={(resource.tags || []).join(',')} class={`resource-card glass-panel overflow-hidden group flex flex-col transition-all duration-300 border ${styles.borderClass}`}>
                     <div class="h-48 bg-slate-800 w-full flex items-center justify-center overflow-hidden relative [mask-image:linear-gradient(to_bottom,black_60%,transparent_100%)]">
                         {resource.imageUrl ? (
                             <Image src={resource.imageUrl} alt={resource.title} width={400} height={200} loading="lazy" class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
                         ) : (
                             <span class="text-slate-500">Sin Imagen</span>
                         )}
+                        <!-- Badges de Compatibilidad en la Imagen -->
+                        <div class="absolute top-3 right-3 flex flex-wrap gap-1 z-10">
+                            {compatBadges.map((badge: any) => (
+                                <span class={`text-[10px] px-2 py-0.5 rounded-md border backdrop-blur-md font-semibold ${badge.color}`}>
+                                    {badge.icon} {badge.name}
+                                </span>
+                            ))}
+                        </div>
                     </div>
-                    <div class="p-6">
+                    <div class="p-6 flex flex-col flex-grow">
                         <span class={`text-xs font-bold uppercase tracking-wider mb-2 block ${styles.textClass}`}>{resource.category}</span>
                         <h3 class={`text-xl font-bold mb-2 transition-colors group-hover:${styles.textClass}`}>{resource.title}</h3>
                         <p class="text-slate-400 text-sm mb-4 line-clamp-2">{resource.description}</p>
@@ -216,7 +243,10 @@ const tags = ["Todas", ...uniqueTags];
                 const tagsArr = tagsStr ? tagsStr.split(',') : [];
                 
                 const matchesCategory = currentFilter === 'all' || category === currentFilter;
-                const matchesTag = currentTag === 'all' || tagsArr.includes(currentTag);
+                const matchesTag = currentTag === 'all' || 
+                    tagsArr.some(t => t.toLowerCase() === currentTag.toLowerCase()) ||
+                    (category || '').toLowerCase().includes(currentTag.toLowerCase()) ||
+                    title.includes(currentTag.toLowerCase());
                 const matchesSearch = currentSearchQuery === '' || title.includes(currentSearchQuery) || description.includes(currentSearchQuery);
 
                 return matchesCategory && matchesSearch && matchesTag;
@@ -239,7 +269,7 @@ const tags = ["Todas", ...uniqueTags];
             });
 
             filteredCards.slice(startIndex, endIndex).forEach(c => {
-                (c as HTMLElement).style.display = 'block';
+                (c as HTMLElement).style.display = 'flex';
             });
 
             // Update UI
@@ -263,6 +293,31 @@ const tags = ["Todas", ...uniqueTags];
             });
         });
 
+        // Tag Chips Filter
+        const tagChips = document.querySelectorAll('.tag-chip');
+        tagChips.forEach(chip => {
+            chip.addEventListener('click', () => {
+                const targetTag = chip.getAttribute('data-tag-chip') || '';
+                if (currentTag === targetTag) {
+                    currentTag = 'all';
+                    chip.classList.remove('bg-brand', 'text-white', 'border-brand');
+                    chip.classList.add('bg-slate-800/80', 'text-slate-300');
+                    if (tagFilter) tagFilter.value = 'all';
+                } else {
+                    tagChips.forEach(c => {
+                        c.classList.remove('bg-brand', 'text-white', 'border-brand');
+                        c.classList.add('bg-slate-800/80', 'text-slate-300');
+                    });
+                    currentTag = targetTag;
+                    chip.classList.remove('bg-slate-800/80', 'text-slate-300');
+                    chip.classList.add('bg-brand', 'text-white', 'border-brand');
+                    if (tagFilter) tagFilter.value = targetTag;
+                }
+                currentPage = 1;
+                filterResources();
+            });
+        });
+
         // Search Input Filter
         if(searchInput) {
             searchInput.addEventListener('input', (e) => {
@@ -276,6 +331,15 @@ const tags = ["Todas", ...uniqueTags];
         if(tagFilter) {
             tagFilter.addEventListener('change', (e) => {
                 currentTag = (e.target as HTMLSelectElement).value;
+                tagChips.forEach(c => {
+                    if (c.getAttribute('data-tag-chip') === currentTag) {
+                        c.classList.remove('bg-slate-800/80', 'text-slate-300');
+                        c.classList.add('bg-brand', 'text-white', 'border-brand');
+                    } else {
+                        c.classList.remove('bg-brand', 'text-white', 'border-brand');
+                        c.classList.add('bg-slate-800/80', 'text-slate-300');
+                    }
+                });
                 currentPage = 1; // Reset page on filter
                 filterResources();
             });

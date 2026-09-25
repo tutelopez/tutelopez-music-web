@@ -63,6 +63,82 @@ function getRandomCommunityPost() {
     return { text, keyboard, title: template.title };
 }
 
+const TIPS_COLLECTION = [
+    {
+        title: "💡 TIP PARA MAINSTAGE: Ahorra el 70% de memoria RAM usando Alias",
+        body: "Si repites el mismo piano o sinte en varios parches de tu concierto, ¡no cargues el plugin de nuevo!\n\n" +
+              "Crea un **Alias** (arrastrar la tira de canal manteniendo presionado Opción + Comando). El alias reutiliza las muestras ya cargadas en la memoria sin duplicar el consumo de RAM ni sobrecargar tu CPU.",
+        url: "https://tutelopezmusic.com/tutoriales/optimizar-mainstage-alias-memoria-ram",
+        btn: "📖 Ver Tutorial Completo de Alias"
+    },
+    {
+        title: "💡 TIP EN VIVO: Cómo eliminar cortes de audio y clics en Mac",
+        body: "¿Escuchas ruidos extraños o micro-cortes al tocar rápido o cambiar de sonido?\n\n" +
+              "1. Ajusta tu **I/O Buffer Size** a 128 o 256 samples (el balance perfecto entre latencia imperceptible y estabilidad).\n" +
+              "2. Desactiva Wi-Fi si no transmites datos.\n" +
+              "3. Deshabilita el modo reposo / App Nap en macOS para MainStage.",
+        url: "https://tutelopezmusic.com/tutoriales/como-optimizar-tu-mac-para-usar-mainstage-en-vivo-sin-cortes",
+        btn: "🚀 Ver Guía de Optimización Mac"
+    },
+    {
+        title: "💡 TIP DE KONTAKT: Cargar librerías sin agotar tu memoria",
+        body: "Usa la función **Purge** (Purgar muestras) en la esquina superior de Kontakt.\n\n" +
+              "Al hacer clic en `Purge -> Purge All Samples`, Kontakt descarga de la RAM todas las muestras inactivas. Al tocar tu canción, solo retendrá en memoria las notas exactas que ejecutaste en tu teclado. ¡Tu plantilla pesará una fracción!",
+        url: "https://tutelopezmusic.com/tutoriales/abrir-librerias-kontakt-mainstage",
+        btn: "🎹 Ver Guía de Kontakt en MainStage"
+    },
+    {
+        title: "💡 TIP DE WORSHIP: El secreto del Pad Continuo",
+        body: "Para evitar silencios incómodos o transiciones frías entre canciones en tu iglesia:\n\n" +
+              "Mantén un Pad ambiental sonando suave en la tonalidad (1ª y 5ª nota) con el filtro Cutoff a medio abrir. Esto le da un colchón cálido a toda la banda sin competir jamás con la voz principal ni ensuciar la mezcla.",
+        url: "https://tutelopezmusic.com/recursos",
+        btn: "🎵 Descargar Pads Ambientales Gratis"
+    }
+];
+
+const POLLS_COLLECTION = [
+    {
+        question: "🎹 ¿Qué software o equipo usas principalmente para tocar en vivo?",
+        options: [
+            "MainStage (Mac)",
+            "Kontakt Standalone (PC/Mac)",
+            "iPad (GarageBand / Cubasis / Camelot)",
+            "Sintetizador / Teclado Hardware",
+            "Otro (dejar en comentarios)"
+        ]
+    },
+    {
+        question: "🔥 ¿Qué tipo de recursos necesitas más para tus ensayos?",
+        options: [
+            "Pianos Worship (Acústicos / Grand)",
+            "Pads Ambientales / Drones continuos",
+            "Sintetizadores & Leads Worship",
+            "Plantillas completas para MainStage",
+            "SoundFonts y Apps para celular/tablet"
+        ]
+    },
+    {
+        question: "⚡ Al tocar en vivo, ¿cuál es tu mayor dolor de cabeza?",
+        options: [
+            "Consumo excesivo de RAM / CPU",
+            "Latencia al presionar las teclas",
+            "Organizar los patches por canción",
+            "Conectar pads y secuencias a tiempo",
+            "Nada, todo va perfecto 😎"
+        ]
+    },
+    {
+        question: "🎛 ¿Qué marca de controlador MIDI o teclado usas actualmente?",
+        options: [
+            "Novation (Launchkey, etc.)",
+            "Arturia (KeyLab, MiniLab)",
+            "M-Audio / Alesis",
+            "Yamaha / Roland / Korg / Nord",
+            "Teclado común conectado por USB"
+        ]
+    }
+];
+
 // Helper de Administrador
 function isAdmin(ctx) {
     const adminId = process.env.ADMIN_ID || process.env.TELEGRAM_ADMIN_ID;
@@ -833,7 +909,11 @@ async function sendControlPanel(ctx, isEdit = false) {
                 Markup.button.callback('💬 Invitar Comunidad', 'cron_community_now')
             ],
             [
-                Markup.button.callback('📊 Ver Estadísticas', 'open_stats'),
+                Markup.button.callback('📊 Enviar Encuesta', 'cron_poll_now'),
+                Markup.button.callback('💡 Enviar Tip', 'cron_tip_now')
+            ],
+            [
+                Markup.button.callback('📈 Ver Estadísticas', 'open_stats'),
                 Markup.button.callback('🔄 Actualizar Panel', 'cron_status')
             ]
         ]);
@@ -953,6 +1033,81 @@ async function sendCommunityPostNow(ctx) {
     }
 }
 
+async function sendTipNow(ctx) {
+    if (!isAdmin(ctx)) return ctx.reply('⛔ No tienes permisos para usar este comando.');
+    try {
+        const tip = TIPS_COLLECTION[Math.floor(Math.random() * TIPS_COLLECTION.length)];
+        const message = `*${tip.title}*\n\n${tip.body}`;
+        const keyboard = Markup.inlineKeyboard([
+            [Markup.button.url(tip.btn, tip.url)],
+            [Markup.button.url('💬 Grupo de la Comunidad', COMMUNITY_LINK)]
+        ]);
+
+        await bot.telegram.sendMessage('@tutelopezmusic', message, {
+            parse_mode: 'Markdown',
+            disable_web_page_preview: false,
+            ...keyboard
+        });
+        ctx.reply(`✅ *Tip enviado con éxito al canal @tutelopezmusic:*\n\n"${tip.title}"`, { parse_mode: 'Markdown' });
+    } catch (error) {
+        console.error('Error al enviar tip:', error);
+        ctx.reply(`❌ Error al enviar tip: ${error.message}`);
+    }
+}
+
+async function sendPollNow(ctx) {
+    if (!isAdmin(ctx)) return ctx.reply('⛔ No tienes permisos para usar este comando.');
+    try {
+        const poll = POLLS_COLLECTION[Math.floor(Math.random() * POLLS_COLLECTION.length)];
+        await bot.telegram.sendPoll('@tutelopezmusic', poll.question, poll.options, {
+            is_anonymous: false
+        });
+        ctx.reply(`✅ *Encuesta enviada con éxito al canal @tutelopezmusic:*\n\n"${poll.question}"`, { parse_mode: 'Markdown' });
+    } catch (error) {
+        console.error('Error al enviar encuesta:', error);
+        ctx.reply(`❌ Error al enviar encuesta: ${error.message}`);
+    }
+}
+
+async function sendWeeklySummaryNow(ctx) {
+    if (!isAdmin(ctx)) return ctx.reply('⛔ No tienes permisos para usar este comando.');
+    try {
+        const resources = await client.fetch(`*[_type == "resource"] | order(_createdAt desc)[0...5]{
+            title,
+            "slug": slug.current,
+            category
+        }`);
+        if (!resources || resources.length === 0) {
+            return ctx.reply('⚠️ No se encontraron recursos en Sanity.');
+        }
+
+        let msg = `🔥 *¡NOVEDADES DE LA SEMANA EN TUTELOPEZ MUSIC!* 🎹\n\n` +
+                  `Prepara tu setup para este fin de semana con lo último que subimos:\n\n`;
+
+        resources.forEach((r, idx) => {
+            msg += `${idx + 1}. *${r.title}* (\`${(r.category || 'recurso').toUpperCase()}\`)\n` +
+                   `   🔗 https://tutelopezmusic.com/recursos/${r.slug}\n\n`;
+        });
+
+        msg += `👇 Únete a la conversación en nuestro grupo o descarga directo desde la web:`;
+
+        const keyboard = Markup.inlineKeyboard([
+            [Markup.button.url('🌐 Ver Todo en la Web', 'https://tutelopezmusic.com/recursos')],
+            [Markup.button.url('💬 Grupo de la Comunidad', COMMUNITY_LINK)]
+        ]);
+
+        await bot.telegram.sendMessage('@tutelopezmusic', msg, {
+            parse_mode: 'Markdown',
+            disable_web_page_preview: true,
+            ...keyboard
+        });
+        ctx.reply(`✅ Resumen semanal enviado con éxito al canal.`);
+    } catch (error) {
+        console.error('Error al enviar resumen semanal:', error);
+        ctx.reply(`❌ Error al enviar resumen: ${error.message}`);
+    }
+}
+
 // Comandos de control
 bot.command(['panel', 'control'], (ctx) => sendControlPanel(ctx));
 bot.hears('⚙️ Panel de Control', (ctx) => sendControlPanel(ctx));
@@ -1009,6 +1164,21 @@ bot.command(['comunidad', 'invitar', 'invitar_comunidad'], async (ctx) => {
     await sendCommunityPostNow(ctx);
 });
 
+bot.command(['encuesta', 'poll'], async (ctx) => {
+    if (!isAdmin(ctx)) return ctx.reply('⛔ No tienes permisos para usar este comando.');
+    await sendPollNow(ctx);
+});
+
+bot.command(['tip', 'consejo'], async (ctx) => {
+    if (!isAdmin(ctx)) return ctx.reply('⛔ No tienes permisos para usar este comando.');
+    await sendTipNow(ctx);
+});
+
+bot.command(['resumen', 'novedades', 'semanal'], async (ctx) => {
+    if (!isAdmin(ctx)) return ctx.reply('⛔ No tienes permisos para usar este comando.');
+    await sendWeeklySummaryNow(ctx);
+});
+
 bot.command('mi_id', (ctx) => {
     ctx.reply(`🆔 Tu Telegram ID es: \`${ctx.from.id}\`\n👤 Tu usuario: @${ctx.from.username || 'sin_username'}`, { parse_mode: 'Markdown' });
 });
@@ -1058,6 +1228,18 @@ bot.action('cron_community_now', async (ctx) => {
     if (!isAdmin(ctx)) return ctx.answerCbQuery('⛔ Sin permisos.');
     await ctx.answerCbQuery('Enviando invitación al canal...');
     await sendCommunityPostNow(ctx);
+});
+
+bot.action('cron_poll_now', async (ctx) => {
+    if (!isAdmin(ctx)) return ctx.answerCbQuery('⛔ Sin permisos.');
+    await ctx.answerCbQuery('Enviando encuesta al canal...');
+    await sendPollNow(ctx);
+});
+
+bot.action('cron_tip_now', async (ctx) => {
+    if (!isAdmin(ctx)) return ctx.answerCbQuery('⛔ Sin permisos.');
+    await ctx.answerCbQuery('Enviando tip al canal...');
+    await sendTipNow(ctx);
 });
 
 // ==========================================
