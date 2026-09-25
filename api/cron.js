@@ -1,7 +1,8 @@
-import { Telegraf } from 'telegraf';
+import { Telegraf, Markup } from 'telegraf';
 import { createClient } from '@sanity/client';
 
 const bot = new Telegraf(process.env.BOT_TOKEN);
+const COMMUNITY_LINK = 'https://t.me/+O4dufR129f4yZWE5';
 
 const client = createClient({
   projectId: process.env.SANITY_PROJECT_ID,
@@ -43,10 +44,18 @@ export default async function handler(req, res) {
             const message = `🎹 *¡Recurso Recomendado del Día!*\n\n` +
                             `🔥 *${randomResource.title}*\n` +
                             `📂 Categoría: ${randomResource.category.toUpperCase()}\n\n` +
-                            `Descárgalo gratis y ayúdanos visitando la web:\n` +
-                            `🔗 https://tutelopezmusic.com/recursos/${randomResource.slug}`;
+                            `Descárgalo gratis y ayúdanos visitando la web:`;
             
-            await bot.telegram.sendMessage('@tutelopezmusic', message, { parse_mode: 'Markdown', disable_web_page_preview: false });
+            const keyboard = Markup.inlineKeyboard([
+                [Markup.button.url('📥 Descargar en la Web', `https://tutelopezmusic.com/recursos/${randomResource.slug}`)],
+                [Markup.button.url('💬 Grupo de la Comunidad', COMMUNITY_LINK)]
+            ]);
+
+            await bot.telegram.sendMessage('@tutelopezmusic', message, {
+                parse_mode: 'Markdown',
+                disable_web_page_preview: false,
+                ...keyboard
+            });
             console.log('Post enviado al canal con éxito.');
             
             return res.status(200).json({ status: 'Post sent', title: randomResource.title });

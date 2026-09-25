@@ -20,6 +20,49 @@ const client = createClient({
   token: process.env.SANITY_EDITOR_TOKEN,
 });
 
+const COMMUNITY_LINK = 'https://t.me/+O4dufR129f4yZWE5';
+
+const COMMUNITY_TEMPLATES = [
+    {
+        title: "💬 ¡Únete a nuestra Comunidad de Músicos & Tecladistas! 🎹",
+        body: "En este canal compartimos los recursos para descargar, pero en nuestro **Grupo Oficial** charlamos todos los días.\n\n" +
+              "🔥 *¿Qué hacemos en el grupo?*\n" +
+              "• 🎹 Resolver dudas de MainStage, Kontakt, iPad y sintes\n" +
+              "• 📂 Compartir patches, presets y librerías entre colegas\n" +
+              "• 💡 Ayudarnos mutuamente con configuraciones en vivo\n" +
+              "• 🤝 Conectar con otros tecladistas y productores\n\n" +
+              "¡No te quedes afuera y súmate a la conversación!",
+        btn: "💬 Entrar al Grupo de la Comunidad"
+    },
+    {
+        title: "👥 ¡No toques solo! Haz parte de la Comunidad 🎹🔥",
+        body: "¿Tienes dudas con tus configuraciones en vivo o quieres recomendar una librería que te encanta?\n\n" +
+              "En el canal no se puede escribir para no saturar con notificaciones, ¡pero creamos este **Grupo Especial** para que todos podamos interactuar!\n\n" +
+              "✨ Pasa a saludar, presenta tu setup o comparte tus archivos.",
+        btn: "🚀 Unirme al Grupo Oficial"
+    },
+    {
+        title: "🎹 ¿Buscabas un espacio para charlar de música y sintes? 💬",
+        body: "¡Nuestra comunidad en Telegram sigue creciendo!\n\n" +
+              "Únete a nuestro grupo para:\n" +
+              "✅ Charlar de teclados, controladores y equipo\n" +
+              "✅ Pedir y compartir presets de worship\n" +
+              "✅ Recibir consejos para optimizar tu sonido en vivo\n\n" +
+              "¡Toca el botón abajo para ingresar gratis!",
+        btn: "👥 Unirse a la Charla"
+    }
+];
+
+function getRandomCommunityPost() {
+    const template = COMMUNITY_TEMPLATES[Math.floor(Math.random() * COMMUNITY_TEMPLATES.length)];
+    const text = `*${template.title}*\n\n${template.body}`;
+    const keyboard = Markup.inlineKeyboard([
+        [Markup.button.url(template.btn, COMMUNITY_LINK)],
+        [Markup.button.url('🌐 Explorar la Web', 'https://tutelopezmusic.com')]
+    ]);
+    return { text, keyboard, title: template.title };
+}
+
 // Helper de Administrador
 function isAdmin(ctx) {
     const adminId = process.env.ADMIN_ID || process.env.TELEGRAM_ADMIN_ID;
@@ -537,6 +580,7 @@ bot.start((ctx) => {
         msg += `\n\n🛠 *Comandos de Control / Admin:*\n` +
                `⚙️ /panel - Control de mensajes diarios (Pausar/Reanudar)\n` +
                `📊 /stats - Métricas y estadísticas en tiempo real\n` +
+               `💬 /comunidad - Enviar invitación al grupo de la comunidad\n` +
                `⏸ /pausar - Pausar mensajes automáticos diarios\n` +
                `▶️ /despausar - Reanudar mensajes automáticos diarios\n` +
                `📢 /enviar_ahora - Publicar un recurso ahora al canal\n` +
@@ -577,6 +621,24 @@ bot.hears(/(contraseña|password|clave|pass)/i, (ctx, next) => {
     ctx.reply('🔑 Recuerda que la contraseña para descomprimir todos nuestros archivos es:\n\n`tutelopezmusic`', { parse_mode: 'Markdown' });
 });
 
+// Auto-respuesta rápida para el grupo / comunidad
+bot.hears(/(grupo|comunidad|chat)/i, (ctx, next) => {
+    if (ctx.message.text && ctx.message.text.startsWith('/')) return next();
+    if (ctx.message.forward_origin || ctx.message.forward_from_chat || ctx.message.photo || ctx.message.document) return next();
+    ctx.reply(
+        `💬 *Grupo Oficial de la Comunidad TuteLopez Music*\n\n` +
+        `¡En nuestro grupo todos los tecladistas y músicos charlamos, compartimos librerías, configuraciones y resolvemos dudas!\n\n` +
+        `👉 [Toca aquí para unirte al Grupo](${COMMUNITY_LINK})`,
+        {
+            parse_mode: 'Markdown',
+            disable_web_page_preview: true,
+            ...Markup.inlineKeyboard([
+                [Markup.button.url('💬 Entrar al Grupo', COMMUNITY_LINK)]
+            ])
+        }
+    );
+});
+
 // Ayuda y Tutoriales
 bot.command('ayuda', (ctx) => showHelpMenu(ctx));
 bot.hears('❓ Ayuda', (ctx) => showHelpMenu(ctx));
@@ -586,7 +648,8 @@ function showHelpMenu(ctx) {
         [Markup.button.callback('🔑 Clave de Archivos RAR/ZIP', 'faq_password')],
         [Markup.button.callback('🍏 Optimizar Mac / MainStage', 'faq_mainstage')],
         [Markup.button.callback('🎹 Abrir librerías en Kontakt', 'faq_kontakt')],
-        [Markup.button.callback('⚠️ Error límite en Terabox', 'faq_terabox')]
+        [Markup.button.callback('⚠️ Error límite en Terabox', 'faq_terabox')],
+        [Markup.button.url('💬 Grupo de la Comunidad', COMMUNITY_LINK)]
     ]));
 }
 
@@ -766,10 +829,11 @@ async function sendControlPanel(ctx, isEdit = false) {
                     : Markup.button.callback('⏸ Pausar Mensajes Diarios', 'cron_pause')
             ],
             [
-                Markup.button.callback('📊 Ver Estadísticas', 'open_stats'),
-                Markup.button.callback('📢 Publicar Ahora', 'cron_trigger_now')
+                Markup.button.callback('📢 Publicar Recurso', 'cron_trigger_now'),
+                Markup.button.callback('💬 Invitar Comunidad', 'cron_community_now')
             ],
             [
+                Markup.button.callback('📊 Ver Estadísticas', 'open_stats'),
                 Markup.button.callback('🔄 Actualizar Panel', 'cron_status')
             ]
         ]);
@@ -851,10 +915,18 @@ async function sendDailyPostNow(ctx) {
             const message = `🎹 *¡Recurso Recomendado del Día!*\n\n` +
                             `🔥 *${randomResource.title}*\n` +
                             `📂 Categoría: ${randomResource.category.toUpperCase()}\n\n` +
-                            `Descárgalo gratis y ayúdanos visitando la web:\n` +
-                            `🔗 https://tutelopezmusic.com/recursos/${randomResource.slug}`;
+                            `Descárgalo gratis y ayúdanos visitando la web:`;
             
-            await bot.telegram.sendMessage('@tutelopezmusic', message, { parse_mode: 'Markdown', disable_web_page_preview: false });
+            const keyboard = Markup.inlineKeyboard([
+                [Markup.button.url('📥 Descargar en la Web', `https://tutelopezmusic.com/recursos/${randomResource.slug}`)],
+                [Markup.button.url('💬 Grupo de la Comunidad', COMMUNITY_LINK)]
+            ]);
+
+            await bot.telegram.sendMessage('@tutelopezmusic', message, {
+                parse_mode: 'Markdown',
+                disable_web_page_preview: false,
+                ...keyboard
+            });
             ctx.reply(`✅ Post enviado con éxito al canal @tutelopezmusic:\n\n*${randomResource.title}*`, { parse_mode: 'Markdown' });
         } else {
             ctx.reply('⚠️ No se encontraron recursos en Sanity.');
@@ -862,6 +934,22 @@ async function sendDailyPostNow(ctx) {
     } catch (error) {
         console.error('Error al forzar post:', error);
         ctx.reply(`❌ Error al enviar post: ${error.message}`);
+    }
+}
+
+async function sendCommunityPostNow(ctx) {
+    if (!isAdmin(ctx)) return ctx.reply('⛔ No tienes permisos para usar este comando.');
+    try {
+        const { text, keyboard, title } = getRandomCommunityPost();
+        await bot.telegram.sendMessage('@tutelopezmusic', text, {
+            parse_mode: 'Markdown',
+            disable_web_page_preview: true,
+            ...keyboard
+        });
+        ctx.reply(`✅ *Invitación a la comunidad enviada al canal @tutelopezmusic:*\n\n"${title}"`, { parse_mode: 'Markdown' });
+    } catch (error) {
+        console.error('Error al enviar post de comunidad:', error);
+        ctx.reply(`❌ Error al enviar invitación: ${error.message}`);
     }
 }
 
@@ -916,6 +1004,11 @@ bot.command(['enviar_ahora', 'post_diario'], async (ctx) => {
     await sendDailyPostNow(ctx);
 });
 
+bot.command(['comunidad', 'invitar', 'invitar_comunidad'], async (ctx) => {
+    if (!isAdmin(ctx)) return ctx.reply('⛔ No tienes permisos para usar este comando.');
+    await sendCommunityPostNow(ctx);
+});
+
 bot.command('mi_id', (ctx) => {
     ctx.reply(`🆔 Tu Telegram ID es: \`${ctx.from.id}\`\n👤 Tu usuario: @${ctx.from.username || 'sin_username'}`, { parse_mode: 'Markdown' });
 });
@@ -959,6 +1052,12 @@ bot.action('cron_trigger_now', async (ctx) => {
     if (!isAdmin(ctx)) return ctx.answerCbQuery('⛔ Sin permisos.');
     await ctx.answerCbQuery('Enviando publicación al canal...');
     await sendDailyPostNow(ctx);
+});
+
+bot.action('cron_community_now', async (ctx) => {
+    if (!isAdmin(ctx)) return ctx.answerCbQuery('⛔ Sin permisos.');
+    await ctx.answerCbQuery('Enviando invitación al canal...');
+    await sendCommunityPostNow(ctx);
 });
 
 // ==========================================
