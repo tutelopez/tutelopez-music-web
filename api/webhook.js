@@ -656,6 +656,7 @@ bot.start((ctx) => {
         msg += `\n\n🛠 *Comandos de Control / Admin:*\n` +
                `⚙️ /panel - Control de mensajes diarios (Pausar/Reanudar)\n` +
                `📊 /stats - Métricas y estadísticas en tiempo real\n` +
+               `🚀 /promocionar_app - Publicar anuncio de Stage Keys Live en el canal\n` +
                `💬 /comunidad - Enviar invitación al grupo de la comunidad\n` +
                `⏸ /pausar - Pausar mensajes automáticos diarios\n` +
                `▶️ /despausar - Reanudar mensajes automáticos diarios\n` +
@@ -913,6 +914,9 @@ async function sendControlPanel(ctx, isEdit = false) {
                 Markup.button.callback('💡 Enviar Tip', 'cron_tip_now')
             ],
             [
+                Markup.button.callback('🚀 Promocionar Stage Keys Live', 'promo_stagekeys')
+            ],
+            [
                 Markup.button.callback('📈 Ver Estadísticas', 'open_stats'),
                 Markup.button.callback('🔄 Actualizar Panel', 'cron_status')
             ]
@@ -1108,9 +1112,46 @@ async function sendWeeklySummaryNow(ctx) {
     }
 }
 
+async function sendStageKeysPromoNow(ctx) {
+    if (!isAdmin(ctx)) return ctx.reply('⛔ No tienes permisos para usar este comando.');
+    try {
+        const text =
+            `🚀 <b>¡PROYECTO EN DESARROLLO: STAGE KEYS LIVE!</b> 🎹🔥\n\n` +
+            `¿Te imaginas tocar en vivo con la potencia de <b>MainStage desde tu celular o tablet Android</b>?\n\n` +
+            `Estamos desarrollando <b>Stage Keys Live</b>:\n` +
+            `⚡ Motor Google Oboe C++ con latencia ultra-baja (&lt;10ms)\n` +
+            `🎹 Carga de SoundFonts .sf2 de Worship, Pianos y Pads\n` +
+            `🎛 Mapeo físico para nanoKONTROL y controladores MIDI\n` +
+            `🎨 Editor visual de divisiones Split y capas Layer\n` +
+            `🔄 Seamless Spillover: ¡los acordes no se cortan al cambiar de parche!\n\n` +
+            `Google Play nos exige entre 14 y 20 evaluadores continuos en pruebas cerradas antes de lanzar la app.\n\n` +
+            `👉 <b>¡Entra a la web, dale Like al proyecto y anota tu correo de Google para ser de los primeros Beta Testers!</b>`;
+
+        const keyboard = Markup.inlineKeyboard([
+            [Markup.button.url('🚀 Ver App & Ser Beta Tester', 'https://tutelopezmusic.com/stage-keys-live')],
+            [
+                Markup.button.url('💬 Grupo de la Comunidad', COMMUNITY_LINK),
+                Markup.button.url('🐙 GitHub Repo', 'https://github.com/tutelopez/StageKeysLive')
+            ]
+        ]);
+
+        await bot.telegram.sendMessage('@tutelopezmusic', text, {
+            parse_mode: 'HTML',
+            disable_web_page_preview: false,
+            ...keyboard
+        });
+
+        ctx.reply('✅ *¡Anuncio de Stage Keys Live publicado con éxito en el canal @tutelopezmusic!*', { parse_mode: 'Markdown' });
+    } catch (error) {
+        console.error('Error al promocionar app:', error);
+        ctx.reply(`❌ Error al promocionar app: ${error.message}`);
+    }
+}
+
 // Comandos de control
 bot.command(['panel', 'control'], (ctx) => sendControlPanel(ctx));
 bot.hears('⚙️ Panel de Control', (ctx) => sendControlPanel(ctx));
+
 
 bot.command(['stats', 'metricas', 'estadisticas'], (ctx) => sendStatsReport(ctx));
 bot.hears('📊 Estadísticas', (ctx) => sendStatsReport(ctx));
@@ -1179,6 +1220,11 @@ bot.command(['resumen', 'novedades', 'semanal'], async (ctx) => {
     await sendWeeklySummaryNow(ctx);
 });
 
+bot.command(['promocionar_app', 'promo_stagekeys', 'stagekeys'], async (ctx) => {
+    if (!isAdmin(ctx)) return ctx.reply('⛔ No tienes permisos para usar este comando.');
+    await sendStageKeysPromoNow(ctx);
+});
+
 bot.command('mi_id', (ctx) => {
     ctx.reply(`🆔 Tu Telegram ID es: \`${ctx.from.id}\`\n👤 Tu usuario: @${ctx.from.username || 'sin_username'}`, { parse_mode: 'Markdown' });
 });
@@ -1241,6 +1287,13 @@ bot.action('cron_tip_now', async (ctx) => {
     await ctx.answerCbQuery('Enviando tip al canal...');
     await sendTipNow(ctx);
 });
+
+bot.action('promo_stagekeys', async (ctx) => {
+    if (!isAdmin(ctx)) return ctx.answerCbQuery('⛔ Sin permisos.');
+    await ctx.answerCbQuery('Publicando anuncio en el canal...');
+    await sendStageKeysPromoNow(ctx);
+});
+
 
 // ==========================================
 // MODO INLINE (@bot [búsqueda])

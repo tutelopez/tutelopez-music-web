@@ -28,8 +28,14 @@ if (isEn) {
             </div>
 
             <!-- Navigation Links -->
-            <nav class="hidden md:flex items-center space-x-8">
+            <nav class="hidden md:flex items-center space-x-7">
                 <HeaderLink href={isEn ? "/en" : "/"} class="text-sm font-medium text-slate-300 hover:text-white transition-colors">Inicio</HeaderLink>
+                <HeaderLink href={isEn ? "/en/stage-keys-live" : "/stage-keys-live"} class="text-sm font-medium text-slate-300 hover:text-white transition-colors flex items-center gap-1.5 group">
+                    <span>Stage Keys</span>
+                    <span class="px-1.5 py-0.5 text-[9px] font-black uppercase tracking-wider rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 group-hover:bg-emerald-500 group-hover:text-slate-950 transition-all shadow-sm shadow-emerald-500/20 animate-pulse">
+                        {isEn ? "App Soon" : "Próx."}
+                    </span>
+                </HeaderLink>
                 <HeaderLink href={isEn ? "/en/recursos" : "/recursos"} class="text-sm font-medium text-slate-300 hover:text-white transition-colors">Recursos</HeaderLink>
                 <HeaderLink href={isEn ? "/en/tutoriales" : "/tutoriales"} class="text-sm font-medium text-slate-300 hover:text-white transition-colors">Tutoriales</HeaderLink>
                 <HeaderLink href="/equipo" class="text-sm font-medium text-slate-300 hover:text-white transition-colors">Mi Equipo</HeaderLink>
@@ -77,6 +83,15 @@ if (isEn) {
     <div id="mobile-menu" class="hidden md:hidden bg-slate-50 dark:bg-slate-950 border-t border-t-slate-200 dark:border-t-slate-800 absolute w-full left-0 top-full shadow-2xl rounded-b-2xl">
         <div class="px-2 pt-2 pb-6 space-y-1 sm:px-3 flex flex-col">
             <HeaderLink href={isEn ? "/en" : "/"} class="block px-3 py-2 rounded-md text-base font-medium text-slate-300 hover:text-white hover:bg-brand/20 transition-colors">Inicio</HeaderLink>
+            <HeaderLink href={isEn ? "/en/stage-keys-live" : "/stage-keys-live"} class="flex items-center justify-between px-3 py-2 rounded-md text-base font-medium text-emerald-400 hover:text-emerald-300 hover:bg-emerald-500/10 transition-colors">
+                <span class="flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                    Stage Keys Live
+                </span>
+                <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                    {isEn ? "COMING SOON" : "PRÓXIMAMENTE"}
+                </span>
+            </HeaderLink>
             <HeaderLink href={isEn ? "/en/recursos" : "/recursos"} class="block px-3 py-2 rounded-md text-base font-medium text-slate-300 hover:text-white hover:bg-brand/20 transition-colors">Recursos</HeaderLink>
             <HeaderLink href={isEn ? "/en/tutoriales" : "/tutoriales"} class="block px-3 py-2 rounded-md text-base font-medium text-slate-300 hover:text-white hover:bg-brand/20 transition-colors">Tutoriales</HeaderLink>
             <HeaderLink href="/equipo" class="block px-3 py-2 rounded-md text-base font-medium text-slate-300 hover:text-white hover:bg-brand/20 transition-colors">Mi Equipo</HeaderLink>

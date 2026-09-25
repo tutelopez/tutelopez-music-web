@@ -71,6 +71,64 @@ const displayResources = latestResources.length > 0 ? latestResources : [
         </div>
     </section>
 
+    <!-- STAGE KEYS LIVE FEATURED SECTION -->
+    <section class="mb-24 relative">
+        <div class="glass-panel p-8 md:p-12 border-2 border-emerald-500/40 relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-950 via-slate-900 to-emerald-950/30">
+            <!-- Glow background -->
+            <div class="absolute -right-20 -top-20 w-96 h-96 bg-emerald-500/15 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute -left-20 -bottom-20 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+            <div class="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+                <!-- Left text content (7 cols) -->
+                <div class="lg:col-span-7">
+                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-bold uppercase tracking-wider mb-4">
+                        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                        Coming Soon to Android • Closed Testing
+                    </div>
+                    <h2 class="text-3xl md:text-5xl font-black text-white tracking-tight mb-4">
+                        Stage Keys <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400">Live</span>
+                    </h2>
+                    <p class="text-slate-300 text-base md:text-lg mb-6 leading-relaxed">
+                        Imagine playing live with the power of <strong>MainStage right on your Android phone or tablet</strong>. Powered by <em>Google Oboe C++</em> for ultra-low latency, <code>.sf2</code> SoundFont support, Split/Layer visual zones, and hardware mapping for controllers like <em>nanoKONTROL</em>.
+                    </p>
+                    <div class="flex flex-wrap gap-2 mb-8">
+                        <span class="px-3 py-1 rounded-lg bg-slate-800 text-slate-300 text-xs font-semibold border border-slate-700">⚡ &lt;10ms Oboe Latency</span>
+                        <span class="px-3 py-1 rounded-lg bg-slate-800 text-slate-300 text-xs font-semibold border border-slate-700">🎹 FluidSynth .sf2</span>
+                        <span class="px-3 py-1 rounded-lg bg-slate-800 text-slate-300 text-xs font-semibold border border-slate-700">🎛 nanoKONTROL Mixer</span>
+                        <span class="px-3 py-1 rounded-lg bg-slate-800 text-slate-300 text-xs font-semibold border border-slate-700">🔄 Seamless Spillover</span>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-4">
+                        <a href="/en/stage-keys-live" class="px-8 py-3.5 rounded-full bg-gradient-to-r from-emerald-500 to-cyan-500 hover:from-emerald-400 hover:to-cyan-400 text-slate-950 font-black text-sm md:text-base transition-all transform hover:scale-105 shadow-xl shadow-emerald-500/25 flex items-center gap-2">
+                            <span>Explore App & Join Closed Beta</span>
+                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                        </a>
+                        <a href="/en/stage-keys-live#beta-tester" class="px-6 py-3.5 rounded-full bg-slate-800/80 hover:bg-slate-700 text-slate-200 font-bold text-sm border border-slate-700 transition-colors">
+                            Register Gmail (Play Store)
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Right image preview (5 cols) -->
+                <div class="lg:col-span-5 relative group">
+                    <div class="absolute -inset-2 bg-gradient-to-r from-emerald-500 to-cyan-500 rounded-2xl blur-lg opacity-30 group-hover:opacity-60 transition duration-500"></div>
+                    <a href="/en/stage-keys-live" class="relative block overflow-hidden rounded-xl border border-emerald-500/30 shadow-2xl">
+                        <img 
+                            src="/images/stagekeys/stage1.jpg" 
+                            alt="Stage Keys Live Android App Preview" 
+                            class="w-full h-auto object-cover transform group-hover:scale-105 transition-transform duration-500"
+                        />
+                        <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent flex items-end p-4">
+                            <span class="text-xs font-bold text-emerald-300 flex items-center gap-1.5">
+                                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+                                View Screenshots & Features &rarr;
+                            </span>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- Latest Resources Grid -->
     <section class="mb-20">
         <div class="flex justify-between items-end mb-8">
@@ -97,28 +155,6 @@ const displayResources = latestResources.length > 0 ? latestResources : [
                 </a>
                 );
             })}
-        </div>
-    </section>
-
-    <!-- About Me Section 2 -->
-    <section class="py-20 relative">
-        <div class="max-w-5xl mx-auto glass-panel p-8 md:p-12 rounded-3xl overflow-hidden relative">
-            <div class="absolute top-0 right-0 w-64 h-64 bg-brand/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
-            <div class="flex flex-col md:flex-row gap-12 items-center relative z-10">
-                <div class="w-48 h-48 md:w-64 md:h-64 rounded-full overflow-hidden border-4 border-slate-800 shadow-2xl flex-shrink-0">
-                    <img src="/images/tl-music-creator.png" alt="TuteLopez" class="w-full h-full object-cover object-top hover:scale-110 transition-transform duration-500" />
-                </div>
-                <div>
-                    <h2 class="text-3xl md:text-4xl font-bold mb-4 text-white">Hi, I'm TuteLopez</h2>
-                    <p class="text-lg text-slate-300 mb-6 leading-relaxed">
-                        I'm a musician, Christian keyboardist, and content creator. My passion is to equip other worship musicians with professional-grade tools. 
-                        Through my videos and libraries, I seek to simplify music technology so you can focus on what really matters: worship.
-                    </p>
-                    <a href="https://youtube.com/@tutelopezmusic" target="_blank" class="inline-flex items-center gap-2 text-brand hover:text-brand-light font-bold transition-colors">
-                        Learn more about my work on YouTube &rarr;
-                    </a>
-                </div>
-            </div>
         </div>
     </section>
 

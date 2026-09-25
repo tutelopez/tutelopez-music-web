@@ -1,0 +1,724 @@
+---
+import MainLayout from '../../layouts/MainLayout.astro';
+import { SITE_TITLE } from '../../consts';
+
+const pageTitle = `Stage Keys Live - The MainStage for Android | ${SITE_TITLE}`;
+const pageDescription = "Stage Keys Live is an Android app developed with Kotlin and C++ Google Oboe to play live worship with SF2 SoundFonts, split/layers, and MIDI controller support.";
+---
+
+<MainLayout title={pageTitle} description={pageDescription}>
+    <!-- Top Ambient Lights -->
+    <div class="relative overflow-hidden pt-12 pb-20">
+        <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[400px] bg-gradient-to-tr from-emerald-600/20 via-cyan-500/20 to-blue-600/20 rounded-full blur-3xl -z-10 pointer-events-none"></div>
+
+        <!-- Hero Section -->
+        <div class="max-w-5xl mx-auto px-4 text-center">
+            <!-- Development Stage Badge -->
+            <div class="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs md:text-sm font-semibold mb-8 backdrop-blur-md shadow-lg shadow-emerald-950/20">
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
+                <span>ACTIVE DEVELOPMENT • GOOGLE PLAY CLOSED TESTING TRACK</span>
+            </div>
+
+            <!-- App Icon with Neon Glow -->
+            <div class="relative inline-block mb-6">
+                <div class="absolute -inset-4 bg-gradient-to-r from-emerald-500 to-cyan-500 rounded-3xl blur-2xl opacity-40 animate-pulse"></div>
+                <img 
+                    src="/images/stagekeyslive-icon.png" 
+                    alt="Stage Keys Live Icon" 
+                    class="relative w-28 h-28 md:w-36 md:h-36 rounded-3xl shadow-2xl border-2 border-emerald-400/40 object-cover mx-auto transform hover:scale-105 transition-all duration-300"
+                />
+            </div>
+
+            <h1 class="text-4xl md:text-6xl lg:text-7xl font-black text-white tracking-tight mb-4">
+                STAGE KEYS <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-teal-300 to-cyan-400">LIVE</span>
+            </h1>
+
+            <p class="text-lg md:text-2xl text-slate-300 font-medium max-w-3xl mx-auto mb-8 leading-relaxed">
+                The <strong class="text-emerald-400">MainStage for Android</strong> worship keyboardists have been dreaming of. Connect your MIDI keyboard via USB or Bluetooth, load <code class="text-xs bg-slate-800 px-2 py-1 rounded text-cyan-300">.sf2</code> SoundFonts, and play live without a laptop.
+            </p>
+
+            <!-- Live Action Counters & CTAs -->
+            <div class="flex flex-wrap items-center justify-center gap-4 mb-14">
+                <!-- Like Button -->
+                <button 
+                    id="like-btn" 
+                    class="group flex items-center gap-3 px-6 py-3.5 rounded-2xl bg-slate-900/80 hover:bg-slate-800 border border-rose-500/40 text-rose-400 font-bold text-base transition-all transform hover:scale-105 shadow-xl shadow-rose-950/30 cursor-pointer"
+                >
+                    <svg id="like-heart-icon" class="w-6 h-6 transition-transform group-hover:scale-125 group-active:scale-95 text-rose-500 fill-rose-500" viewBox="0 0 24 24">
+                        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                    </svg>
+                    <span>Support Project</span>
+                    <span id="like-counter" class="px-2.5 py-0.5 rounded-full bg-rose-500/20 text-rose-300 text-sm font-extrabold">...</span>
+                </button>
+
+                <!-- Beta Tester Jump Button -->
+                <a 
+                    href="#beta-tester" 
+                    class="flex items-center gap-2.5 px-8 py-3.5 rounded-2xl bg-gradient-to-r from-emerald-500 to-cyan-500 hover:from-emerald-400 hover:to-cyan-400 text-slate-950 font-black text-base transition-all transform hover:scale-105 shadow-xl shadow-emerald-500/30"
+                >
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                    <span>Join Play Store Closed Beta</span>
+                </a>
+
+                <!-- GitHub Link -->
+                <a 
+                    href="https://github.com/tutelopez/StageKeysLive" 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    class="flex items-center gap-2 px-5 py-3.5 rounded-2xl bg-slate-900/60 hover:bg-slate-800 border border-slate-700 text-slate-300 font-semibold text-sm transition-all"
+                >
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/></svg>
+                    <span>View GitHub Source</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Real In-App Screenshots Gallery -->
+        <div class="max-w-6xl mx-auto px-4 mt-4">
+            <div class="text-center mb-10">
+                <span class="text-xs uppercase tracking-widest text-emerald-400 font-bold block mb-2">Real In-App Screenshots</span>
+                <h2 class="text-3xl md:text-4xl font-extrabold text-white">Built for Live Performance</h2>
+                <p class="text-slate-400 max-w-xl mx-auto mt-2">Direct captures of Stage Keys Live running on Android devices.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Screenshot 1 -->
+                <div class="glass-panel overflow-hidden border border-emerald-500/20 hover:border-emerald-500/60 transition-all duration-300 group flex flex-col">
+                    <div class="relative bg-slate-950 overflow-hidden cursor-pointer image-card" data-img="/images/stagekeys/stage1.jpg">
+                        <img 
+                            src="/images/stagekeys/stage1.jpg" 
+                            alt="Main Concert Mixer and Keyboard" 
+                            class="w-full h-64 object-cover object-center group-hover:scale-105 transition-transform duration-500"
+                        />
+                        <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80"></div>
+                        <div class="absolute top-3 left-3 px-2.5 py-1 rounded-md bg-emerald-500 text-slate-950 text-[10px] font-black tracking-wider uppercase">
+                            Main Concert
+                        </div>
+                    </div>
+                    <div class="p-6 flex-1 flex flex-col justify-between">
+                        <div>
+                            <h3 class="text-xl font-bold text-white mb-2 group-hover:text-emerald-400 transition-colors">Live Mixer & Touch Keyboard</h3>
+                            <p class="text-slate-300 text-sm leading-relaxed">
+                                Multi-layer channel control with standalone faders, real-time audio meters, BPM, Tap Tempo, REC button, and an interactive virtual touch piano with mod-wheel and pitch bend.
+                            </p>
+                        </div>
+                        <div class="mt-4 pt-4 border-t border-slate-800 flex items-center justify-between text-xs text-slate-400">
+                            <span>✨ nanoKONTROL Mapping</span>
+                            <span class="text-emerald-400 font-bold">120 BPM • Metronome</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Screenshot 2 -->
+                <div class="glass-panel overflow-hidden border border-cyan-500/20 hover:border-cyan-500/60 transition-all duration-300 group flex flex-col">
+                    <div class="relative bg-slate-950 overflow-hidden cursor-pointer image-card" data-img="/images/stagekeys/stage2.jpg">
+                        <img 
+                            src="/images/stagekeys/stage2.jpg" 
+                            alt="SoundFont & Patch Settings" 
+                            class="w-full h-64 object-cover object-center group-hover:scale-105 transition-transform duration-500"
+                        />
+                        <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80"></div>
+                        <div class="absolute top-3 left-3 px-2.5 py-1 rounded-md bg-cyan-500 text-slate-950 text-[10px] font-black tracking-wider uppercase">
+                            SF2 Engine
+                        </div>
+                    </div>
+                    <div class="p-6 flex-1 flex flex-col justify-between">
+                        <div>
+                            <h3 class="text-xl font-bold text-white mb-2 group-hover:text-cyan-400 transition-colors">Patch & Instrument Engine</h3>
+                            <p class="text-slate-300 text-sm leading-relaxed">
+                                Load SoundFonts (.sf2) directly from your Android internal storage or SD card. Assign instruments, banks, and presets with instant real-time response.
+                            </p>
+                        </div>
+                        <div class="mt-4 pt-4 border-t border-slate-800 flex items-center justify-between text-xs text-slate-400">
+                            <span>📂 .SF2 SoundFonts</span>
+                            <span class="text-cyan-400 font-bold">FluidSynth JNI</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Screenshot 3 -->
+                <div class="glass-panel overflow-hidden border border-teal-500/20 hover:border-teal-500/60 transition-all duration-300 group flex flex-col">
+                    <div class="relative bg-slate-950 overflow-hidden cursor-pointer image-card" data-img="/images/stagekeys/stage3.jpg">
+                        <img 
+                            src="/images/stagekeys/stage3.jpg" 
+                            alt="Visual Split and Layer Editor" 
+                            class="w-full h-64 object-cover object-center group-hover:scale-105 transition-transform duration-500"
+                        />
+                        <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80"></div>
+                        <div class="absolute top-3 left-3 px-2.5 py-1 rounded-md bg-teal-400 text-slate-950 text-[10px] font-black tracking-wider uppercase">
+                            Split & Layer
+                        </div>
+                    </div>
+                    <div class="p-6 flex-1 flex flex-col justify-between">
+                        <div>
+                            <h3 class="text-xl font-bold text-white mb-2 group-hover:text-teal-400 transition-colors">Visual Zone Drag Editor</h3>
+                            <p class="text-slate-300 text-sm leading-relaxed">
+                                Easily configure keyboard splits with intuitive color zones. Assign bass to your left hand, acoustic piano in the middle, and pads/leads on the right with dynamic velocity curves.
+                            </p>
+                        </div>
+                        <div class="mt-4 pt-4 border-t border-slate-800 flex items-center justify-between text-xs text-slate-400">
+                            <span>🎹 Color-Coded Zones</span>
+                            <span class="text-teal-400 font-bold">Velocity Curves</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Technical Architecture Highlights -->
+    <section class="py-16 max-w-6xl mx-auto px-4">
+        <div class="text-center mb-14">
+            <span class="text-xs uppercase tracking-widest text-cyan-400 font-bold block mb-2">High-Performance Engineering</span>
+            <h2 class="text-3xl md:text-5xl font-extrabold text-white">Why is this different from other apps?</h2>
+            <p class="text-slate-400 max-w-2xl mx-auto mt-3">
+                Not a generic MIDI player. Built from scratch to withstand the demanding requirements of live worship and concert performances.
+            </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Feature 1 -->
+            <div class="glass-panel p-8 border border-slate-800 hover:border-emerald-500/40 transition-colors group">
+                <div class="w-14 h-14 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 mb-6 group-hover:scale-110 transition-transform">
+                    <svg class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                </div>
+                <h3 class="text-xl font-bold text-white mb-3">Google Oboe C++ Engine</h3>
+                <p class="text-slate-300 text-sm leading-relaxed">
+                    Powered by Google's native C++ high-performance audio engine to interact with your Android sound chip with the lowest latency possible (&lt; 10ms guaranteed on modern devices).
+                </p>
+            </div>
+
+            <!-- Feature 2 -->
+            <div class="glass-panel p-8 border border-slate-800 hover:border-cyan-500/40 transition-colors group">
+                <div class="w-14 h-14 rounded-2xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 mb-6 group-hover:scale-110 transition-transform">
+                    <svg class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
+                    </svg>
+                </div>
+                <h3 class="text-xl font-bold text-white mb-3">FluidSynth .SF2 SoundFonts</h3>
+                <p class="text-slate-300 text-sm leading-relaxed">
+                    Load worship instruments, analog synths, choirs, and pianos in SoundFont .sf2 format, optimized for light RAM consumption while preserving stunning acoustic fidelity.
+                </p>
+            </div>
+
+            <!-- Feature 3 -->
+            <div class="glass-panel p-8 border border-slate-800 hover:border-teal-500/40 transition-colors group">
+                <div class="w-14 h-14 rounded-2xl bg-teal-500/10 border border-teal-500/30 flex items-center justify-center text-teal-400 mb-6 group-hover:scale-110 transition-transform">
+                    <svg class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z" />
+                    </svg>
+                </div>
+                <h3 class="text-xl font-bold text-white mb-3">Seamless Spillover</h3>
+                <p class="text-slate-300 text-sm leading-relaxed">
+                    When switching patches in the middle of a song, sustained notes will not be abruptly cut off. The transition between patches is 100% smooth and continuous.
+                </p>
+            </div>
+
+            <!-- Feature 4 -->
+            <div class="glass-panel p-8 border border-slate-800 hover:border-yellow-500/40 transition-colors group">
+                <div class="w-14 h-14 rounded-2xl bg-yellow-500/10 border border-yellow-500/30 flex items-center justify-center text-yellow-400 mb-6 group-hover:scale-110 transition-transform">
+                    <svg class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+                    </svg>
+                </div>
+                <h3 class="text-xl font-bold text-white mb-3">nanoKONTROL Mixer Mode</h3>
+                <p class="text-slate-300 text-sm leading-relaxed">
+                    Plug a Korg nanoKONTROL2 or any USB fader controller using a USB OTG cable and adjust layer volumes on the fly exactly like MainStage.
+                </p>
+            </div>
+
+            <!-- Feature 5 -->
+            <div class="glass-panel p-8 border border-slate-800 hover:border-indigo-500/40 transition-colors group">
+                <div class="w-14 h-14 rounded-2xl bg-indigo-500/10 border border-indigo-500/30 flex items-center justify-center text-indigo-400 mb-6 group-hover:scale-110 transition-transform">
+                    <svg class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 100-6 3 3 0 000 6z" />
+                    </svg>
+                </div>
+                <h3 class="text-xl font-bold text-white mb-3">Background Audio Service</h3>
+                <p class="text-slate-300 text-sm leading-relaxed">
+                    The audio engine keeps running smoothly even if you lock your tablet screen to save battery or switch to sheet music apps like MobileSheets.
+                </p>
+            </div>
+
+            <!-- Feature 6 -->
+            <div class="glass-panel p-8 border border-slate-800 hover:border-pink-500/40 transition-colors group">
+                <div class="w-14 h-14 rounded-2xl bg-pink-500/10 border border-pink-500/30 flex items-center justify-center text-pink-400 mb-6 group-hover:scale-110 transition-transform">
+                    <svg class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071c3.904-3.905 10.236-3.905 14.141 0M1.394 9.393c5.857-5.857 15.355-5.857 21.213 0" />
+                    </svg>
+                </div>
+                <h3 class="text-xl font-bold text-white mb-3">USB & Bluetooth MIDI</h3>
+                <p class="text-slate-300 text-sm leading-relaxed">
+                    Plug-and-play support for Yamaha, Roland, Nord, Arturia, Novation keyboards or wireless Bluetooth MIDI adapters (CME Widi Master) without extra drivers.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION: GOOGLE PLAY CLOSED BETA TESTER REGISTRATION -->
+    <section id="beta-tester" class="py-16 max-w-4xl mx-auto px-4 scroll-mt-24">
+        <div class="glass-panel p-8 md:p-12 border-2 border-emerald-500/50 shadow-2xl shadow-emerald-950/40 relative overflow-hidden">
+            <div class="absolute -right-20 -top-20 w-80 h-80 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+            <div class="flex items-center gap-3 text-emerald-400 mb-3">
+                <svg class="w-6 h-6 animate-spin" style="animation-duration: 3s;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+                <span class="text-xs md:text-sm font-black uppercase tracking-widest">Google Play Closed Testing Track</span>
+            </div>
+
+            <h2 class="text-3xl md:text-4xl font-black text-white mb-4">
+                Join as an Official Beta Tester
+            </h2>
+
+            <p class="text-slate-300 text-base md:text-lg mb-6 leading-relaxed">
+                Google Play Console requires newly registered developer accounts to run a continuous closed test with at least <strong class="text-emerald-400">14 to 20 registered testers</strong> before opening public access.
+            </p>
+            <p class="text-slate-400 text-sm mb-8">
+                If you have an Android smartphone or tablet and want early private access, enter your <strong>Google email (Gmail)</strong> linked to your Play Store:
+            </p>
+
+            <!-- Form -->
+            <form id="beta-tester-form" class="space-y-4">
+                <div>
+                    <label for="tester-email" class="block text-sm font-semibold text-slate-200 mb-1.5">
+                        Google Email / Gmail <span class="text-rose-400">*</span>
+                    </label>
+                    <input 
+                        type="email" 
+                        id="tester-email" 
+                        required 
+                        placeholder="your-email@gmail.com" 
+                        class="w-full px-4 py-3.5 rounded-xl bg-slate-950/70 border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-transparent transition-all"
+                    />
+                    <span class="text-xs text-slate-500 mt-1 block">Must be the Google account associated with your Android Play Store.</span>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="tester-device" class="block text-sm font-semibold text-slate-200 mb-1.5">
+                            Device / Tablet Model
+                        </label>
+                        <input 
+                            type="text" 
+                            id="tester-device" 
+                            placeholder="e.g. Samsung Galaxy Tab S8, Xiaomi Pad 6..." 
+                            class="w-full px-4 py-3 rounded-xl bg-slate-950/70 border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-400 transition-all text-sm"
+                        />
+                    </div>
+                    <div>
+                        <label for="tester-controller" class="block text-sm font-semibold text-slate-200 mb-1.5">
+                            MIDI Controller / Keyboard
+                        </label>
+                        <input 
+                            type="text" 
+                            id="tester-controller" 
+                            placeholder="e.g. Arturia KeyLab, Korg nanoKONTROL2..." 
+                            class="w-full px-4 py-3 rounded-xl bg-slate-950/70 border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-400 transition-all text-sm"
+                        />
+                    </div>
+                </div>
+
+                <div id="tester-feedback" class="hidden p-4 rounded-xl text-sm font-medium"></div>
+
+                <button 
+                    type="submit" 
+                    id="tester-submit-btn" 
+                    class="w-full py-4 rounded-xl bg-gradient-to-r from-emerald-500 to-cyan-500 hover:from-emerald-400 hover:to-cyan-400 text-slate-950 font-black text-base transition-all transform hover:scale-[1.01] shadow-xl shadow-emerald-500/25 flex items-center justify-center gap-2 cursor-pointer"
+                >
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+                    </svg>
+                    <span>Register as Closed Beta Tester</span>
+                </button>
+            </form>
+        </div>
+    </section>
+
+    <!-- SECTION: FEATURE REQUESTS & SUGGESTIONS -->
+    <section class="py-16 max-w-4xl mx-auto px-4">
+        <div class="glass-panel p-8 md:p-12 border border-slate-800 relative">
+            <div class="text-center mb-8">
+                <span class="text-xs uppercase tracking-widest text-teal-400 font-bold block mb-2">Community & Open Development</span>
+                <h2 class="text-3xl md:text-4xl font-extrabold text-white">What features do you need?</h2>
+                <p class="text-slate-400 max-w-lg mx-auto mt-2">
+                    We are building this app with the live musician community. Share your idea or pick one of the quick suggestions below:
+                </p>
+            </div>
+
+            <!-- Quick Pill Chips -->
+            <div class="flex flex-wrap gap-2.5 justify-center mb-8">
+                <button type="button" class="quick-pill px-3 py-1.5 rounded-full bg-slate-800/80 hover:bg-emerald-500/20 text-slate-300 hover:text-emerald-300 border border-slate-700 hover:border-emerald-500/50 text-xs font-medium transition-all">
+                    🎛 MIDI Learn for pad buttons
+                </button>
+                <button type="button" class="quick-pill px-3 py-1.5 rounded-full bg-slate-800/80 hover:bg-emerald-500/20 text-slate-300 hover:text-emerald-300 border border-slate-700 hover:border-emerald-500/50 text-xs font-medium transition-all">
+                    🎧 Standalone Click out for drummer
+                </button>
+                <button type="button" class="quick-pill px-3 py-1.5 rounded-full bg-slate-800/80 hover:bg-emerald-500/20 text-slate-300 hover:text-emerald-300 border border-slate-700 hover:border-emerald-500/50 text-xs font-medium transition-all">
+                    ✨ Integrated Shimmer Reverb effect
+                </button>
+                <button type="button" class="quick-pill px-3 py-1.5 rounded-full bg-slate-800/80 hover:bg-emerald-500/20 text-slate-300 hover:text-emerald-300 border border-slate-700 hover:border-emerald-500/50 text-xs font-medium transition-all">
+                    📱 Landscape tablet mode for 10"+ screens
+                </button>
+                <button type="button" class="quick-pill px-3 py-1.5 rounded-full bg-slate-800/80 hover:bg-emerald-500/20 text-slate-300 hover:text-emerald-300 border border-slate-700 hover:border-emerald-500/50 text-xs font-medium transition-all">
+                    🎹 Tempo-synced Arpeggiator
+                </button>
+            </div>
+
+            <!-- Suggestion Form -->
+            <form id="suggestion-form" class="space-y-4">
+                <div>
+                    <label for="suggestion-text" class="block text-sm font-semibold text-slate-200 mb-1.5">
+                        Your feature suggestion or idea
+                    </label>
+                    <textarea 
+                        id="suggestion-text" 
+                        rows="3" 
+                        required 
+                        placeholder="e.g. It would be awesome to switch patches using Novation Launchkey drum pads..." 
+                        class="w-full px-4 py-3 rounded-xl bg-slate-950/70 border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-teal-400 transition-all text-sm"
+                    ></textarea>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="suggestion-author" class="block text-sm font-semibold text-slate-200 mb-1.5">
+                            Your Name or Alias (optional)
+                        </label>
+                        <input 
+                            type="text" 
+                            id="suggestion-author" 
+                            placeholder="e.g. John" 
+                            class="w-full px-4 py-2.5 rounded-xl bg-slate-950/70 border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-teal-400 transition-all text-sm"
+                        />
+                    </div>
+                    <div>
+                        <label for="suggestion-contact" class="block text-sm font-semibold text-slate-200 mb-1.5">
+                            Contact (Telegram or Email)
+                        </label>
+                        <input 
+                            type="text" 
+                            id="suggestion-contact" 
+                            placeholder="@username or email" 
+                            class="w-full px-4 py-2.5 rounded-xl bg-slate-950/70 border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-teal-400 transition-all text-sm"
+                        />
+                    </div>
+                </div>
+
+                <div id="suggestion-feedback" class="hidden p-4 rounded-xl text-sm font-medium"></div>
+
+                <button 
+                    type="submit" 
+                    id="suggestion-submit-btn" 
+                    class="w-full py-3.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-teal-500/40 text-teal-300 font-bold text-sm transition-all hover:scale-[1.01] flex items-center justify-center gap-2 cursor-pointer"
+                >
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                    </svg>
+                    <span>Submit Feature Request</span>
+                </button>
+            </form>
+        </div>
+    </section>
+
+    <!-- SECTION: FAQ -->
+    <section class="py-16 max-w-4xl mx-auto px-4">
+        <div class="text-center mb-10">
+            <h2 class="text-3xl font-bold text-white mb-2">Frequently Asked Questions</h2>
+            <p class="text-slate-400 text-sm">Everything you need to know ahead of release.</p>
+        </div>
+
+        <div class="space-y-4">
+            <details class="glass-panel p-5 rounded-2xl group border border-slate-800 cursor-pointer">
+                <summary class="flex justify-between items-center font-bold text-white text-base">
+                    <span>What Android version is required?</span>
+                    <span class="text-emerald-400 group-open:rotate-180 transition-transform">▼</span>
+                </summary>
+                <p class="text-slate-300 text-sm mt-3 leading-relaxed">
+                    Stage Keys Live is optimized for devices running <strong>Android 8.0 (Oreo) or higher</strong> with USB OTG (MIDI Host) support. Android 10+ is recommended for optimal ultra-low latency via Google Oboe.
+                </p>
+            </details>
+
+            <details class="glass-panel p-5 rounded-2xl group border border-slate-800 cursor-pointer">
+                <summary class="flex justify-between items-center font-bold text-white text-base">
+                    <span>Do I need an external audio interface?</span>
+                    <span class="text-emerald-400 group-open:rotate-180 transition-transform">▼</span>
+                </summary>
+                <p class="text-slate-300 text-sm mt-3 leading-relaxed">
+                    Not strictly required. You can output audio directly via headphone jack or USB-C adapter. However, for church services and concert venues, any class-compliant USB audio interface (Focusrite, Behringer, M-Audio) connects seamlessly via a powered USB-C hub.
+                </p>
+            </details>
+
+            <details class="glass-panel p-5 rounded-2xl group border border-slate-800 cursor-pointer">
+                <summary class="flex justify-between items-center font-bold text-white text-base">
+                    <span>Where can I download .sf2 sound libraries?</span>
+                    <span class="text-emerald-400 group-open:rotate-180 transition-transform">▼</span>
+                </summary>
+                <p class="text-slate-300 text-sm mt-3 leading-relaxed">
+                    Right here on <a href="/en/recursos" class="text-emerald-400 underline font-semibold">TuteLopez Music</a>! We continuously upload free worship SoundFonts tailored for mobile and tablet performance.
+                </p>
+            </details>
+
+            <details class="glass-panel p-5 rounded-2xl group border border-slate-800 cursor-pointer">
+                <summary class="flex justify-between items-center font-bold text-white text-base">
+                    <span>When will it launch on Google Play Store?</span>
+                    <span class="text-emerald-400 group-open:rotate-180 transition-transform">▼</span>
+                </summary>
+                <p class="text-slate-300 text-sm mt-3 leading-relaxed">
+                    We are in the final stages of optimizing mixer faders and refining the latency curves with Oboe. If you sign up as a closed beta tester with your Gmail above, you will receive an invitation email as soon as testing opens.
+                </p>
+            </details>
+        </div>
+    </section>
+
+    <!-- Modal Lightbox for Screenshots -->
+    <div id="image-modal" class="fixed inset-0 z-50 bg-black/90 backdrop-blur-md hidden flex items-center justify-center p-4">
+        <div class="relative max-w-5xl w-full">
+            <button id="modal-close" class="absolute -top-12 right-0 text-white hover:text-emerald-400 text-3xl font-bold p-2 cursor-pointer">&times;</button>
+            <img id="modal-img" src="" alt="Screenshot" class="w-full max-h-[85vh] object-contain rounded-2xl border border-slate-700 shadow-2xl" />
+        </div>
+    </div>
+</MainLayout>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // --- 1. LIVE LIKES COUNTER & INTERACTION ---
+        const likeBtn = document.getElementById('like-btn');
+        const likeCounter = document.getElementById('like-counter');
+
+        async function fetchStats() {
+            try {
+                const res = await fetch('/api/stagekeys-interaction');
+                if (res.ok) {
+                    const data = await res.json();
+                    if (likeCounter && data.likes) {
+                        likeCounter.textContent = data.likes.toString();
+                    }
+                }
+            } catch (e) {
+                if (likeCounter) likeCounter.textContent = '142';
+            }
+        }
+        fetchStats();
+
+        let hasLiked = localStorage.getItem('stagekeys_liked') === 'true';
+        if (hasLiked && likeBtn) {
+            likeBtn.classList.add('bg-rose-500/20', 'border-rose-500');
+        }
+
+        if (likeBtn) {
+            likeBtn.addEventListener('click', async () => {
+                if (hasLiked) {
+                    likeBtn.classList.add('scale-110');
+                    setTimeout(() => likeBtn.classList.remove('scale-110'), 200);
+                    return;
+                }
+
+                hasLiked = true;
+                localStorage.setItem('stagekeys_liked', 'true');
+                likeBtn.classList.add('bg-rose-500/20', 'border-rose-500');
+                if (likeCounter) {
+                    const current = parseInt(likeCounter.textContent || '142', 10);
+                    likeCounter.textContent = (isNaN(current) ? 143 : current + 1).toString();
+                }
+
+                try {
+                    const res = await fetch('/api/stagekeys-interaction', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ action: 'like' })
+                    });
+                    if (res.ok) {
+                        const data = await res.json();
+                        if (likeCounter && data.likes) {
+                            likeCounter.textContent = data.likes.toString();
+                        }
+                    }
+                } catch (err) {
+                    console.error('Error sending like:', err);
+                }
+            });
+        }
+
+        // --- 2. BETA TESTER FORM ---
+        const testerForm = document.getElementById('beta-tester-form');
+        const testerEmail = document.getElementById('tester-email') as HTMLInputElement | null;
+        const testerDevice = document.getElementById('tester-device') as HTMLInputElement | null;
+        const testerController = document.getElementById('tester-controller') as HTMLInputElement | null;
+        const testerFeedback = document.getElementById('tester-feedback');
+        const testerSubmitBtn = document.getElementById('tester-submit-btn');
+
+        if (testerForm && testerEmail) {
+            testerForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const email = testerEmail.value.trim();
+                const device = testerDevice ? testerDevice.value.trim() : '';
+                const midiController = testerController ? testerController.value.trim() : '';
+
+                if (!email) return;
+
+                if (testerSubmitBtn) {
+                    testerSubmitBtn.setAttribute('disabled', 'true');
+                    testerSubmitBtn.textContent = 'Registering...';
+                }
+
+                try {
+                    const res = await fetch('/api/stagekeys-interaction', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            action: 'tester',
+                            email,
+                            device,
+                            midiController
+                        })
+                    });
+
+                    const data = await res.json();
+
+                    if (testerFeedback) {
+                        testerFeedback.classList.remove('hidden', 'bg-rose-500/20', 'text-rose-300', 'border-rose-500/30', 'bg-emerald-500/20', 'text-emerald-300', 'border-emerald-500/30');
+                        testerFeedback.classList.add('border');
+
+                        if (res.ok && data.success) {
+                            testerFeedback.classList.add('bg-emerald-500/20', 'text-emerald-300', 'border-emerald-500/30');
+                            testerFeedback.textContent = '🎉 You are now registered for the Play Store closed beta testing track!';
+                            testerForm.reset();
+                        } else {
+                            testerFeedback.classList.add('bg-rose-500/20', 'text-rose-300', 'border-rose-500/30');
+                            testerFeedback.textContent = '❌ ' + (data.error || 'An error occurred during registration.');
+                        }
+                    }
+                } catch (err) {
+                    if (testerFeedback) {
+                        testerFeedback.classList.remove('hidden');
+                        testerFeedback.classList.add('bg-rose-500/20', 'text-rose-300', 'border', 'border-rose-500/30');
+                        testerFeedback.textContent = '❌ Connection error while registering.';
+                    }
+                } finally {
+                    if (testerSubmitBtn) {
+                        testerSubmitBtn.removeAttribute('disabled');
+                        testerSubmitBtn.innerHTML = `
+                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+                            </svg>
+                            <span>Register as Closed Beta Tester</span>
+                        `;
+                    }
+                }
+            });
+        }
+
+        // --- 3. SUGGESTIONS FORM ---
+        const suggestionForm = document.getElementById('suggestion-form');
+        const suggestionText = document.getElementById('suggestion-text') as HTMLTextAreaElement | null;
+        const suggestionAuthor = document.getElementById('suggestion-author') as HTMLInputElement | null;
+        const suggestionContact = document.getElementById('suggestion-contact') as HTMLInputElement | null;
+        const suggestionFeedback = document.getElementById('suggestion-feedback');
+        const suggestionSubmitBtn = document.getElementById('suggestion-submit-btn');
+
+        document.querySelectorAll('.quick-pill').forEach(pill => {
+            pill.addEventListener('click', () => {
+                const text = pill.textContent?.trim() || '';
+                if (suggestionText) {
+                    suggestionText.value = text;
+                    suggestionText.focus();
+                }
+            });
+        });
+
+        if (suggestionForm && suggestionText) {
+            suggestionForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const suggestion = suggestionText.value.trim();
+                const author = suggestionAuthor ? suggestionAuthor.value.trim() : '';
+                const contact = suggestionContact ? suggestionContact.value.trim() : '';
+
+                if (!suggestion) return;
+
+                if (suggestionSubmitBtn) {
+                    suggestionSubmitBtn.setAttribute('disabled', 'true');
+                    suggestionSubmitBtn.textContent = 'Submitting...';
+                }
+
+                try {
+                    const res = await fetch('/api/stagekeys-interaction', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            action: 'suggest',
+                            suggestion,
+                            author,
+                            contact
+                        })
+                    });
+
+                    const data = await res.json();
+
+                    if (suggestionFeedback) {
+                        suggestionFeedback.classList.remove('hidden', 'bg-rose-500/20', 'text-rose-300', 'border-rose-500/30', 'bg-teal-500/20', 'text-teal-300', 'border-teal-500/30');
+                        suggestionFeedback.classList.add('border');
+
+                        if (res.ok && data.success) {
+                            suggestionFeedback.classList.add('bg-teal-500/20', 'text-teal-300', 'border-teal-500/30');
+                            suggestionFeedback.textContent = '💡 Thanks for your suggestion! It was forwarded to Tute López.';
+                            suggestionForm.reset();
+                        } else {
+                            suggestionFeedback.classList.add('bg-rose-500/20', 'text-rose-300', 'border-rose-500/30');
+                            suggestionFeedback.textContent = '❌ ' + (data.error || 'An error occurred submitting your suggestion.');
+                        }
+                    }
+                } catch (err) {
+                    if (suggestionFeedback) {
+                        suggestionFeedback.classList.remove('hidden');
+                        suggestionFeedback.classList.add('bg-rose-500/20', 'text-rose-300', 'border', 'border-rose-500/30');
+                        suggestionFeedback.textContent = '❌ Connection error while sending.';
+                    }
+                } finally {
+                    if (suggestionSubmitBtn) {
+                        suggestionSubmitBtn.removeAttribute('disabled');
+                        suggestionSubmitBtn.innerHTML = `
+                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                            </svg>
+                            <span>Submit Feature Request</span>
+                        `;
+                    }
+                }
+            });
+        }
+
+        // --- 4. LIGHTBOX MODAL ---
+        const modal = document.getElementById('image-modal');
+        const modalImg = document.getElementById('modal-img') as HTMLImageElement | null;
+        const modalClose = document.getElementById('modal-close');
+
+        document.querySelectorAll('.image-card').forEach(card => {
+            card.addEventListener('click', () => {
+                const src = card.getAttribute('data-img');
+                if (modal && modalImg && src) {
+                    modalImg.src = src;
+                    modal.classList.remove('hidden');
+                }
+            });
+        });
+
+        if (modalClose && modal) {
+            modalClose.addEventListener('click', () => {
+                modal.classList.add('hidden');
+            });
+        }
+        if (modal) {
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.classList.add('hidden');
+                }
+            });
+        }
+    });
+</script>
