@@ -519,10 +519,64 @@ function extractLinks(msg, text) {
     return { teraboxLink, telegramLink };
 }
 
-async function processAndCreateDraft(msg) {
+// ==========================================
+// SESIÓN DE IMPORTACIÓN Y COMBINACIÓN DE MENSAJES
+// ==========================================
+
+const SESSION_TTL_MS = 15 * 60 * 1000; // 15 minutos
+
+async function getImportSession(key) {
+    try {
+        const doc = await client.fetch(`*[_id == $id][0]`, { id: `import_session_${key}` });
+        return doc || null;
+    } catch (e) {
+        console.error('Error fetching import session:', e);
+        return null;
+    }
+}
+
+async function saveImportSession(key, data) {
+    try {
+        const doc = {
+            _id: `import_session_${key}`,
+            _type: 'importSession',
+            ...data
+        };
+        await client.createOrReplace(doc);
+    } catch (e) {
+        console.error('Error saving import session:', e);
+    }
+}
+
+async function clearImportSession(key) {
+    try {
+        await client.delete(`import_session_${key}`);
+    } catch (e) {
+        console.error('Error clearing import session:', e);
+    }
+}
+
+// Comando para reiniciar la sesión de importación
+bot.command(['nuevo', 'limpiar_sesion', 'cancelar'], async (ctx) => {
+    if (!isAdmin(ctx)) return;
+    await clearImportSession(ctx.from.id);
+    ctx.reply('🧹 Sesión de importación reiniciada. Puedes enviar o reenviar un nuevo recurso desde cero.');
+});
+
+// Manejador central para mensajes en chat privado (reenvíos o envíos de recursos)
+async function handlePrivateImport(ctx) {
+    const msg = ctx.message;
+    const userId = ctx.from.id;
     const text = msg.caption || msg.text || '';
 
-    // Buscar foto
+    // Obtener sesión activa si existe
+    let session = await getImportSession(userId);
+    const isSessionRecent = session && (Date.now() - new Date(session.updatedAt).getTime() < SESSION_TTL_MS);
+    if (!isSessionRecent) {
+        session = null;
+    }
+
+    // 1. Detectar si el mensaje trae foto
     let photoFileId = null;
     if (msg.photo && msg.photo.length > 0) {
         photoFileId = msg.photo[msg.photo.length - 1].file_id;
@@ -530,105 +584,194 @@ async function processAndCreateDraft(msg) {
         photoFileId = msg.document.file_id;
     }
 
-    if (!photoFileId) {
-        throw new Error('El mensaje no contiene una foto de portada. En Sanity la imagen es obligatoria.');
-    }
+    // 2. Detectar si el mensaje es un archivo descargable (.rar, .zip, etc.)
+    const isDownloadableFile = Boolean(msg.document && (!msg.document.mime_type || !msg.document.mime_type.startsWith('image/')));
 
-    // 1. Descargar imagen y subir a Sanity Assets
-    const fileLink = await bot.telegram.getFileLink(photoFileId);
-    const res = await fetch(fileLink.href);
-    if (!res.ok) throw new Error(`No se pudo descargar la imagen desde Telegram: ${res.statusText}`);
-    const arrayBuffer = await res.arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);
-
-    const asset = await client.assets.upload('image', buffer, {
-        filename: `tg_${Date.now()}.jpg`,
-        contentType: res.headers.get('content-type') || 'image/jpeg'
-    });
-
-    // 2. Extraer metadatos
-    const title = extractTitle(text);
-    const slugCurrent = slugify(title);
-    const category = detectCategory(text);
-    const description = extractDescription(text, title);
+    // 3. Extraer enlaces
     const { teraboxLink, telegramLink } = extractLinks(msg, text);
 
-    const rawTags = (text.match(/#(\w+)/g) || []).map(t => t.replace('#', '').toLowerCase());
-    const tags = [...new Set([category, ...rawTags])];
+    // ==========================================
+    // CASO 1: Es un ARCHIVO (.rar, .zip, etc.)
+    // ==========================================
+    if (isDownloadableFile) {
+        const fileLink = telegramLink || (msg.chat && msg.chat.username ? `https://t.me/${msg.chat.username}/${msg.message_id}` : null);
+        const fileName = msg.document.file_name || 'Archivo descargable';
 
-    // 3. Comprobar si ya existe
-    const existing = await client.fetch(`*[_type == "resource" && (slug.current == $slug || title == $title)][0]`, {
-        slug: slugCurrent,
-        title: title
-    });
+        // Si ya hay un borrador creado previamente en la sesión, actualizamos su link de descarga directo
+        if (session && session.draftId) {
+            const patchObj = { downloadLink: fileLink || undefined };
+            if (teraboxLink) patchObj.teraboxLink = teraboxLink;
 
-    // 4. Crear documento en borrador (Draft)
-    const draftId = `drafts.${slugCurrent}`;
-    const doc = {
-        _id: draftId,
-        _type: 'resource',
-        title: title,
-        slug: {
-            _type: 'slug',
-            current: slugCurrent
-        },
-        category: category,
-        description: description,
-        tags: tags,
-        mainImage: {
-            _type: 'image',
-            asset: {
-                _type: 'reference',
-                _ref: asset._id
+            await client.patch(session.draftId).set(patchObj).commit();
+
+            session.fileTelegramLink = fileLink;
+            session.updatedAt = new Date().toISOString();
+            await saveImportSession(userId, session);
+
+            return ctx.reply(
+                `📎 *¡Enlace directo al archivo vinculado con éxito!*\n\n` +
+                `📦 *Archivo:* \`${fileName}\`\n` +
+                `🎯 *Link directo al post del archivo:* ${fileLink ? `[${fileLink}](${fileLink})` : 'Guardado'}\n\n` +
+                `El borrador *${session.title || 'actual'}* en Sanity ahora apunta exactamente a este archivo.`,
+                {
+                    parse_mode: 'Markdown',
+                    disable_web_page_preview: true,
+                    ...Markup.inlineKeyboard([
+                        [Markup.button.url('📝 Abrir Sanity Studio', 'https://tutelopezmusic.com/admin')]
+                    ])
+                }
+            );
+        }
+
+        // Si aún no se ha subido la foto, guardamos el link del archivo en la sesión
+        session = session || {};
+        session.fileTelegramLink = fileLink;
+        session.fileName = fileName;
+        if (teraboxLink) session.teraboxLink = teraboxLink;
+        if (text) {
+            session.title = session.title || extractTitle(text);
+            session.category = session.category || detectCategory(text);
+            session.description = session.description || extractDescription(text, session.title);
+        } else if (!session.title && fileName) {
+            session.title = fileName.replace(/\.[^/.]+$/, '').replace(/[_.-]+/g, ' ');
+        }
+        session.updatedAt = new Date().toISOString();
+        await saveImportSession(userId, session);
+
+        return ctx.reply(
+            `📦 *Archivo detectado:* \`${fileName}\`\n` +
+            `🎯 *Link directo guardado:* ${fileLink ? `[${fileLink}](${fileLink})` : 'Registrado'}\n\n` +
+            `📸 *Ahora reenvía el mensaje con la FOTO de portada* para completar el recurso y generar el borrador en Sanity.`,
+            { parse_mode: 'Markdown', disable_web_page_preview: true }
+        );
+    }
+
+    // ==========================================
+    // CASO 2: Es una FOTO (Portada)
+    // ==========================================
+    if (photoFileId) {
+        await ctx.reply('⏳ Procesando portada... Subiendo imagen a Sanity.');
+        
+        // Descargar y subir foto
+        const fileLink = await bot.telegram.getFileLink(photoFileId);
+        const res = await fetch(fileLink.href);
+        const arrayBuffer = await res.arrayBuffer();
+        const buffer = Buffer.from(arrayBuffer);
+        const asset = await client.assets.upload('image', buffer, {
+            filename: `tg_${Date.now()}.jpg`,
+            contentType: res.headers.get('content-type') || 'image/jpeg'
+        });
+
+        // Metadatos
+        const title = (text ? extractTitle(text) : (session?.title || 'Nuevo Recurso'));
+        const slugCurrent = slugify(title);
+        const category = (text ? detectCategory(text) : (session?.category || 'mainstage'));
+        const description = (text ? extractDescription(text, title) : (session?.description || `Recurso ${title} listo para descargar.`));
+        const finalTerabox = teraboxLink || session?.teraboxLink || undefined;
+
+        // Si ya teníamos el link directo al post del archivo (.rar), lo usamos prioritariamente
+        const finalDownloadLink = session?.fileTelegramLink || telegramLink || undefined;
+
+        const rawTags = (text.match(/#(\w+)/g) || []).map(t => t.replace('#', '').toLowerCase());
+        const tags = [...new Set([category, ...rawTags])];
+
+        const draftId = `drafts.${slugCurrent}`;
+        const doc = {
+            _id: draftId,
+            _type: 'resource',
+            title: title,
+            slug: { _type: 'slug', current: slugCurrent },
+            category: category,
+            description: description,
+            tags: tags,
+            mainImage: {
+                _type: 'image',
+                asset: { _type: 'reference', _ref: asset._id }
+            },
+            downloadLink: finalDownloadLink,
+            teraboxLink: finalTerabox
+        };
+
+        await client.createOrReplace(doc);
+
+        // Guardar sesión para permitir que si luego reenvían el .rar o texto adicional, se actualice
+        session = {
+            draftId,
+            title,
+            slug: slugCurrent,
+            category,
+            imageAssetId: asset._id,
+            fileTelegramLink: finalDownloadLink,
+            teraboxLink: finalTerabox,
+            updatedAt: new Date().toISOString()
+        };
+        await saveImportSession(userId, session);
+
+        let replyMsg = `✅ *¡Borrador creado en Sanity!*\n\n` +
+                       `🎹 *Título:* ${title}\n` +
+                       `📂 *Categoría:* \`${category}\`\n` +
+                       `📝 *Slug:* \`${slugCurrent}\`\n` +
+                       `🖼 *Portada:* ✅ Subida con éxito\n` +
+                       `📦 *Descarga Telegram:* ${finalDownloadLink ? `[${finalDownloadLink}](${finalDownloadLink})` : '⚠️ No asignado aún'}\n` +
+                       `☁️ *Terabox:* ${finalTerabox ? `[Detectado](${finalTerabox})` : '⚠️ No detectado'}\n` +
+                       `🏷 *Tags:* #${tags.join(' #')}\n\n`;
+
+        if (!session.fileTelegramLink || session.fileTelegramLink === telegramLink) {
+            replyMsg += `💡 *Tip:* Si el archivo \`.rar\` está en un mensaje separado, **reenvíamelo ahora** y actualizaré automáticamente el enlace para que apunte directo al archivo.\n\n`;
+        }
+
+        replyMsg += `👉 Revisa y publica cuando gustes en Sanity Studio:`;
+
+        return ctx.reply(replyMsg, {
+            parse_mode: 'Markdown',
+            disable_web_page_preview: true,
+            ...Markup.inlineKeyboard([
+                [Markup.button.url('📝 Abrir Sanity Studio', 'https://tutelopezmusic.com/admin')]
+            ])
+        });
+    }
+
+    // ==========================================
+    // CASO 3: Es solo TEXTO (Descripción o links)
+    // ==========================================
+    if (text) {
+        if (session && session.draftId) {
+            const patchData = {};
+            if (teraboxLink) patchData.teraboxLink = teraboxLink;
+            if (telegramLink && !session.fileTelegramLink) patchData.downloadLink = telegramLink;
+
+            const extraDesc = extractDescription(text, session.title || '');
+            if (extraDesc && extraDesc.length > 15) patchData.description = extraDesc;
+
+            if (Object.keys(patchData).length > 0) {
+                await client.patch(session.draftId).set(patchData).commit();
+                session.updatedAt = new Date().toISOString();
+                if (teraboxLink) session.teraboxLink = teraboxLink;
+                await saveImportSession(userId, session);
+
+                return ctx.reply(
+                    `📝 *¡Datos adicionales vinculados al borrador!*\n\n` +
+                    `🎹 *Recurso:* ${session.title}\n` +
+                    `${teraboxLink ? `☁️ *Terabox añadido:* [Ver link](${teraboxLink})\n` : ''}` +
+                    `\nEl borrador se actualizó correctamente en Sanity.`,
+                    { parse_mode: 'Markdown', disable_web_page_preview: true }
+                );
             }
-        },
-        downloadLink: telegramLink || undefined,
-        teraboxLink: teraboxLink || undefined
-    };
+        }
 
-    await client.createOrReplace(doc);
-
-    return {
-        title,
-        category,
-        slug: slugCurrent,
-        teraboxLink,
-        telegramLink,
-        tags,
-        isExisting: Boolean(existing)
-    };
+        return ctx.reply(
+            '⚠️ Has enviado un mensaje de texto sin foto ni archivo.\n\n' +
+            '📸 Para crear un nuevo recurso, por favor reenvía la **foto de portada** o el **archivo .rar**. Si ya creaste uno recientemente, este texto no contenía datos nuevos.'
+        );
+    }
 }
 
-// Manejador cuando el admin reenvía o envía fotos en chat privado
+// Manejador cuando el admin reenvía o envía fotos, documentos o texto en chat privado
 bot.on(['photo', 'document'], async (ctx, next) => {
     if (ctx.chat && ctx.chat.type === 'private') {
         if (!isAdmin(ctx)) return next();
-
         try {
-            await ctx.reply('⏳ Procesando publicación... Descargando portada y subiendo a Sanity.');
-            const result = await processAndCreateDraft(ctx.message);
-
-            let msg = `✅ *¡Borrador creado en Sanity!*\n\n` +
-                      `🎹 *Título:* ${result.title}\n` +
-                      `📂 *Categoría:* \`${result.category}\`\n` +
-                      `📝 *Slug:* \`${result.slug}\`\n` +
-                      `📦 *Terabox:* ${result.teraboxLink ? `[Detectado](${result.teraboxLink})` : '⚠️ No detectado'}\n` +
-                      `✈️ *Telegram:* ${result.telegramLink ? `[Detectado](${result.telegramLink})` : '⚠️ No detectado'}\n` +
-                      `🏷 *Tags:* #${result.tags.join(' #')}\n\n` +
-                      `📌 *Estado:* Guardado como Borrador (Draft).\n` +
-                      `Ya puedes entrar a Sanity Studio para revisarlo y publicarlo cuando quieras:`;
-
-            if (result.isExisting) {
-                msg += `\n\n⚠️ *Nota:* Ya existía un recurso similar en Sanity. Se actualizó el borrador de trabajo.`;
-            }
-
-            await ctx.reply(msg, {
-                parse_mode: 'Markdown',
-                disable_web_page_preview: true,
-                ...Markup.inlineKeyboard([
-                    [Markup.button.url('📝 Abrir Sanity Studio', 'https://tutelopezmusic.com/admin')]
-                ])
-            });
+            await handlePrivateImport(ctx);
         } catch (error) {
             console.error('Error al procesar reenvío en privado:', error);
             await ctx.reply(`❌ No se pudo procesar la publicación: ${error.message}`);
@@ -638,13 +781,19 @@ bot.on(['photo', 'document'], async (ctx, next) => {
     return next();
 });
 
-// Advertencia si reenvían un mensaje de solo texto sin foto
-bot.on('message', async (ctx, next) => {
+bot.on('text', async (ctx, next) => {
     if (ctx.chat && ctx.chat.type === 'private' && isAdmin(ctx)) {
-        const isForwarded = Boolean(ctx.message.forward_origin || ctx.message.forward_from_chat || ctx.message.forward_date);
-        if (isForwarded && !ctx.message.photo && !ctx.message.document) {
-            return ctx.reply('⚠️ Has reenviado un mensaje de solo texto sin imagen.\n\nEn Sanity la imagen de portada es obligatoria. Por favor reenvía la publicación que contiene la foto de portada del recurso.');
+        // Ignorar si el texto empieza con barra de comando
+        if (ctx.message.text && ctx.message.text.startsWith('/')) {
+            return next();
         }
+        try {
+            await handlePrivateImport(ctx);
+        } catch (error) {
+            console.error('Error al procesar texto en privado:', error);
+            await ctx.reply(`❌ Error al procesar texto: ${error.message}`);
+        }
+        return;
     }
     return next();
 });
@@ -654,28 +803,90 @@ bot.on('channel_post', async (ctx) => {
     try {
         const msg = ctx.channelPost;
         const text = msg.caption || msg.text || '';
-        
-        // Solo procesar si tiene foto
-        if (!msg.photo && (!msg.document || !msg.document.mime_type?.startsWith('image/'))) {
+        const channelKey = 'channel_auto';
+
+        let session = await getImportSession(channelKey);
+        const isSessionRecent = session && (Date.now() - new Date(session.updatedAt).getTime() < 5 * 60 * 1000);
+        if (!isSessionRecent) session = null;
+
+        const isDownloadableFile = Boolean(msg.document && (!msg.document.mime_type || !msg.document.mime_type.startsWith('image/')));
+        let photoFileId = null;
+        if (msg.photo && msg.photo.length > 0) {
+            photoFileId = msg.photo[msg.photo.length - 1].file_id;
+        } else if (msg.document && msg.document.mime_type && msg.document.mime_type.startsWith('image/')) {
+            photoFileId = msg.document.file_id;
+        }
+
+        const { teraboxLink, telegramLink } = extractLinks(msg, text);
+
+        // Si en el canal subieron el archivo .rar seguido de la foto (o viceversa)
+        if (isDownloadableFile && session && session.draftId) {
+            const fileLink = telegramLink || (msg.chat?.username ? `https://t.me/${msg.chat.username}/${msg.message_id}` : null);
+            await client.patch(session.draftId).set({ downloadLink: fileLink || undefined }).commit();
+            console.log(`Canal: Enlace del archivo .rar (#${msg.message_id}) vinculado al borrador ${session.draftId}`);
             return;
         }
 
-        const isResource = /terabox|1024tera|descarga|download|kontakt|mainstage|librer|patch|piano|synth/i.test(text);
-        if (!isResource) return;
+        if (photoFileId) {
+            const isResource = /terabox|1024tera|descarga|download|kontakt|mainstage|librer|patch|piano|synth/i.test(text);
+            if (!isResource && !session?.fileTelegramLink) return;
 
-        const result = await processAndCreateDraft(msg);
-        console.log(`Borrador creado automáticamente desde canal para: ${result.title}`);
+            const fileLink = await bot.telegram.getFileLink(photoFileId);
+            const res = await fetch(fileLink.href);
+            const arrayBuffer = await res.arrayBuffer();
+            const buffer = Buffer.from(arrayBuffer);
 
-        const adminId = process.env.ADMIN_ID || process.env.TELEGRAM_ADMIN_ID;
-        if (adminId) {
-            await bot.telegram.sendMessage(
-                adminId,
-                `📢 *Nuevo recurso detectado en el canal y guardado como borrador:*\n\n` +
-                `🎹 *${result.title}*\n` +
-                `📂 Categoría: \`${result.category}\`\n\n` +
-                `🔗 Revisa y publica aquí: https://tutelopezmusic.com/admin`,
-                { parse_mode: 'Markdown' }
-            );
+            const asset = await client.assets.upload('image', buffer, {
+                filename: `tg_${Date.now()}.jpg`,
+                contentType: res.headers.get('content-type') || 'image/jpeg'
+            });
+
+            const title = extractTitle(text);
+            const slugCurrent = slugify(title);
+            const category = detectCategory(text);
+            const description = extractDescription(text, title);
+            const finalDownloadLink = session?.fileTelegramLink || telegramLink || undefined;
+
+            const draftId = `drafts.${slugCurrent}`;
+            const doc = {
+                _id: draftId,
+                _type: 'resource',
+                title: title,
+                slug: { _type: 'slug', current: slugCurrent },
+                category: category,
+                description: description,
+                tags: [category, 'worship'],
+                mainImage: {
+                    _type: 'image',
+                    asset: { _type: 'reference', _ref: asset._id }
+                },
+                downloadLink: finalDownloadLink,
+                teraboxLink: teraboxLink || undefined
+            };
+
+            await client.createOrReplace(doc);
+
+            await saveImportSession(channelKey, {
+                draftId,
+                title,
+                slug: slugCurrent,
+                fileTelegramLink: finalDownloadLink,
+                updatedAt: new Date().toISOString()
+            });
+
+            console.log(`Borrador creado automáticamente desde canal para: ${title}`);
+
+            const adminId = process.env.ADMIN_ID || process.env.TELEGRAM_ADMIN_ID;
+            if (adminId) {
+                await bot.telegram.sendMessage(
+                    adminId,
+                    `📢 *Nuevo recurso detectado en el canal y guardado como borrador:*\n\n` +
+                    `🎹 *${title}*\n` +
+                    `📂 Categoría: \`${category}\`\n\n` +
+                    `🔗 Revisa y publica aquí: https://tutelopezmusic.com/admin`,
+                    { parse_mode: 'Markdown' }
+                );
+            }
         }
     } catch (e) {
         console.error('Error procesando channel_post automático:', e);
