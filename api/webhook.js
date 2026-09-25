@@ -73,16 +73,120 @@ function slugify(text) {
         .slice(0, 90) || ('recurso-' + Date.now());
 }
 
-function extractTitle(text) {
-    const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
-    if (lines.length === 0) return 'Nuevo Recurso';
-    let firstLine = lines[0];
-    firstLine = firstLine.replace(/[*_`~#]/g, '');
-    firstLine = firstLine.replace(/^[\p{Emoji}\p{Symbol}\s\-:|]+/gu, '').trim();
-    if (firstLine.length < 3 && lines.length > 1) {
-        firstLine = lines[1].replace(/[*_`~#]/g, '').replace(/^[\p{Emoji}\p{Symbol}\s\-:|]+/gu, '').trim();
+// Analizador inteligente con IA (Gemini) o Heurístico avanzado
+async function analyzeResourceContent(text) {
+    if (!text || typeof text !== 'string') {
+        return {
+            title: 'Nuevo Recurso',
+            category: 'mainstage',
+            description: 'Recurso listo para descargar.',
+            tags: ['recursos', 'worship']
+        };
     }
-    return firstLine || 'Nuevo Recurso';
+
+    // 1. Intentar con Gemini API si está configurada la clave
+    const geminiKey = process.env.GEMINI_API_KEY;
+    if (geminiKey) {
+        try {
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiKey}`;
+            const prompt = `Actúa como editor musical. Analiza esta publicación de Telegram y extrae un JSON estricto con:
+- "title": Nombre o título limpio del recurso (máximo 4 a 6 palabras, ej: "Korg Gadget 2 para iPad", "Nord Stage 3 Pianos", "Moog Model 15"). Nunca devuelvas un párrafo entero como título.
+- "category": una de ["mainstage", "kontakt", "sintetizadores", "tutoriales", "software", "appsmoviles", "sf2", "samplesmoviles"].
+- "description": Resumen conciso y profesional de 1 a 2 oraciones para la página web (sin links ni contraseñas).
+- "tags": Array de 3 a 5 tags relevantes en minúsculas.
+
+Texto:
+"${text.slice(0, 1500)}"`;
+
+            const res = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    contents: [{ parts: [{ text: prompt }] }],
+                    generationConfig: {
+                        responseMimeType: "application/json",
+                        temperature: 0.1
+                    }
+                })
+            });
+
+            if (res.ok) {
+                const data = await res.json();
+                const jsonText = data.candidates?.[0]?.content?.parts?.[0]?.text;
+                if (jsonText) {
+                    const parsed = JSON.parse(jsonText);
+                    if (parsed.title) {
+                        return {
+                            title: parsed.title.trim(),
+                            category: parsed.category || detectCategory(text),
+                            description: parsed.description || extractDescription(text, parsed.title),
+                            tags: Array.isArray(parsed.tags) ? parsed.tags : [parsed.category || 'recursos']
+                        };
+                    }
+                }
+            }
+        } catch (aiErr) {
+            console.error('Fallo en Gemini API, usando analizador heurístico:', aiErr);
+        }
+    }
+
+    // 2. Analizador Heurístico Avanzado (Fallback inteligente)
+    const title = extractSmartTitle(text);
+    const category = detectCategory(text);
+    const description = extractDescription(text, title);
+    const rawTags = (text.match(/#(\w+)/g) || []).map(t => t.replace('#', '').toLowerCase());
+    const tags = [...new Set([category, ...rawTags])];
+
+    return { title, category, description, tags };
+}
+
+function extractSmartTitle(text) {
+    if (!text || typeof text !== 'string') return 'Nuevo Recurso';
+
+    // A. Si la primera línea ya es un título corto y claro
+    const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
+    if (lines.length > 0) {
+        let firstLine = lines[0].replace(/[*_`~#]/g, '').trim();
+        firstLine = firstLine.replace(/^[\p{Emoji}\p{Symbol}\s\-:|]+/gu, '').trim();
+        const words = firstLine.split(/\s+/).filter(Boolean);
+        if (words.length >= 2 && words.length <= 6 && !firstLine.endsWith('.') && !/^(hoy|les|para|esta|este|un|una)\b/i.test(firstLine)) {
+            return firstLine;
+        }
+    }
+
+    let raw = text.replace(/[*_`~#]/g, ' ').trim();
+    raw = raw.replace(/^[\p{Emoji}\p{Symbol}\s\-:|]+/gu, '').trim();
+
+    // B. Quitar intros típicas de saludo o anuncios
+    const introRegex = /^(?:hola a todos,?|buen d[ií]a,?|buenas tardes,?|amigos,?|familia,?|hoy les (?:traigo|comparto|dejo|muestro)|les (?:traigo|comparto|dejo|muestro)|aqu[ií] tienen?|les presento|miren esta|conozcan esta|nueva (?:app|librer[ií]a|plantilla)|nuevo (?:recurso|preset|plugin)|descarga gratis|descarga ya|incre[ií]ble (?:app|librer[ií]a|plantilla))\s*(?:llamada?|de)?\s*[:,-]?\s*/i;
+    raw = raw.replace(introRegex, '').trim();
+
+    // C. Si hay comillas "Nombre del Recurso"
+    const quoteMatch = raw.match(/["“«]([^"”»]{3,40})["”»]/);
+    if (quoteMatch) return quoteMatch[1].trim();
+
+    // D. Patrón "app llamada X", "librería X", "plugin X"
+    const pattern = /(?:(?:app|librer[ií]a|plantilla|plugin|sintetizador|preset)\s+(?:llamada?\s+)?)([A-Z0-9][a-zA-Z0-9\s\.\-\+]{2,30}?)(?:\s+(?:que|para|de|con|es|en|\.|\,)|$)/i;
+    const match = raw.match(pattern);
+    if (match && match[1] && match[1].trim().length >= 3) {
+        return match[1].trim();
+    }
+
+    // E. Buscar marcas e instrumentos reconocidos en el texto
+    const brandMatch = raw.match(/\b(Korg|Yamaha|Roland|Nord|Moog|Arturia|MainStage|Kontakt|GarageBand|Cubasis|Serum|Vital|Spire|Omnisphere|Casio|Kurzweil|Novation|Behringer|Steinberg|Native Instruments)\b[^\.\,\n\!\?]{0,25}/i);
+    if (brandMatch) {
+        const cleanBrand = brandMatch[0].replace(/\s+(?:con|para|de|en|y|que|es)\b.*$/i, '').trim();
+        if (cleanBrand.length >= 3) return cleanBrand;
+    }
+
+    // F. Primera frase / primeras 4-5 palabras clave
+    const firstSentence = raw.split(/[\n\.\,\!\?]/)[0].trim();
+    const words = firstSentence.split(/\s+/).filter(Boolean);
+    if (words.length >= 2 && words.length <= 6) {
+        return words.join(' ');
+    }
+
+    return words.slice(0, 5).join(' ') || 'Nuevo Recurso';
 }
 
 function detectCategory(text) {
@@ -242,9 +346,11 @@ async function handlePrivateImport(ctx) {
         session.fileName = fileName;
         if (teraboxLink) session.teraboxLink = teraboxLink;
         if (text) {
-            session.title = session.title || extractTitle(text);
-            session.category = session.category || detectCategory(text);
-            session.description = session.description || extractDescription(text, session.title);
+            const aiData = await analyzeResourceContent(text);
+            session.title = session.title || aiData.title;
+            session.category = session.category || aiData.category;
+            session.description = session.description || aiData.description;
+            session.tags = aiData.tags;
         } else if (!session.title && fileName) {
             session.title = fileName.replace(/\.[^/.]+$/, '').replace(/[_.-]+/g, ' ');
         }
@@ -261,7 +367,7 @@ async function handlePrivateImport(ctx) {
 
     // CASO 2: Foto de portada
     if (photoFileId) {
-        await ctx.reply('⏳ Procesando portada... Subiendo imagen a Sanity.');
+        await ctx.reply('⏳ Procesando portada... Analizando contenido y subiendo imagen a Sanity.');
         
         const fileLink = await bot.telegram.getFileLink(photoFileId);
         const res = await fetch(fileLink.href);
@@ -272,15 +378,15 @@ async function handlePrivateImport(ctx) {
             contentType: res.headers.get('content-type') || 'image/jpeg'
         });
 
-        const title = (text ? extractTitle(text) : (session?.title || 'Nuevo Recurso'));
+        // Analizar texto con IA / heurística avanzada para obtener el mejor título
+        const aiData = await analyzeResourceContent(text || session?.fileName || '');
+        const title = (text ? aiData.title : (session?.title || aiData.title || 'Nuevo Recurso'));
         const slugCurrent = slugify(title);
-        const category = (text ? detectCategory(text) : (session?.category || 'mainstage'));
-        const description = (text ? extractDescription(text, title) : (session?.description || `Recurso ${title} listo para descargar.`));
+        const category = (text ? aiData.category : (session?.category || aiData.category || 'mainstage'));
+        const description = (text ? aiData.description : (session?.description || aiData.description || `Recurso ${title} listo para descargar.`));
         const finalTerabox = teraboxLink || session?.teraboxLink || undefined;
         const finalDownloadLink = session?.fileTelegramLink || telegramLink || undefined;
-
-        const rawTags = (text.match(/#(\w+)/g) || []).map(t => t.replace('#', '').toLowerCase());
-        const tags = [...new Set([category, ...rawTags])];
+        const tags = aiData.tags || [category, 'worship'];
 
         const draftId = `drafts.${slugCurrent}`;
         const doc = {
@@ -314,7 +420,7 @@ async function handlePrivateImport(ctx) {
         await saveImportSession(userId, session);
 
         let replyMsg = `✅ *¡Borrador creado en Sanity!*\n\n` +
-                       `🎹 *Título:* ${title}\n` +
+                       `🎹 *Título identificado:* *${title}*\n` +
                        `📂 *Categoría:* \`${category}\`\n` +
                        `📝 *Slug:* \`${slugCurrent}\`\n` +
                        `🖼 *Portada:* ✅ Subida con éxito\n` +
@@ -344,12 +450,14 @@ async function handlePrivateImport(ctx) {
             if (teraboxLink) patchData.teraboxLink = teraboxLink;
             if (telegramLink && !session.fileTelegramLink) patchData.downloadLink = telegramLink;
 
-            const extraDesc = extractDescription(text, session.title || '');
-            if (extraDesc && extraDesc.length > 15) patchData.description = extraDesc;
+            const aiData = await analyzeResourceContent(text);
+            if (aiData.description && aiData.description.length > 15) patchData.description = aiData.description;
+            if (aiData.title && (!session.title || session.title === 'Nuevo Recurso')) patchData.title = aiData.title;
 
             if (Object.keys(patchData).length > 0) {
                 await client.patch(session.draftId).set(patchData).commit();
                 session.updatedAt = new Date().toISOString();
+                if (aiData.title) session.title = aiData.title;
                 if (teraboxLink) session.teraboxLink = teraboxLink;
                 await saveImportSession(userId, session);
 
@@ -963,10 +1071,11 @@ bot.on('channel_post', async (ctx) => {
                 contentType: res.headers.get('content-type') || 'image/jpeg'
             });
 
-            const title = extractTitle(text);
+            const aiData = await analyzeResourceContent(text);
+            const title = aiData.title;
             const slugCurrent = slugify(title);
-            const category = detectCategory(text);
-            const description = extractDescription(text, title);
+            const category = aiData.category;
+            const description = aiData.description;
             const finalDownloadLink = session?.fileTelegramLink || telegramLink || undefined;
 
             const draftId = `drafts.${slugCurrent}`;
@@ -977,7 +1086,7 @@ bot.on('channel_post', async (ctx) => {
                 slug: { _type: 'slug', current: slugCurrent },
                 category: category,
                 description: description,
-                tags: [category, 'worship'],
+                tags: aiData.tags || [category, 'worship'],
                 mainImage: {
                     _type: 'image',
                     asset: { _type: 'reference', _ref: asset._id }
