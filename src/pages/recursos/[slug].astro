@@ -103,6 +103,8 @@ const relatedResources = await sanityClient.fetch(relatedQuery, { slug }) || [];
             <div class="glass-panel p-8 md:p-12 mb-12 prose prose-invert prose-lg max-w-none prose-a:text-brand hover:prose-a:text-brand-light prose-headings:text-white">
                 <PortableText value={resource.content} />
             </div>
+        )}
+
         <!-- Preescucha de Audio (Sound Preview) -->
         {resource.audioDemoUrl && (
             <div class="glass-panel p-6 rounded-2xl mb-12 border border-brand/40 bg-slate-900/60 shadow-xl shadow-brand/5">
