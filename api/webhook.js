@@ -428,16 +428,16 @@ bot.start((ctx) => {
     if (isAdmin(ctx)) {
         msg += `\n\n🛠 *Comandos de Control / Admin:*\n` +
                `⚙️ /panel - Control de mensajes diarios (Pausar/Reanudar)\n` +
+               `📊 /stats - Métricas y estadísticas en tiempo real\n` +
                `⏸ /pausar - Pausar mensajes automáticos diarios\n` +
                `▶️ /despausar - Reanudar mensajes automáticos diarios\n` +
-               `📊 /estado - Ver estado actual de mensajes\n` +
                `📢 /enviar_ahora - Publicar un recurso ahora al canal\n` +
                `🧹 /nuevo - Reiniciar sesión de importación\n` +
                `📋 /ver_peticiones - Ver peticiones de usuarios\n` +
                `💬 /broadcast - Enviar anuncio a suscriptores\n` +
                `🆔 /mi_id - Ver tu ID de Telegram\n\n` +
                `📥 *Crear borradores en Sanity:* Reenvíame aquí cualquier post del canal con foto y enlaces, y lo convertiré automáticamente en borrador en Sanity.`;
-        keyboardRows.push(['⚙️ Panel de Control', '📊 Estado']);
+        keyboardRows.push(['⚙️ Panel de Control', '📊 Estadísticas']);
     }
 
     ctx.reply(msg, {
@@ -658,8 +658,11 @@ async function sendControlPanel(ctx, isEdit = false) {
                     : Markup.button.callback('⏸ Pausar Mensajes Diarios', 'cron_pause')
             ],
             [
-                Markup.button.callback('🔄 Actualizar Estado', 'cron_status'),
-                Markup.button.callback('📢 Publicar Recurso Ahora', 'cron_trigger_now')
+                Markup.button.callback('📊 Ver Estadísticas', 'open_stats'),
+                Markup.button.callback('📢 Publicar Ahora', 'cron_trigger_now')
+            ],
+            [
+                Markup.button.callback('🔄 Actualizar Panel', 'cron_status')
             ]
         ]);
 
@@ -673,6 +676,57 @@ async function sendControlPanel(ctx, isEdit = false) {
     } catch (e) {
         console.error('Error al generar panel de control:', e);
         ctx.reply('❌ Error al consultar la configuración en Sanity.');
+    }
+}
+
+// Estadísticas en tiempo real
+async function sendStatsReport(ctx, isEdit = false) {
+    if (!isAdmin(ctx)) return ctx.reply('⛔ No tienes permisos para ver estadísticas.');
+    try {
+        const [resources, totalSubscribers, totalRequests, settings] = await Promise.all([
+            client.fetch(`*[_type == "resource"]{ category, title }`),
+            client.fetch(`count(*[_type == "subscriber"])`),
+            client.fetch(`count(*[_type == "request"])`),
+            getBotSettings()
+        ]);
+
+        const totalResources = resources.length;
+        const catCounts = {};
+        for (const r of resources) {
+            const cat = (r.category || 'otros').toLowerCase();
+            catCounts[cat] = (catCounts[cat] || 0) + 1;
+        }
+
+        const cronStatus = settings.dailyCronPaused ? '⏸ Pausado' : '✅ Activo (18:00 UTC)';
+
+        let msg = `📊 *Estadísticas de TuteLopez Music*\n\n` +
+                  `👥 *Suscriptores VIP del Bot:* ${totalSubscribers}\n` +
+                  `📩 *Peticiones de usuarios:* ${totalRequests}\n` +
+                  `⏰ *Mensajes automáticos diarios:* ${cronStatus}\n\n` +
+                  `🎹 *Total de Recursos en la Web:* ${totalResources}\n`;
+
+        for (const [cat, count] of Object.entries(catCounts)) {
+            msg += `  ▫️ *${cat.toUpperCase()}:* ${count}\n`;
+        }
+
+        msg += `\n🌐 https://tutelopezmusic.com\n` +
+               `📝 https://tutelopezmusic.com/admin`;
+
+        const keyboard = Markup.inlineKeyboard([
+            [Markup.button.callback('🔄 Actualizar Métricas', 'refresh_stats')],
+            [Markup.button.callback('⚙️ Panel de Control', 'cron_status')]
+        ]);
+
+        if (isEdit) {
+            try {
+                await ctx.editMessageText(msg, { parse_mode: 'Markdown', disable_web_page_preview: true, ...keyboard });
+            } catch (err) {}
+        } else {
+            await ctx.reply(msg, { parse_mode: 'Markdown', disable_web_page_preview: true, ...keyboard });
+        }
+    } catch (error) {
+        console.error('Error calculando stats:', error);
+        ctx.reply(`❌ Error al obtener estadísticas: ${error.message}`);
     }
 }
 
@@ -706,6 +760,9 @@ async function sendDailyPostNow(ctx) {
 // Comandos de control
 bot.command(['panel', 'control'], (ctx) => sendControlPanel(ctx));
 bot.hears('⚙️ Panel de Control', (ctx) => sendControlPanel(ctx));
+
+bot.command(['stats', 'metricas', 'estadisticas'], (ctx) => sendStatsReport(ctx));
+bot.hears('📊 Estadísticas', (ctx) => sendStatsReport(ctx));
 
 bot.command(['estado', 'estado_diario'], (ctx) => sendControlPanel(ctx));
 bot.hears('📊 Estado', (ctx) => sendControlPanel(ctx));
@@ -778,10 +835,90 @@ bot.action('cron_status', async (ctx) => {
     await sendControlPanel(ctx, true);
 });
 
+bot.action('open_stats', async (ctx) => {
+    if (!isAdmin(ctx)) return ctx.answerCbQuery('⛔ Sin permisos.');
+    await ctx.answerCbQuery('Cargando estadísticas...');
+    await sendStatsReport(ctx, true);
+});
+
+bot.action('refresh_stats', async (ctx) => {
+    if (!isAdmin(ctx)) return ctx.answerCbQuery('⛔ Sin permisos.');
+    await ctx.answerCbQuery('Estadísticas actualizadas');
+    await sendStatsReport(ctx, true);
+});
+
 bot.action('cron_trigger_now', async (ctx) => {
     if (!isAdmin(ctx)) return ctx.answerCbQuery('⛔ Sin permisos.');
     await ctx.answerCbQuery('Enviando publicación al canal...');
     await sendDailyPostNow(ctx);
+});
+
+// ==========================================
+// MODO INLINE (@bot [búsqueda])
+// ==========================================
+bot.on('inline_query', async (ctx) => {
+    const query = (ctx.inlineQuery.query || '').trim();
+    try {
+        let sanityQuery;
+        let params = {};
+
+        if (!query) {
+            sanityQuery = `*[_type == "resource"] | order(_createdAt desc)[0...10]{
+                _id,
+                title,
+                category,
+                description,
+                "slug": slug.current,
+                "imageUrl": mainImage.asset->url
+            }`;
+        } else {
+            sanityQuery = `*[_type == "resource" && (title match $q || category match $q || tags[] match $q)][0...15]{
+                _id,
+                title,
+                category,
+                description,
+                "slug": slug.current,
+                "imageUrl": mainImage.asset->url
+            }`;
+            params = { q: `*${query}*` };
+        }
+
+        const results = await client.fetch(sanityQuery, params);
+
+        const inlineResults = results.map((item) => {
+            const url = `https://tutelopezmusic.com/recursos/${item.slug}`;
+            const desc = (item.description || '').slice(0, 100);
+
+            return {
+                type: 'article',
+                id: item._id,
+                title: item.title,
+                description: `[${(item.category || '').toUpperCase()}] ${desc}`,
+                thumb_url: item.imageUrl || undefined,
+                input_message_content: {
+                    message_text: `🎹 *${item.title}*\n` +
+                                  `📂 Categoría: *${(item.category || '').toUpperCase()}*\n\n` +
+                                  `${item.description || ''}\n\n` +
+                                  `🔗 Descárgalo gratis aquí:\n${url}`,
+                    parse_mode: 'Markdown',
+                    disable_web_page_preview: false
+                },
+                reply_markup: {
+                    inline_keyboard: [
+                        [{ text: '🚀 Descargar en la Web', url: url }]
+                    ]
+                }
+            };
+        });
+
+        await ctx.answerInlineQuery(inlineResults, {
+            cache_time: 10,
+            is_personal: false
+        });
+    } catch (e) {
+        console.error('Error en inline query:', e);
+        await ctx.answerInlineQuery([], { cache_time: 5 });
+    }
 });
 
 // Manejador en tiempo real para publicaciones directas en el canal

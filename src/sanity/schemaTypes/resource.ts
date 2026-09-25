@@ -79,6 +79,12 @@ export default {
       type: 'url',
     },
     {
+      name: 'audioDemoUrl',
+      title: 'Demo de Audio / Preescucha (URL de MP3)',
+      description: 'Enlace a un archivo de audio MP3 para que los usuarios puedan escuchar una muestra antes de descargar.',
+      type: 'url',
+    },
+    {
       name: 'content',
       title: 'Contenido del Post',
       type: 'array',
