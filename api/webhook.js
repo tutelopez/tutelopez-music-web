@@ -3,29 +3,37 @@ import { createClient } from '@sanity/client';
 
 const bot = new Telegraf(process.env.BOT_TOKEN);
 
+// Captura global de errores para que nunca muera en silencio
+bot.catch((err, ctx) => {
+    console.error('Error en Telegraf update:', err);
+    try {
+        ctx.reply(`❌ Ocurrió un error en el bot: ${err.message}`);
+    } catch (e) {}
+});
+
 // Sanity Client
 const client = createClient({
   projectId: process.env.SANITY_PROJECT_ID,
   dataset: process.env.SANITY_DATASET,
   useCdn: false,
   apiVersion: '2024-03-01',
-  token: process.env.SANITY_EDITOR_TOKEN, // Required for writing
+  token: process.env.SANITY_EDITOR_TOKEN,
 });
 
 // Helper de Administrador
 function isAdmin(ctx) {
     const adminId = process.env.ADMIN_ID || process.env.TELEGRAM_ADMIN_ID;
-    const adminUser = (process.env.ADMIN_USERNAME || process.env.TELEGRAM_ADMIN_USERNAME || '').replace('@', '').toLowerCase();
+    const adminUser = (process.env.ADMIN_USERNAME || process.env.TELEGRAM_ADMIN_USERNAME || '').replace('@', '').trim().toLowerCase();
     
     // Si no hay variables de admin configuradas, se permite en chat privado para no bloquear al dueño
     if (!adminId && !adminUser) {
-        return ctx.chat && ctx.chat.type === 'private';
+        return Boolean(ctx.chat && ctx.chat.type === 'private');
     }
     
-    const isIdMatch = adminId && ctx.from && String(ctx.from.id) === String(adminId);
-    const isUserMatch = adminUser && ctx.from && ctx.from.username && ctx.from.username.toLowerCase() === adminUser;
+    const isIdMatch = Boolean(adminId && ctx.from && String(ctx.from.id).trim() === String(adminId).trim());
+    const isUserMatch = Boolean(adminUser && ctx.from && ctx.from.username && ctx.from.username.trim().toLowerCase() === adminUser);
     
-    return Boolean(isIdMatch || isUserMatch);
+    return isIdMatch || isUserMatch;
 }
 
 // Helpers para Estado de Mensajes Diarios en Sanity
@@ -50,6 +58,359 @@ async function setDailyCronPaused(paused, user) {
     return await client.createOrReplace(doc);
 }
 
+// ==========================================
+// PARSERS Y PROCESADOR DE POSTS A SANITY
+// ==========================================
+
+function slugify(text) {
+    return text
+        .toString()
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '')
+        .slice(0, 90) || ('recurso-' + Date.now());
+}
+
+function extractTitle(text) {
+    const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
+    if (lines.length === 0) return 'Nuevo Recurso';
+    let firstLine = lines[0];
+    firstLine = firstLine.replace(/[*_`~#]/g, '');
+    firstLine = firstLine.replace(/^[\p{Emoji}\p{Symbol}\s\-:|]+/gu, '').trim();
+    if (firstLine.length < 3 && lines.length > 1) {
+        firstLine = lines[1].replace(/[*_`~#]/g, '').replace(/^[\p{Emoji}\p{Symbol}\s\-:|]+/gu, '').trim();
+    }
+    return firstLine || 'Nuevo Recurso';
+}
+
+function detectCategory(text) {
+    const lower = (text || '').toLowerCase();
+    if (lower.includes('kontakt') || lower.includes('.nki') || lower.includes('nicnt')) return 'kontakt';
+    if (lower.includes('mainstage') || lower.includes('.concert') || lower.includes('.patch')) return 'mainstage';
+    if (lower.includes('sf2') || lower.includes('soundfont')) return 'sf2';
+    if (lower.includes('ipad') || lower.includes('iphone') || lower.includes('garageband') || lower.includes('cubasis')) return 'appsmoviles';
+    if (lower.includes('synth') || lower.includes('sintetizador') || lower.includes('serum') || lower.includes('vital') || lower.includes('nord') || lower.includes('yamaha') || lower.includes('korg') || lower.includes('roland')) return 'sintetizadores';
+    if (lower.includes('sample') || lower.includes('pad') || lower.includes('loops') || lower.includes('secuencias')) return 'samplesmoviles';
+    if (lower.includes('tutorial') || lower.includes('guía') || lower.includes('guia')) return 'tutoriales';
+    if (lower.includes('software') || lower.includes('daw') || lower.includes('vst') || lower.includes('plugin')) return 'software';
+    return 'mainstage';
+}
+
+function extractDescription(text, title) {
+    const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
+    const filtered = lines.filter(line => {
+        const l = line.toLowerCase();
+        if (l.includes('http://') || l.includes('https://') || l.includes('t.me/')) return false;
+        if (l.includes('contraseña') || l.includes('password') || l.includes('clave')) return false;
+        return true;
+    });
+
+    if (filtered.length > 0 && filtered[0].toLowerCase().includes(title.toLowerCase().slice(0, 15))) {
+        filtered.shift();
+    }
+
+    const desc = filtered.join('\n\n').trim();
+    return desc || `Recurso ${title} listo para descargar y usar en tus proyectos de adoración en vivo.`;
+}
+
+function extractLinks(msg, text) {
+    let teraboxLink = null;
+    let telegramLink = null;
+
+    const teraboxRegex = /https?:\/\/(?:www\.)?(?:terabox\.com|1024tera\.com|teraboxapp\.com|freeterabox\.com|terasharelink\.com|nephobox\.com|mirrobox\.com)\S+/i;
+    const match = text.match(teraboxRegex);
+    if (match) {
+        teraboxLink = match[0].replace(/[)\]>,.]+$/, '');
+    }
+
+    const entities = msg.caption_entities || msg.entities || [];
+    for (const entity of entities) {
+        if (entity.type === 'text_link' && entity.url) {
+            if (/terabox|1024tera|nephobox|mirrobox|freeterabox/i.test(entity.url)) {
+                teraboxLink = entity.url;
+            } else if (/t\.me\//i.test(entity.url)) {
+                telegramLink = entity.url;
+            }
+        }
+    }
+
+    if (!telegramLink) {
+        if (msg.forward_origin && msg.forward_origin.type === 'channel' && msg.forward_origin.chat?.username) {
+            telegramLink = `https://t.me/${msg.forward_origin.chat.username}/${msg.forward_origin.message_id}`;
+        } else if (msg.forward_from_chat?.username && msg.forward_from_message_id) {
+            telegramLink = `https://t.me/${msg.forward_from_chat.username}/${msg.forward_from_message_id}`;
+        } else if (msg.chat?.username && msg.message_id) {
+            telegramLink = `https://t.me/${msg.chat.username}/${msg.message_id}`;
+        }
+    }
+
+    return { teraboxLink, telegramLink };
+}
+
+// ==========================================
+// SESIÓN DE IMPORTACIÓN Y COMBINACIÓN
+// ==========================================
+
+const SESSION_TTL_MS = 15 * 60 * 1000; // 15 minutos
+
+async function getImportSession(key) {
+    try {
+        const doc = await client.fetch(`*[_id == $id][0]`, { id: `import_session_${key}` });
+        return doc || null;
+    } catch (e) {
+        console.error('Error fetching import session:', e);
+        return null;
+    }
+}
+
+async function saveImportSession(key, data) {
+    try {
+        const doc = {
+            _id: `import_session_${key}`,
+            _type: 'importSession',
+            ...data
+        };
+        await client.createOrReplace(doc);
+    } catch (e) {
+        console.error('Error saving import session:', e);
+    }
+}
+
+async function clearImportSession(key) {
+    try {
+        await client.delete(`import_session_${key}`);
+    } catch (e) {
+        console.error('Error clearing import session:', e);
+    }
+}
+
+async function handlePrivateImport(ctx) {
+    const msg = ctx.message;
+    const userId = ctx.from.id;
+    const text = msg.caption || msg.text || '';
+
+    let session = await getImportSession(userId);
+    const isSessionRecent = session && (Date.now() - new Date(session.updatedAt).getTime() < SESSION_TTL_MS);
+    if (!isSessionRecent) {
+        session = null;
+    }
+
+    let photoFileId = null;
+    if (msg.photo && msg.photo.length > 0) {
+        photoFileId = msg.photo[msg.photo.length - 1].file_id;
+    } else if (msg.document && msg.document.mime_type && msg.document.mime_type.startsWith('image/')) {
+        photoFileId = msg.document.file_id;
+    }
+
+    const isDownloadableFile = Boolean(msg.document && (!msg.document.mime_type || !msg.document.mime_type.startsWith('image/')));
+    const { teraboxLink, telegramLink } = extractLinks(msg, text);
+
+    // CASO 1: Archivo descargable (.rar, .zip, etc.)
+    if (isDownloadableFile) {
+        const fileLink = telegramLink || (msg.chat && msg.chat.username ? `https://t.me/${msg.chat.username}/${msg.message_id}` : null);
+        const fileName = msg.document.file_name || 'Archivo descargable';
+
+        if (session && session.draftId) {
+            const patchObj = { downloadLink: fileLink || undefined };
+            if (teraboxLink) patchObj.teraboxLink = teraboxLink;
+
+            await client.patch(session.draftId).set(patchObj).commit();
+
+            session.fileTelegramLink = fileLink;
+            session.updatedAt = new Date().toISOString();
+            await saveImportSession(userId, session);
+
+            return ctx.reply(
+                `📎 *¡Enlace directo al archivo vinculado con éxito!*\n\n` +
+                `📦 *Archivo:* \`${fileName}\`\n` +
+                `🎯 *Link directo al post del archivo:* ${fileLink ? `[${fileLink}](${fileLink})` : 'Guardado'}\n\n` +
+                `El borrador *${session.title || 'actual'}* en Sanity ahora apunta exactamente a este archivo.`,
+                {
+                    parse_mode: 'Markdown',
+                    disable_web_page_preview: true,
+                    ...Markup.inlineKeyboard([
+                        [Markup.button.url('📝 Abrir Sanity Studio', 'https://tutelopezmusic.com/admin')]
+                    ])
+                }
+            );
+        }
+
+        session = session || {};
+        session.fileTelegramLink = fileLink;
+        session.fileName = fileName;
+        if (teraboxLink) session.teraboxLink = teraboxLink;
+        if (text) {
+            session.title = session.title || extractTitle(text);
+            session.category = session.category || detectCategory(text);
+            session.description = session.description || extractDescription(text, session.title);
+        } else if (!session.title && fileName) {
+            session.title = fileName.replace(/\.[^/.]+$/, '').replace(/[_.-]+/g, ' ');
+        }
+        session.updatedAt = new Date().toISOString();
+        await saveImportSession(userId, session);
+
+        return ctx.reply(
+            `📦 *Archivo detectado:* \`${fileName}\`\n` +
+            `🎯 *Link directo guardado:* ${fileLink ? `[${fileLink}](${fileLink})` : 'Registrado'}\n\n` +
+            `📸 *Ahora reenvía el mensaje con la FOTO de portada* para completar el recurso y generar el borrador en Sanity.`,
+            { parse_mode: 'Markdown', disable_web_page_preview: true }
+        );
+    }
+
+    // CASO 2: Foto de portada
+    if (photoFileId) {
+        await ctx.reply('⏳ Procesando portada... Subiendo imagen a Sanity.');
+        
+        const fileLink = await bot.telegram.getFileLink(photoFileId);
+        const res = await fetch(fileLink.href);
+        const arrayBuffer = await res.arrayBuffer();
+        const buffer = Buffer.from(arrayBuffer);
+        const asset = await client.assets.upload('image', buffer, {
+            filename: `tg_${Date.now()}.jpg`,
+            contentType: res.headers.get('content-type') || 'image/jpeg'
+        });
+
+        const title = (text ? extractTitle(text) : (session?.title || 'Nuevo Recurso'));
+        const slugCurrent = slugify(title);
+        const category = (text ? detectCategory(text) : (session?.category || 'mainstage'));
+        const description = (text ? extractDescription(text, title) : (session?.description || `Recurso ${title} listo para descargar.`));
+        const finalTerabox = teraboxLink || session?.teraboxLink || undefined;
+        const finalDownloadLink = session?.fileTelegramLink || telegramLink || undefined;
+
+        const rawTags = (text.match(/#(\w+)/g) || []).map(t => t.replace('#', '').toLowerCase());
+        const tags = [...new Set([category, ...rawTags])];
+
+        const draftId = `drafts.${slugCurrent}`;
+        const doc = {
+            _id: draftId,
+            _type: 'resource',
+            title: title,
+            slug: { _type: 'slug', current: slugCurrent },
+            category: category,
+            description: description,
+            tags: tags,
+            mainImage: {
+                _type: 'image',
+                asset: { _type: 'reference', _ref: asset._id }
+            },
+            downloadLink: finalDownloadLink,
+            teraboxLink: finalTerabox
+        };
+
+        await client.createOrReplace(doc);
+
+        session = {
+            draftId,
+            title,
+            slug: slugCurrent,
+            category,
+            imageAssetId: asset._id,
+            fileTelegramLink: finalDownloadLink,
+            teraboxLink: finalTerabox,
+            updatedAt: new Date().toISOString()
+        };
+        await saveImportSession(userId, session);
+
+        let replyMsg = `✅ *¡Borrador creado en Sanity!*\n\n` +
+                       `🎹 *Título:* ${title}\n` +
+                       `📂 *Categoría:* \`${category}\`\n` +
+                       `📝 *Slug:* \`${slugCurrent}\`\n` +
+                       `🖼 *Portada:* ✅ Subida con éxito\n` +
+                       `📦 *Descarga Telegram:* ${finalDownloadLink ? `[${finalDownloadLink}](${finalDownloadLink})` : '⚠️ No asignado aún'}\n` +
+                       `☁️ *Terabox:* ${finalTerabox ? `[Detectado](${finalTerabox})` : '⚠️ No detectado'}\n` +
+                       `🏷 *Tags:* #${tags.join(' #')}\n\n`;
+
+        if (!session.fileTelegramLink || session.fileTelegramLink === telegramLink) {
+            replyMsg += `💡 *Tip:* Si el archivo \`.rar\` está en un mensaje separado, **reenvíamelo ahora** y actualizaré automáticamente el enlace para que apunte directo al archivo.\n\n`;
+        }
+
+        replyMsg += `👉 Revisa y publica cuando gustes en Sanity Studio:`;
+
+        return ctx.reply(replyMsg, {
+            parse_mode: 'Markdown',
+            disable_web_page_preview: true,
+            ...Markup.inlineKeyboard([
+                [Markup.button.url('📝 Abrir Sanity Studio', 'https://tutelopezmusic.com/admin')]
+            ])
+        });
+    }
+
+    // CASO 3: Solo texto
+    if (text) {
+        if (session && session.draftId) {
+            const patchData = {};
+            if (teraboxLink) patchData.teraboxLink = teraboxLink;
+            if (telegramLink && !session.fileTelegramLink) patchData.downloadLink = telegramLink;
+
+            const extraDesc = extractDescription(text, session.title || '');
+            if (extraDesc && extraDesc.length > 15) patchData.description = extraDesc;
+
+            if (Object.keys(patchData).length > 0) {
+                await client.patch(session.draftId).set(patchData).commit();
+                session.updatedAt = new Date().toISOString();
+                if (teraboxLink) session.teraboxLink = teraboxLink;
+                await saveImportSession(userId, session);
+
+                return ctx.reply(
+                    `📝 *¡Datos adicionales vinculados al borrador!*\n\n` +
+                    `🎹 *Recurso:* ${session.title}\n` +
+                    `${teraboxLink ? `☁️ *Terabox añadido:* [Ver link](${teraboxLink})\n` : ''}` +
+                    `\nEl borrador se actualizó correctamente en Sanity.`,
+                    { parse_mode: 'Markdown', disable_web_page_preview: true }
+                );
+            }
+        }
+
+        return ctx.reply(
+            '⚠️ Has enviado un mensaje de texto sin foto ni archivo.\n\n' +
+            '📸 Para crear un nuevo recurso, por favor reenvía la **foto de portada** o el **archivo .rar**. Si ya creaste uno recientemente, este texto no contenía datos nuevos.'
+        );
+    }
+}
+
+// ==========================================
+// MIDDLEWARE PRIORITARIO PARA CHATS PRIVADOS
+// ==========================================
+bot.use(async (ctx, next) => {
+    if (ctx.chat && ctx.chat.type === 'private' && ctx.message) {
+        const msg = ctx.message;
+        const text = msg.caption || msg.text || '';
+        
+        // Si es un comando con barra "/", dejar que lo procese el manejador de comandos
+        if (text.startsWith('/')) {
+            return next();
+        }
+        
+        const isForwarded = Boolean(msg.forward_origin || msg.forward_from_chat || msg.forward_date || msg.forward_from);
+        const hasMedia = Boolean(msg.photo || msg.document);
+        
+        // Si el mensaje es reenviado o tiene foto o archivo, capturarlo prioritariamente
+        if (isForwarded || hasMedia) {
+            if (!isAdmin(ctx)) {
+                return ctx.reply(
+                    `⛔ *Acceso de Administrador requerido*\n\n` +
+                    `Tu cuenta no tiene permisos para crear borradores en Sanity.\n\n` +
+                    `🆔 Tu Telegram ID: \`${ctx.from.id}\`\n` +
+                    `👤 Tu @usuario: @${ctx.from.username || 'sin_username'}\n\n` +
+                    `Para autorizarte, agrega en Vercel (Environment Variables):\n` +
+                    `\`ADMIN_ID=${ctx.from.id}\``,
+                    { parse_mode: 'Markdown' }
+                );
+            }
+
+            try {
+                return await handlePrivateImport(ctx);
+            } catch (err) {
+                console.error('Error en handlePrivateImport:', err);
+                return ctx.reply(`❌ Error al procesar el mensaje: ${err.message}`);
+            }
+        }
+    }
+    return next();
+});
+
 // Commands
 bot.start((ctx) => {
     let msg = `¡Hola ${ctx.from.first_name}! Bienvenido al asistente de TuteLopez Music 🎹\n\n` +
@@ -71,6 +432,7 @@ bot.start((ctx) => {
                `▶️ /despausar - Reanudar mensajes automáticos diarios\n` +
                `📊 /estado - Ver estado actual de mensajes\n` +
                `📢 /enviar_ahora - Publicar un recurso ahora al canal\n` +
+               `🧹 /nuevo - Reiniciar sesión de importación\n` +
                `📋 /ver_peticiones - Ver peticiones de usuarios\n` +
                `💬 /broadcast - Enviar anuncio a suscriptores\n` +
                `🆔 /mi_id - Ver tu ID de Telegram\n\n` +
@@ -88,7 +450,6 @@ bot.start((ctx) => {
 bot.on('new_chat_members', (ctx) => {
     const newMembers = ctx.message.new_chat_members;
     for (const member of newMembers) {
-        // Evitar que el bot se salude a sí mismo
         if (member.id === ctx.botInfo.id) continue;
         
         ctx.reply(
@@ -101,10 +462,10 @@ bot.on('new_chat_members', (ctx) => {
     }
 });
 
-// Auto-respuesta rápida para la contraseña
-bot.hears(/(contraseña|password|clave|pass)/i, (ctx) => {
-    // Solo responder si no es un comando y si estamos en un grupo/canal o el bot fue etiquetado/respondido
-    if (ctx.message.text && ctx.message.text.startsWith('/')) return;
+// Auto-respuesta rápida para la contraseña (solo si preguntan directamente)
+bot.hears(/(contraseña|password|clave|pass)/i, (ctx, next) => {
+    if (ctx.message.text && ctx.message.text.startsWith('/')) return next();
+    if (ctx.message.forward_origin || ctx.message.forward_from_chat || ctx.message.photo || ctx.message.document) return next();
     ctx.reply('🔑 Recuerda que la contraseña para descomprimir todos nuestros archivos es:\n\n`tutelopezmusic`', { parse_mode: 'Markdown' });
 });
 
@@ -305,9 +666,7 @@ async function sendControlPanel(ctx, isEdit = false) {
         if (isEdit) {
             try {
                 await ctx.editMessageText(text, { parse_mode: 'Markdown', ...keyboard });
-            } catch (err) {
-                // Ignore if content hasn't changed
-            }
+            } catch (err) {}
         } else {
             await ctx.reply(text, { parse_mode: 'Markdown', ...keyboard });
         }
@@ -425,379 +784,6 @@ bot.action('cron_trigger_now', async (ctx) => {
     await sendDailyPostNow(ctx);
 });
 
-// ==========================================
-// PARSERS Y PROCESADOR DE POSTS A SANITY
-// ==========================================
-
-function slugify(text) {
-    return text
-        .toString()
-        .toLowerCase()
-        .normalize('NFD')
-        .replace(/[\u0300-\u036f]/g, '')
-        .replace(/[^a-z0-9]+/g, '-')
-        .replace(/^-+|-+$/g, '')
-        .slice(0, 90) || ('recurso-' + Date.now());
-}
-
-function extractTitle(text) {
-    const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
-    if (lines.length === 0) return 'Nuevo Recurso';
-    let firstLine = lines[0];
-    firstLine = firstLine.replace(/[*_`~#]/g, '');
-    firstLine = firstLine.replace(/^[\p{Emoji}\p{Symbol}\s\-:|]+/gu, '').trim();
-    if (firstLine.length < 3 && lines.length > 1) {
-        firstLine = lines[1].replace(/[*_`~#]/g, '').replace(/^[\p{Emoji}\p{Symbol}\s\-:|]+/gu, '').trim();
-    }
-    return firstLine || 'Nuevo Recurso';
-}
-
-function detectCategory(text) {
-    const lower = (text || '').toLowerCase();
-    if (lower.includes('kontakt') || lower.includes('.nki') || lower.includes('nicnt')) return 'kontakt';
-    if (lower.includes('mainstage') || lower.includes('.concert') || lower.includes('.patch')) return 'mainstage';
-    if (lower.includes('sf2') || lower.includes('soundfont')) return 'sf2';
-    if (lower.includes('ipad') || lower.includes('iphone') || lower.includes('garageband') || lower.includes('cubasis')) return 'appsmoviles';
-    if (lower.includes('synth') || lower.includes('sintetizador') || lower.includes('serum') || lower.includes('vital') || lower.includes('nord') || lower.includes('yamaha') || lower.includes('korg') || lower.includes('roland')) return 'sintetizadores';
-    if (lower.includes('sample') || lower.includes('pad') || lower.includes('loops') || lower.includes('secuencias')) return 'samplesmoviles';
-    if (lower.includes('tutorial') || lower.includes('guía') || lower.includes('guia')) return 'tutoriales';
-    if (lower.includes('software') || lower.includes('daw') || lower.includes('vst') || lower.includes('plugin')) return 'software';
-    return 'mainstage';
-}
-
-function extractDescription(text, title) {
-    const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
-    const filtered = lines.filter(line => {
-        const l = line.toLowerCase();
-        if (l.includes('http://') || l.includes('https://') || l.includes('t.me/')) return false;
-        if (l.includes('contraseña') || l.includes('password') || l.includes('clave')) return false;
-        return true;
-    });
-
-    if (filtered.length > 0 && filtered[0].toLowerCase().includes(title.toLowerCase().slice(0, 15))) {
-        filtered.shift();
-    }
-
-    const desc = filtered.join('\n\n').trim();
-    return desc || `Recurso ${title} listo para descargar y usar en tus proyectos de adoración en vivo.`;
-}
-
-function extractLinks(msg, text) {
-    let teraboxLink = null;
-    let telegramLink = null;
-
-    // 1. Regex para Terabox
-    const teraboxRegex = /https?:\/\/(?:www\.)?(?:terabox\.com|1024tera\.com|teraboxapp\.com|freeterabox\.com|terasharelink\.com|nephobox\.com|mirrobox\.com)\S+/i;
-    const match = text.match(teraboxRegex);
-    if (match) {
-        teraboxLink = match[0].replace(/[)\]>,.]+$/, '');
-    }
-
-    // 2. Entidades de texto
-    const entities = msg.caption_entities || msg.entities || [];
-    for (const entity of entities) {
-        if (entity.type === 'text_link' && entity.url) {
-            if (/terabox|1024tera|nephobox|mirrobox|freeterabox/i.test(entity.url)) {
-                teraboxLink = entity.url;
-            } else if (/t\.me\//i.test(entity.url)) {
-                telegramLink = entity.url;
-            }
-        }
-    }
-
-    // 3. Enlace de Telegram
-    if (!telegramLink) {
-        if (msg.forward_origin && msg.forward_origin.type === 'channel' && msg.forward_origin.chat?.username) {
-            telegramLink = `https://t.me/${msg.forward_origin.chat.username}/${msg.forward_origin.message_id}`;
-        } else if (msg.forward_from_chat?.username && msg.forward_from_message_id) {
-            telegramLink = `https://t.me/${msg.forward_from_chat.username}/${msg.forward_from_message_id}`;
-        } else if (msg.chat?.username && msg.message_id) {
-            telegramLink = `https://t.me/${msg.chat.username}/${msg.message_id}`;
-        }
-    }
-
-    return { teraboxLink, telegramLink };
-}
-
-// ==========================================
-// SESIÓN DE IMPORTACIÓN Y COMBINACIÓN DE MENSAJES
-// ==========================================
-
-const SESSION_TTL_MS = 15 * 60 * 1000; // 15 minutos
-
-async function getImportSession(key) {
-    try {
-        const doc = await client.fetch(`*[_id == $id][0]`, { id: `import_session_${key}` });
-        return doc || null;
-    } catch (e) {
-        console.error('Error fetching import session:', e);
-        return null;
-    }
-}
-
-async function saveImportSession(key, data) {
-    try {
-        const doc = {
-            _id: `import_session_${key}`,
-            _type: 'importSession',
-            ...data
-        };
-        await client.createOrReplace(doc);
-    } catch (e) {
-        console.error('Error saving import session:', e);
-    }
-}
-
-async function clearImportSession(key) {
-    try {
-        await client.delete(`import_session_${key}`);
-    } catch (e) {
-        console.error('Error clearing import session:', e);
-    }
-}
-
-// Comando para reiniciar la sesión de importación
-bot.command(['nuevo', 'limpiar_sesion', 'cancelar'], async (ctx) => {
-    if (!isAdmin(ctx)) return;
-    await clearImportSession(ctx.from.id);
-    ctx.reply('🧹 Sesión de importación reiniciada. Puedes enviar o reenviar un nuevo recurso desde cero.');
-});
-
-// Manejador central para mensajes en chat privado (reenvíos o envíos de recursos)
-async function handlePrivateImport(ctx) {
-    const msg = ctx.message;
-    const userId = ctx.from.id;
-    const text = msg.caption || msg.text || '';
-
-    // Obtener sesión activa si existe
-    let session = await getImportSession(userId);
-    const isSessionRecent = session && (Date.now() - new Date(session.updatedAt).getTime() < SESSION_TTL_MS);
-    if (!isSessionRecent) {
-        session = null;
-    }
-
-    // 1. Detectar si el mensaje trae foto
-    let photoFileId = null;
-    if (msg.photo && msg.photo.length > 0) {
-        photoFileId = msg.photo[msg.photo.length - 1].file_id;
-    } else if (msg.document && msg.document.mime_type && msg.document.mime_type.startsWith('image/')) {
-        photoFileId = msg.document.file_id;
-    }
-
-    // 2. Detectar si el mensaje es un archivo descargable (.rar, .zip, etc.)
-    const isDownloadableFile = Boolean(msg.document && (!msg.document.mime_type || !msg.document.mime_type.startsWith('image/')));
-
-    // 3. Extraer enlaces
-    const { teraboxLink, telegramLink } = extractLinks(msg, text);
-
-    // ==========================================
-    // CASO 1: Es un ARCHIVO (.rar, .zip, etc.)
-    // ==========================================
-    if (isDownloadableFile) {
-        const fileLink = telegramLink || (msg.chat && msg.chat.username ? `https://t.me/${msg.chat.username}/${msg.message_id}` : null);
-        const fileName = msg.document.file_name || 'Archivo descargable';
-
-        // Si ya hay un borrador creado previamente en la sesión, actualizamos su link de descarga directo
-        if (session && session.draftId) {
-            const patchObj = { downloadLink: fileLink || undefined };
-            if (teraboxLink) patchObj.teraboxLink = teraboxLink;
-
-            await client.patch(session.draftId).set(patchObj).commit();
-
-            session.fileTelegramLink = fileLink;
-            session.updatedAt = new Date().toISOString();
-            await saveImportSession(userId, session);
-
-            return ctx.reply(
-                `📎 *¡Enlace directo al archivo vinculado con éxito!*\n\n` +
-                `📦 *Archivo:* \`${fileName}\`\n` +
-                `🎯 *Link directo al post del archivo:* ${fileLink ? `[${fileLink}](${fileLink})` : 'Guardado'}\n\n` +
-                `El borrador *${session.title || 'actual'}* en Sanity ahora apunta exactamente a este archivo.`,
-                {
-                    parse_mode: 'Markdown',
-                    disable_web_page_preview: true,
-                    ...Markup.inlineKeyboard([
-                        [Markup.button.url('📝 Abrir Sanity Studio', 'https://tutelopezmusic.com/admin')]
-                    ])
-                }
-            );
-        }
-
-        // Si aún no se ha subido la foto, guardamos el link del archivo en la sesión
-        session = session || {};
-        session.fileTelegramLink = fileLink;
-        session.fileName = fileName;
-        if (teraboxLink) session.teraboxLink = teraboxLink;
-        if (text) {
-            session.title = session.title || extractTitle(text);
-            session.category = session.category || detectCategory(text);
-            session.description = session.description || extractDescription(text, session.title);
-        } else if (!session.title && fileName) {
-            session.title = fileName.replace(/\.[^/.]+$/, '').replace(/[_.-]+/g, ' ');
-        }
-        session.updatedAt = new Date().toISOString();
-        await saveImportSession(userId, session);
-
-        return ctx.reply(
-            `📦 *Archivo detectado:* \`${fileName}\`\n` +
-            `🎯 *Link directo guardado:* ${fileLink ? `[${fileLink}](${fileLink})` : 'Registrado'}\n\n` +
-            `📸 *Ahora reenvía el mensaje con la FOTO de portada* para completar el recurso y generar el borrador en Sanity.`,
-            { parse_mode: 'Markdown', disable_web_page_preview: true }
-        );
-    }
-
-    // ==========================================
-    // CASO 2: Es una FOTO (Portada)
-    // ==========================================
-    if (photoFileId) {
-        await ctx.reply('⏳ Procesando portada... Subiendo imagen a Sanity.');
-        
-        // Descargar y subir foto
-        const fileLink = await bot.telegram.getFileLink(photoFileId);
-        const res = await fetch(fileLink.href);
-        const arrayBuffer = await res.arrayBuffer();
-        const buffer = Buffer.from(arrayBuffer);
-        const asset = await client.assets.upload('image', buffer, {
-            filename: `tg_${Date.now()}.jpg`,
-            contentType: res.headers.get('content-type') || 'image/jpeg'
-        });
-
-        // Metadatos
-        const title = (text ? extractTitle(text) : (session?.title || 'Nuevo Recurso'));
-        const slugCurrent = slugify(title);
-        const category = (text ? detectCategory(text) : (session?.category || 'mainstage'));
-        const description = (text ? extractDescription(text, title) : (session?.description || `Recurso ${title} listo para descargar.`));
-        const finalTerabox = teraboxLink || session?.teraboxLink || undefined;
-
-        // Si ya teníamos el link directo al post del archivo (.rar), lo usamos prioritariamente
-        const finalDownloadLink = session?.fileTelegramLink || telegramLink || undefined;
-
-        const rawTags = (text.match(/#(\w+)/g) || []).map(t => t.replace('#', '').toLowerCase());
-        const tags = [...new Set([category, ...rawTags])];
-
-        const draftId = `drafts.${slugCurrent}`;
-        const doc = {
-            _id: draftId,
-            _type: 'resource',
-            title: title,
-            slug: { _type: 'slug', current: slugCurrent },
-            category: category,
-            description: description,
-            tags: tags,
-            mainImage: {
-                _type: 'image',
-                asset: { _type: 'reference', _ref: asset._id }
-            },
-            downloadLink: finalDownloadLink,
-            teraboxLink: finalTerabox
-        };
-
-        await client.createOrReplace(doc);
-
-        // Guardar sesión para permitir que si luego reenvían el .rar o texto adicional, se actualice
-        session = {
-            draftId,
-            title,
-            slug: slugCurrent,
-            category,
-            imageAssetId: asset._id,
-            fileTelegramLink: finalDownloadLink,
-            teraboxLink: finalTerabox,
-            updatedAt: new Date().toISOString()
-        };
-        await saveImportSession(userId, session);
-
-        let replyMsg = `✅ *¡Borrador creado en Sanity!*\n\n` +
-                       `🎹 *Título:* ${title}\n` +
-                       `📂 *Categoría:* \`${category}\`\n` +
-                       `📝 *Slug:* \`${slugCurrent}\`\n` +
-                       `🖼 *Portada:* ✅ Subida con éxito\n` +
-                       `📦 *Descarga Telegram:* ${finalDownloadLink ? `[${finalDownloadLink}](${finalDownloadLink})` : '⚠️ No asignado aún'}\n` +
-                       `☁️ *Terabox:* ${finalTerabox ? `[Detectado](${finalTerabox})` : '⚠️ No detectado'}\n` +
-                       `🏷 *Tags:* #${tags.join(' #')}\n\n`;
-
-        if (!session.fileTelegramLink || session.fileTelegramLink === telegramLink) {
-            replyMsg += `💡 *Tip:* Si el archivo \`.rar\` está en un mensaje separado, **reenvíamelo ahora** y actualizaré automáticamente el enlace para que apunte directo al archivo.\n\n`;
-        }
-
-        replyMsg += `👉 Revisa y publica cuando gustes en Sanity Studio:`;
-
-        return ctx.reply(replyMsg, {
-            parse_mode: 'Markdown',
-            disable_web_page_preview: true,
-            ...Markup.inlineKeyboard([
-                [Markup.button.url('📝 Abrir Sanity Studio', 'https://tutelopezmusic.com/admin')]
-            ])
-        });
-    }
-
-    // ==========================================
-    // CASO 3: Es solo TEXTO (Descripción o links)
-    // ==========================================
-    if (text) {
-        if (session && session.draftId) {
-            const patchData = {};
-            if (teraboxLink) patchData.teraboxLink = teraboxLink;
-            if (telegramLink && !session.fileTelegramLink) patchData.downloadLink = telegramLink;
-
-            const extraDesc = extractDescription(text, session.title || '');
-            if (extraDesc && extraDesc.length > 15) patchData.description = extraDesc;
-
-            if (Object.keys(patchData).length > 0) {
-                await client.patch(session.draftId).set(patchData).commit();
-                session.updatedAt = new Date().toISOString();
-                if (teraboxLink) session.teraboxLink = teraboxLink;
-                await saveImportSession(userId, session);
-
-                return ctx.reply(
-                    `📝 *¡Datos adicionales vinculados al borrador!*\n\n` +
-                    `🎹 *Recurso:* ${session.title}\n` +
-                    `${teraboxLink ? `☁️ *Terabox añadido:* [Ver link](${teraboxLink})\n` : ''}` +
-                    `\nEl borrador se actualizó correctamente en Sanity.`,
-                    { parse_mode: 'Markdown', disable_web_page_preview: true }
-                );
-            }
-        }
-
-        return ctx.reply(
-            '⚠️ Has enviado un mensaje de texto sin foto ni archivo.\n\n' +
-            '📸 Para crear un nuevo recurso, por favor reenvía la **foto de portada** o el **archivo .rar**. Si ya creaste uno recientemente, este texto no contenía datos nuevos.'
-        );
-    }
-}
-
-// Manejador cuando el admin reenvía o envía fotos, documentos o texto en chat privado
-bot.on(['photo', 'document'], async (ctx, next) => {
-    if (ctx.chat && ctx.chat.type === 'private') {
-        if (!isAdmin(ctx)) return next();
-        try {
-            await handlePrivateImport(ctx);
-        } catch (error) {
-            console.error('Error al procesar reenvío en privado:', error);
-            await ctx.reply(`❌ No se pudo procesar la publicación: ${error.message}`);
-        }
-        return;
-    }
-    return next();
-});
-
-bot.on('text', async (ctx, next) => {
-    if (ctx.chat && ctx.chat.type === 'private' && isAdmin(ctx)) {
-        // Ignorar si el texto empieza con barra de comando
-        if (ctx.message.text && ctx.message.text.startsWith('/')) {
-            return next();
-        }
-        try {
-            await handlePrivateImport(ctx);
-        } catch (error) {
-            console.error('Error al procesar texto en privado:', error);
-            await ctx.reply(`❌ Error al procesar texto: ${error.message}`);
-        }
-        return;
-    }
-    return next();
-});
-
 // Manejador en tiempo real para publicaciones directas en el canal
 bot.on('channel_post', async (ctx) => {
     try {
@@ -819,7 +805,6 @@ bot.on('channel_post', async (ctx) => {
 
         const { teraboxLink, telegramLink } = extractLinks(msg, text);
 
-        // Si en el canal subieron el archivo .rar seguido de la foto (o viceversa)
         if (isDownloadableFile && session && session.draftId) {
             const fileLink = telegramLink || (msg.chat?.username ? `https://t.me/${msg.chat.username}/${msg.message_id}` : null);
             await client.patch(session.draftId).set({ downloadLink: fileLink || undefined }).commit();
