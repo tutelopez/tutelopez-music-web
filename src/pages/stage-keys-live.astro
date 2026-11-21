@@ -3,291 +3,470 @@ import MainLayout from '../layouts/MainLayout.astro';
 import { SITE_TITLE } from '../consts';
 
 const pageTitle = `Stage Keys Live - El MainStage para Android | ${SITE_TITLE}`;
-const pageDescription = "Stage Keys Live es una app para Android desarrollada con Kotlin y C++ Oboe para tocar en vivo con librerías SF2, Split y Layer, y soporte de controladores MIDI.";
+const pageDescription = "Stage Keys Live es la Live Performance Workstation para Android desarrollada con Kotlin y C++ Google Oboe. Toca en vivo con librerías SF2, Split y Layer, Ambient Pads continuos y controladores MIDI por USB o Bluetooth con latencia menor a 10ms.";
 ---
 
 <MainLayout title={pageTitle} description={pageDescription}>
-    <!-- Top Ambient Lights -->
-    <div class="relative overflow-hidden pt-12 pb-20">
-        <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[400px] bg-gradient-to-tr from-emerald-600/20 via-cyan-500/20 to-blue-600/20 rounded-full blur-3xl -z-10 pointer-events-none"></div>
+    <!-- Top Ambient Lights & Glow -->
+    <div class="relative pt-10 pb-20">
+        <div id="ambient-glow" class="absolute top-[-40px] left-0 right-0 mx-auto w-full max-w-6xl h-[580px] pointer-events-none -z-10 flex items-center justify-center overflow-visible">
+            <div class="w-full h-full rounded-full bg-gradient-to-tr from-emerald-500/20 via-cyan-500/25 to-fuchsia-600/20 blur-[130px] transform-gpu"></div>
+        </div>
 
-        <!-- Hero Section -->
+        <!-- HERO SECTION -->
         <div class="max-w-5xl mx-auto px-4 text-center flex flex-col items-center">
-            <!-- Development Stage Badge -->
-            <div class="flex justify-center w-full mb-8">
-                <div class="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs md:text-sm font-semibold backdrop-blur-md shadow-lg shadow-emerald-950/20">
-                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
-                    <span>PROYECTO EN DESARROLLO ACTIVO • CLOSED TESTING TRACK DE GOOGLE PLAY</span>
+            
+            <!-- Development Stage Badge (Concentric & Optically Balanced) -->
+            <div class="hero-anim flex justify-center w-full mb-7">
+                <div class="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs md:text-sm font-semibold backdrop-blur-md shadow-lg shadow-emerald-950/20 ring-1 ring-inset ring-white/5">
+                    <span class="relative flex h-2.5 w-2.5">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-400"></span>
+                    </span>
+                    <span class="tracking-wide uppercase text-[11px] md:text-xs font-bold">Closed Testing Track • Google Play Console</span>
                 </div>
             </div>
 
-            <!-- App Icon with Neon Glow -->
-            <div class="flex justify-center w-full mb-6">
-                <div class="relative inline-block">
-                    <div class="absolute -inset-4 bg-gradient-to-r from-emerald-500 to-cyan-500 rounded-3xl blur-2xl opacity-40 animate-pulse"></div>
+            <!-- App Icon with Specular Layered Glow -->
+            <div class="hero-anim flex justify-center w-full mb-6">
+                <div class="relative inline-block group">
+                    <div class="absolute -inset-4 bg-gradient-to-r from-fuchsia-500 via-indigo-500 to-cyan-500 rounded-3xl blur-2xl opacity-45 group-hover:opacity-70 transition-opacity duration-500"></div>
                     <img 
                         src="/images/stagekeyslive-icon.png" 
-                        alt="Stage Keys Live Icon" 
-                        class="relative w-28 h-28 md:w-36 md:h-36 rounded-3xl shadow-2xl border-2 border-emerald-400/40 object-cover transform hover:scale-105 transition-all duration-300"
+                        alt="Stage Keys Live Logo" 
+                        class="relative w-36 h-36 md:w-48 md:h-48 rounded-3xl shadow-2xl border border-cyan-400/30 object-cover transform transition-all duration-300 group-hover:scale-105"
+                        style="box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.2), 0 20px 40px -15px rgba(0, 0, 0, 0.7);"
                     />
                 </div>
             </div>
 
-            <h1 class="text-4xl md:text-6xl lg:text-7xl font-black text-white tracking-tight mb-4">
+            <!-- Main Title & Tagline -->
+            <h1 class="hero-anim text-4xl sm:text-6xl md:text-7xl font-black text-white tracking-tight mb-4 [text-wrap:balance]">
                 STAGE KEYS <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-teal-300 to-cyan-400">LIVE</span>
             </h1>
 
-            <p class="text-lg md:text-2xl text-slate-300 font-medium max-w-3xl mx-auto mb-8 leading-relaxed">
-                El <strong class="text-emerald-400">MainStage para Android</strong> que todo tecladista worship estaba esperando. Conecta tu teclado MIDI por USB o Bluetooth, carga librerías <code class="text-xs bg-slate-800 px-2 py-1 rounded text-cyan-300">.sf2</code> y toca en vivo sin laptop.
+            <p class="hero-anim text-lg sm:text-xl md:text-2xl text-slate-200 font-medium max-w-3xl mx-auto mb-4 leading-relaxed [text-wrap:pretty]">
+                El <strong class="text-emerald-400 font-bold">MainStage para Android</strong> que todo tecladista en vivo estaba esperando. Cero laptop. Cero latencia.
             </p>
 
-            <!-- Live Action Counters & CTAs -->
-            <div class="flex flex-wrap items-center justify-center gap-4 mb-14">
-                <!-- Like Button -->
-                <button 
-                    id="like-btn" 
-                    class="group flex items-center gap-3 px-6 py-3.5 rounded-2xl bg-slate-900/80 hover:bg-slate-800 border border-rose-500/40 text-rose-400 font-bold text-base transition-all transform hover:scale-105 shadow-xl shadow-rose-950/30 cursor-pointer"
-                >
-                    <svg id="like-heart-icon" class="w-6 h-6 transition-transform group-hover:scale-125 group-active:scale-95 text-rose-500 fill-rose-500" viewBox="0 0 24 24">
-                        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
-                    </svg>
-                    <span>Apoyar Proyecto</span>
-                    <span id="like-counter" class="px-2.5 py-0.5 rounded-full bg-rose-500/20 text-rose-300 text-sm font-extrabold">...</span>
-                </button>
+            <p class="hero-anim text-sm sm:text-base text-slate-400 max-w-2xl mx-auto mb-8 leading-relaxed [text-wrap:pretty]">
+                Conecta tu teclado MIDI por USB o Bluetooth, carga SoundFonts <code class="text-xs bg-slate-800/80 px-2 py-0.5 rounded border border-slate-700 text-cyan-300 font-mono">.sf2</code>, configura divisiones Split y capas Layer por zonas de color, y dispara <strong class="text-teal-300">Ambient Pads continuos</strong> con crossfade suave.
+            </p>
 
+            <!-- Spec Badges Bar (Concentric, Tabular, Optical) -->
+            <div class="hero-anim flex flex-wrap items-center justify-center gap-2 md:gap-3 max-w-4xl mx-auto mb-10">
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-slate-900/80 border border-slate-700/80 text-slate-300 text-xs font-medium backdrop-blur-sm">
+                    <span class="text-emerald-400 font-bold tabular-nums">&lt; 10ms</span> Latencia (Oboe C++)
+                </span>
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-slate-900/80 border border-slate-700/80 text-slate-300 text-xs font-medium backdrop-blur-sm">
+                    <span class="text-cyan-400 font-bold tabular-nums">8 Capas</span> Split & Layer
+                </span>
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-slate-900/80 border border-slate-700/80 text-slate-300 text-xs font-medium backdrop-blur-sm">
+                    <span class="text-teal-400 font-bold tabular-nums">12 Tonos</span> Ambient Drones
+                </span>
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-slate-900/80 border border-slate-700/80 text-slate-300 text-xs font-medium backdrop-blur-sm">
+                    <span class="text-amber-400 font-bold">MIDI Learn</span> nanoKONTROL
+                </span>
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-slate-900/80 border border-slate-700/80 text-slate-300 text-xs font-medium backdrop-blur-sm">
+                    <span class="text-indigo-400 font-bold">Background</span> Foreground Audio
+                </span>
+            </div>
+
+            <!-- CTAs with Physical Depress and Specular Insets -->
+            <div class="hero-anim flex flex-wrap items-center justify-center gap-4 mb-16 relative">
                 <!-- Beta Tester Jump Button -->
                 <a 
                     href="#beta-tester" 
-                    class="flex items-center gap-2.5 px-8 py-3.5 rounded-2xl bg-gradient-to-r from-emerald-500 to-cyan-500 hover:from-emerald-400 hover:to-cyan-400 text-slate-950 font-black text-base transition-all transform hover:scale-105 shadow-xl shadow-emerald-500/30"
+                    class="btn-interact flex items-center gap-2.5 px-8 py-3.5 rounded-2xl bg-gradient-to-r from-emerald-500 via-teal-400 to-cyan-500 hover:from-emerald-400 hover:to-cyan-400 text-slate-950 font-black text-base shadow-xl shadow-emerald-500/25 border border-emerald-300/40 transform hover:scale-[1.03] active:scale-[0.98] transition-all duration-200 cursor-pointer"
+                    style="box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.4), 0 15px 25px -10px rgba(16, 185, 129, 0.5);"
                 >
                     <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z" />
                     </svg>
-                    <span>Ser Beta Tester en Play Store</span>
+                    <span>Unirse al Beta Cerrado en Play Store</span>
                 </a>
 
-                <!-- GitHub Link -->
+                <!-- Telegram Community Quick Jump -->
                 <a 
-                    href="https://github.com/tutelopez/StageKeysLive" 
+                    href="https://t.me/StageKeysLiveComunity" 
                     target="_blank" 
                     rel="noopener noreferrer" 
-                    class="flex items-center gap-2 px-5 py-3.5 rounded-2xl bg-slate-900/60 hover:bg-slate-800 border border-slate-700 text-slate-300 font-semibold text-sm transition-all"
+                    class="btn-interact flex items-center gap-2 px-6 py-3.5 rounded-2xl bg-[#0088cc]/20 hover:bg-[#0088cc]/30 border border-[#0088cc]/50 text-[#29b6f6] font-bold text-sm transform hover:scale-[1.03] active:scale-[0.98] transition-all duration-200 cursor-pointer shadow-lg shadow-[#0088cc]/20"
+                    style="box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.1);"
                 >
-                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/></svg>
-                    <span>Ver Código en GitHub</span>
+                    <svg class="w-5 h-5 fill-current shrink-0" viewBox="0 0 24 24">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.74-.55 2.92-1.27 4.86-2.11 5.83-2.51 2.78-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .38z"/>
+                    </svg>
+                    <span>Comunidad Telegram</span>
                 </a>
+
+                <!-- Like Button with Floating Hearts -->
+                <button 
+                    id="like-btn" 
+                    type="button"
+                    class="btn-interact relative group flex items-center gap-3 px-6 py-3.5 rounded-2xl bg-slate-900/80 hover:bg-slate-800/90 border border-rose-500/40 text-rose-400 font-bold text-base shadow-xl shadow-rose-950/20 transform hover:scale-[1.03] active:scale-[0.98] transition-all duration-200 cursor-pointer overflow-visible"
+                    style="box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.08);"
+                >
+                    <svg id="like-heart-icon" class="w-6 h-6 transition-transform group-hover:scale-115 text-rose-500 fill-rose-500" viewBox="0 0 24 24">
+                        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                    </svg>
+                    <span>Apoyar Proyecto</span>
+                    <span id="like-counter" class="px-2.5 py-0.5 rounded-full bg-rose-500/20 border border-rose-500/30 text-rose-300 text-sm font-extrabold tabular-nums">...</span>
+                </button>
             </div>
         </div>
 
-        <!-- Real In-App Screenshots Gallery -->
-        <div class="max-w-6xl mx-auto px-4 mt-4">
-            <div class="text-center mb-10">
-                <span class="text-xs uppercase tracking-widest text-emerald-400 font-bold block mb-2">Vistas Reales de la Aplicación</span>
-                <h2 class="text-3xl md:text-4xl font-extrabold text-white">Diseñada para el Escenario</h2>
-                <p class="text-slate-400 max-w-xl mx-auto mt-2">Capturas directas de Stage Keys Live funcionando en dispositivos Android.</p>
+        <!-- ========================================== -->
+        <!-- INTERACTIVE APP SHOWCASE & REAL SCREENSHOTS -->
+        <!-- ========================================== -->
+        <section class="max-w-6xl mx-auto px-4 mt-2 mb-20">
+            <div class="text-center mb-8">
+                <span class="text-xs uppercase tracking-widest text-emerald-400 font-bold block mb-2">Capturas Reales del Dispositivo</span>
+                <h2 class="text-3xl md:text-5xl font-black text-white tracking-tight [text-wrap:balance]">
+                    Diseñada para el Escenario
+                </h2>
+                <p class="text-slate-400 max-w-xl mx-auto mt-3 text-sm md:text-base [text-wrap:pretty]">
+                    Explora las vistas reales de Stage Keys Live funcionando en directo. Haz clic en las pestañas para descubrir cada módulo.
+                </p>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <!-- Screenshot 1 -->
-                <div class="glass-panel overflow-hidden border border-emerald-500/20 hover:border-emerald-500/60 transition-all duration-300 group flex flex-col">
-                    <div class="relative bg-slate-950 overflow-hidden cursor-pointer image-card" data-img="/images/stagekeys/stage1.jpg">
-                        <img 
-                            src="/images/stagekeys/stage1.jpg" 
-                            alt="Mixer Principal y Teclado en Vivo" 
-                            class="w-full h-64 object-cover object-center group-hover:scale-105 transition-transform duration-500"
-                        />
-                        <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80"></div>
-                        <div class="absolute top-3 left-3 px-2.5 py-1 rounded-md bg-emerald-500 text-slate-950 text-[10px] font-black tracking-wider uppercase">
-                            Main Concert
-                        </div>
+            <!-- Tab Pills (Concentric & Optical) -->
+            <div class="flex flex-wrap items-center justify-center gap-2 mb-8">
+                <button type="button" class="tab-btn active px-4 py-2.5 rounded-xl text-xs md:text-sm font-bold transition-all cursor-pointer bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shadow-lg shadow-emerald-950/20" data-tab="mixer">
+                    🎛️ Mixer & Teclado
+                </button>
+                <button type="button" class="tab-btn px-4 py-2.5 rounded-xl text-xs md:text-sm font-bold transition-all cursor-pointer bg-slate-900/60 text-slate-400 hover:text-white border border-slate-800" data-tab="pads">
+                    🌊 Ambient Pads (12 Tonos)
+                </button>
+                <button type="button" class="tab-btn px-4 py-2.5 rounded-xl text-xs md:text-sm font-bold transition-all cursor-pointer bg-slate-900/60 text-slate-400 hover:text-white border border-slate-800" data-tab="splits">
+                    🎹 Editor Split & Layer
+                </button>
+                <button type="button" class="tab-btn px-4 py-2.5 rounded-xl text-xs md:text-sm font-bold transition-all cursor-pointer bg-slate-900/60 text-slate-400 hover:text-white border border-slate-800" data-tab="midi">
+                    🔌 Mapeo MIDI Learn
+                </button>
+                <button type="button" class="tab-btn px-4 py-2.5 rounded-xl text-xs md:text-sm font-bold transition-all cursor-pointer bg-slate-900/60 text-slate-400 hover:text-white border border-slate-800" data-tab="audio">
+                    ⚡ Motor Oboe C++ (&lt;10ms)
+                </button>
+                <button type="button" class="tab-btn px-4 py-2.5 rounded-xl text-xs md:text-sm font-bold transition-all cursor-pointer bg-slate-900/60 text-slate-400 hover:text-white border border-slate-800" data-tab="dashboard">
+                    📱 Conciertos & Sets
+                </button>
+            </div>
+
+            <!-- Showcase Card Frame with Concentric Radii and Specular Outline -->
+            <div class="relative glass-panel rounded-3xl p-3 md:p-6 border border-white/10 shadow-2xl bg-slate-950/80 overflow-hidden" style="box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.1), 0 25px 50px -12px rgba(0, 0, 0, 0.8);">
+                
+                <!-- Screen Content Area -->
+                <div class="relative aspect-[24/11] w-full rounded-2xl overflow-hidden bg-slate-950 border border-slate-800 group cursor-pointer image-card" id="showcase-card" data-img="/images/stagekeys/stage-mixer.jpg">
+                    <img 
+                        id="showcase-img"
+                        src="/images/stagekeys/stage-mixer.jpg" 
+                        alt="Vista de Stage Keys Live" 
+                        class="w-full h-full object-cover object-center transition-transform duration-500 group-hover:scale-[1.02]"
+                    />
+                    
+                    <!-- Subtle Gradient Scrim at Bottom for Badge Readability -->
+                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent pointer-events-none"></div>
+
+                    <!-- Overlay Chip Indicating Click to Expand -->
+                    <div class="absolute bottom-4 right-4 flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-950/80 border border-slate-700/80 text-slate-300 text-xs font-semibold backdrop-blur-md opacity-90 group-hover:opacity-100 transition-opacity">
+                        <svg class="w-4 h-4 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7" />
+                        </svg>
+                        <span>Click para pantalla completa (2400x1080)</span>
                     </div>
-                    <div class="p-6 flex-1 flex flex-col justify-between">
-                        <div>
-                            <h3 class="text-xl font-bold text-white mb-2 group-hover:text-emerald-400 transition-colors">Mixer en Vivo & Teclado Táctil</h3>
-                            <p class="text-slate-300 text-sm leading-relaxed">
-                                Control de canales por capas con faders independientes, medidores de señal en tiempo real, BPM, Tap Tempo, botón REC y teclado virtual táctil con rueda de modulación y pitch bend.
-                            </p>
-                        </div>
-                        <div class="mt-4 pt-4 border-t border-slate-800 flex items-center justify-between text-xs text-slate-400">
-                            <span>✨ Mapeo nanoKONTROL</span>
-                            <span class="text-emerald-400 font-bold">120 BPM • Metrónomo</span>
-                        </div>
+
+                    <div class="absolute top-4 left-4 inline-flex items-center gap-2 px-3 py-1 rounded-md bg-emerald-500 text-slate-950 text-xs font-black tracking-wider uppercase" id="showcase-badge">
+                        Main Concert Mode
                     </div>
                 </div>
 
-                <!-- Screenshot 2 -->
-                <div class="glass-panel overflow-hidden border border-cyan-500/20 hover:border-cyan-500/60 transition-all duration-300 group flex flex-col">
-                    <div class="relative bg-slate-950 overflow-hidden cursor-pointer image-card" data-img="/images/stagekeys/stage2.jpg">
-                        <img 
-                            src="/images/stagekeys/stage2.jpg" 
-                            alt="Configurador de Parches y SoundFonts" 
-                            class="w-full h-64 object-cover object-center group-hover:scale-105 transition-transform duration-500"
-                        />
-                        <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80"></div>
-                        <div class="absolute top-3 left-3 px-2.5 py-1 rounded-md bg-cyan-500 text-slate-950 text-[10px] font-black tracking-wider uppercase">
-                            SF2 Engine
-                        </div>
+                <!-- Showcase Dynamic Description Bar -->
+                <div class="mt-6 px-3 py-2 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-t border-slate-800/80 pt-4" id="showcase-info">
+                    <div>
+                        <h3 class="text-xl md:text-2xl font-bold text-white mb-1" id="showcase-title">
+                            Mixer en Vivo & Teclado Táctil
+                        </h3>
+                        <p class="text-slate-300 text-sm md:text-base max-w-3xl leading-relaxed [text-wrap:pretty]" id="showcase-desc">
+                            Control total por capas con faders de volumen virtuales, medidores VU reactivos por canal, botones Mute/Solo, perillas de Reverb, Chorus y Cutoff, Tap Tempo, grabador MIDI en vivo y teclado virtual táctil con rueda de modulación y pitch bend.
+                        </p>
                     </div>
-                    <div class="p-6 flex-1 flex flex-col justify-between">
-                        <div>
-                            <h3 class="text-xl font-bold text-white mb-2 group-hover:text-cyan-400 transition-colors">Ajuste de Parches & Instrumentos</h3>
-                            <p class="text-slate-300 text-sm leading-relaxed">
-                                Carga SoundFonts (.sf2) directamente desde la memoria interna o tarjeta SD de tu Android. Asigna instrumentos, bancos y preajustes con respuesta inmediata.
-                            </p>
-                        </div>
-                        <div class="mt-4 pt-4 border-t border-slate-800 flex items-center justify-between text-xs text-slate-400">
-                            <span>📂 .SF2 SoundFonts</span>
-                            <span class="text-cyan-400 font-bold">FluidSynth JNI</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Screenshot 3 -->
-                <div class="glass-panel overflow-hidden border border-teal-500/20 hover:border-teal-500/60 transition-all duration-300 group flex flex-col">
-                    <div class="relative bg-slate-950 overflow-hidden cursor-pointer image-card" data-img="/images/stagekeys/stage3.jpg">
-                        <img 
-                            src="/images/stagekeys/stage3.jpg" 
-                            alt="Editor Visual de Split y Layer" 
-                            class="w-full h-64 object-cover object-center group-hover:scale-105 transition-transform duration-500"
-                        />
-                        <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80"></div>
-                        <div class="absolute top-3 left-3 px-2.5 py-1 rounded-md bg-teal-400 text-slate-950 text-[10px] font-black tracking-wider uppercase">
-                            Split & Layer
-                        </div>
-                    </div>
-                    <div class="p-6 flex-1 flex flex-col justify-between">
-                        <div>
-                            <h3 class="text-xl font-bold text-white mb-2 group-hover:text-teal-400 transition-colors">Editor Visual de Zonas</h3>
-                            <p class="text-slate-300 text-sm leading-relaxed">
-                                Configura divisiones del teclado con colores intuitivos. Asigna bajos a la mano izquierda, piano acústico al centro y pads/leads a la mano derecha con rangos dinámicos de velocidad.
-                            </p>
-                        </div>
-                        <div class="mt-4 pt-4 border-t border-slate-800 flex items-center justify-between text-xs text-slate-400">
-                            <span>🎹 Zonas por Color</span>
-                            <span class="text-teal-400 font-bold">Curvas de Velocity</span>
-                        </div>
+                    <div class="flex flex-wrap gap-2 shrink-0" id="showcase-tags">
+                        <span class="px-2.5 py-1 rounded-md bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs font-bold">Faders Virtuales</span>
+                        <span class="px-2.5 py-1 rounded-md bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 text-xs font-bold">120 BPM • Tap</span>
                     </div>
                 </div>
             </div>
-        </div>
+        </section>
     </div>
 
-    <!-- Technical Architecture Highlights -->
+    <!-- ========================================== -->
+    <!-- TECHNICAL ARCHITECTURE & STAGE FEATURES    -->
+    <!-- ========================================== -->
     <section class="py-16 max-w-6xl mx-auto px-4">
         <div class="text-center mb-14">
             <span class="text-xs uppercase tracking-widest text-cyan-400 font-bold block mb-2">Ingeniería de Alto Rendimiento</span>
-            <h2 class="text-3xl md:text-5xl font-extrabold text-white">¿Por qué es diferente a otras apps?</h2>
-            <p class="text-slate-400 max-w-2xl mx-auto mt-3">
-                No es un reproductor de MIDI genérico. Está programado desde cero para resistir la exigencia de un recital en vivo.
+            <h2 class="text-3xl md:text-5xl font-black text-white tracking-tight [text-wrap:balance]">
+                ¿Por qué es diferente a cualquier otra app?
+            </h2>
+            <p class="text-slate-400 max-w-2xl mx-auto mt-3 text-base [text-wrap:pretty]">
+                No es un reproductor MIDI genérico. Está programada desde el kernel en C++ y Kotlin Multiplatform para resistir la máxima exigencia de un show o culto en vivo.
             </p>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <!-- Feature 1 -->
-            <div class="glass-panel p-8 border border-slate-800 hover:border-emerald-500/40 transition-colors group">
-                <div class="w-14 h-14 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 mb-6 group-hover:scale-110 transition-transform">
-                    <svg class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-                    </svg>
+            
+            <!-- Feature 1: Google Oboe C++ Engine -->
+            <div class="tech-card glass-panel rounded-3xl p-7 border border-white/10 hover:border-emerald-500/40 transition-all duration-300 flex flex-col justify-between group" style="box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.08);">
+                <div>
+                    <div class="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 mb-5 group-hover:scale-110 transition-transform">
+                        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                        </svg>
+                    </div>
+                    <div class="flex items-center gap-2 mb-2">
+                        <h3 class="text-xl font-bold text-white group-hover:text-emerald-400 transition-colors">Motor Google Oboe C++</h3>
+                        <span class="px-2 py-0.5 rounded text-[10px] font-black bg-emerald-500/20 text-emerald-300 tabular-nums">&lt; 10ms</span>
+                    </div>
+                    <p class="text-slate-300 text-sm leading-relaxed [text-wrap:pretty]">
+                        Comunica directamente con el chip de sonido de tu Android mediante el driver nativo AAudio en punto flotante estéreo a 48kHz, minimizando el jitter y garantizando latencia imperceptible al tocar.
+                    </p>
                 </div>
-                <h3 class="text-xl font-bold text-white mb-3">Google Oboe C++ Engine</h3>
-                <p class="text-slate-300 text-sm leading-relaxed">
-                    Utiliza la librería de audio nativa de Google en C++ para comunicarse con el chip de sonido de tu Android con la menor latencia posible (&lt; 10ms garantizados en dispositivos modernos).
+                <div class="mt-5 pt-4 border-t border-slate-800/80 flex items-center justify-between text-xs text-slate-400">
+                    <span>⚡ Driver AAudio Nativo</span>
+                    <span class="text-emerald-400 font-bold">Monitor de xRuns</span>
+                </div>
+            </div>
+
+            <!-- Feature 2: FluidSynth SF2 Engine -->
+            <div class="tech-card glass-panel rounded-3xl p-7 border border-white/10 hover:border-cyan-500/40 transition-all duration-300 flex flex-col justify-between group" style="box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.08);">
+                <div>
+                    <div class="w-12 h-12 rounded-xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 mb-5 group-hover:scale-110 transition-transform">
+                        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
+                        </svg>
+                    </div>
+                    <div class="flex items-center gap-2 mb-2">
+                        <h3 class="text-xl font-bold text-white group-hover:text-cyan-400 transition-colors">FluidSynth SoundFonts .SF2</h3>
+                    </div>
+                    <p class="text-slate-300 text-sm leading-relaxed [text-wrap:pretty]">
+                        Carga librerías de pianos acústicos, Rhodes, sintetizadores worship, coros y cuerdas en formato SoundFont .sf2. Optimizado para memoria RAM con canal de preescucha rápida (Scratch Preview).
+                    </p>
+                </div>
+                <div class="mt-5 pt-4 border-t border-slate-800/80 flex items-center justify-between text-xs text-slate-400">
+                    <span>📂 Storage Access (SAF)</span>
+                    <span class="text-cyan-400 font-bold">Preescucha Integrada</span>
+                </div>
+            </div>
+
+            <!-- Feature 3: Ambient Worship Pads Continuos -->
+            <div class="tech-card glass-panel rounded-3xl p-7 border border-white/10 hover:border-teal-500/40 transition-all duration-300 flex flex-col justify-between group" style="box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.08);">
+                <div>
+                    <div class="w-12 h-12 rounded-xl bg-teal-500/10 border border-teal-500/30 flex items-center justify-center text-teal-400 mb-5 group-hover:scale-110 transition-transform">
+                        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 100-6 3 3 0 000 6z" />
+                        </svg>
+                    </div>
+                    <div class="flex items-center gap-2 mb-2">
+                        <h3 class="text-xl font-bold text-white group-hover:text-teal-400 transition-colors">Ambient Worship Pads</h3>
+                        <span class="px-2 py-0.5 rounded text-[10px] font-black bg-teal-500/20 text-teal-300">12 Tonos</span>
+                    </div>
+                    <p class="text-slate-300 text-sm leading-relaxed [text-wrap:pretty]">
+                        Dile adiós a los silencios incómodos entre canciones. Dispara pads de atmósfera (Shimmer, Warm) en las 12 tonalidades con crossfade armónico imperceptible y volumen independiente.
+                    </p>
+                </div>
+                <div class="mt-5 pt-4 border-t border-slate-800/80 flex items-center justify-between text-xs text-slate-400">
+                    <span>🌊 Crossfade Continuo</span>
+                    <span class="text-teal-400 font-bold">Cero Huecos Sonoros</span>
+                </div>
+            </div>
+
+            <!-- Feature 4: Seamless Spillover -->
+            <div class="tech-card glass-panel rounded-3xl p-7 border border-white/10 hover:border-purple-500/40 transition-all duration-300 flex flex-col justify-between group" style="box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.08);">
+                <div>
+                    <div class="w-12 h-12 rounded-xl bg-purple-500/10 border border-purple-500/30 flex items-center justify-center text-purple-400 mb-5 group-hover:scale-110 transition-transform">
+                        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z" />
+                        </svg>
+                    </div>
+                    <div class="flex items-center gap-2 mb-2">
+                        <h3 class="text-xl font-bold text-white group-hover:text-purple-400 transition-colors">Seamless Spillover</h3>
+                    </div>
+                    <p class="text-slate-300 text-sm leading-relaxed [text-wrap:pretty]">
+                        Al cambiar de un sonido a otro en medio del tema, las notas sostenidas con el pedal de sustain y las colas de reverberación no se cortan bruscamente. Gestión de canales sombra mediante corrutinas.
+                    </p>
+                </div>
+                <div class="mt-5 pt-4 border-t border-slate-800/80 flex items-center justify-between text-xs text-slate-400">
+                    <span>🎹 Canales Sombra</span>
+                    <span class="text-purple-400 font-bold">Transición Natural</span>
+                </div>
+            </div>
+
+            <!-- Feature 5: MIDI Learn & nanoKONTROL -->
+            <div class="tech-card glass-panel rounded-3xl p-7 border border-white/10 hover:border-amber-500/40 transition-all duration-300 flex flex-col justify-between group" style="box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.08);">
+                <div>
+                    <div class="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 mb-5 group-hover:scale-110 transition-transform">
+                        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+                        </svg>
+                    </div>
+                    <div class="flex items-center gap-2 mb-2">
+                        <h3 class="text-xl font-bold text-white group-hover:text-amber-400 transition-colors">MIDI Learn & nanoKONTROL</h3>
+                    </div>
+                    <p class="text-slate-300 text-sm leading-relaxed [text-wrap:pretty]">
+                        Conecta un Korg nanoKONTROL2, Arturia, Novation o cualquier teclado vía USB OTG o Bluetooth MIDI. Asigna faders, perillas de Reverb/Chorus y botones de Mute/Solo con solo tocarlos.
+                    </p>
+                </div>
+                <div class="mt-5 pt-4 border-t border-slate-800/80 flex items-center justify-between text-xs text-slate-400">
+                    <span>🔌 USB OTG & BLE MIDI</span>
+                    <span class="text-amber-400 font-bold">Botón PANIC (Reset)</span>
+                </div>
+            </div>
+
+            <!-- Feature 6: Foreground Service & Master Limiter -->
+            <div class="tech-card glass-panel rounded-3xl p-7 border border-white/10 hover:border-rose-500/40 transition-all duration-300 flex flex-col justify-between group" style="box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.08);">
+                <div>
+                    <div class="w-12 h-12 rounded-xl bg-rose-500/10 border border-rose-500/30 flex items-center justify-center text-rose-400 mb-5 group-hover:scale-110 transition-transform">
+                        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                        </svg>
+                    </div>
+                    <div class="flex items-center gap-2 mb-2">
+                        <h3 class="text-xl font-bold text-white group-hover:text-rose-400 transition-colors">Audio Background & Limiter</h3>
+                    </div>
+                    <p class="text-slate-300 text-sm leading-relaxed [text-wrap:pretty]">
+                        Servicio en primer plano Android (<code class="text-xs bg-slate-800 px-1 py-0.5 rounded text-rose-300 font-mono">mediaPlayback</code>) que garantiza sonido ininterrumpido aunque abras partituras en MobileSheets o apagues la pantalla. Incluye Limitador Master DSP anti-clipping.
+                    </p>
+                </div>
+                <div class="mt-5 pt-4 border-t border-slate-800/80 flex items-center justify-between text-xs text-slate-400">
+                    <span>🛡️ Limitador Anti-Clipping</span>
+                    <span class="text-rose-400 font-bold">Pantalla Apagada OK</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- WORKFLOW IN 3 STEPS                        -->
+    <!-- ========================================== -->
+    <section class="py-16 max-w-5xl mx-auto px-4">
+        <div class="text-center mb-12">
+            <span class="text-xs uppercase tracking-widest text-emerald-400 font-bold block mb-2">Simplicidad en Vivo</span>
+            <h2 class="text-3xl md:text-4xl font-black text-white tracking-tight">Del Setup al Escenario en 3 Pasos</h2>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="glass-panel p-6 rounded-3xl border border-white/10 text-center relative flex flex-col items-center">
+                <span class="w-10 h-10 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 flex items-center justify-center font-black text-lg mb-4 tabular-nums">1</span>
+                <h4 class="text-lg font-bold text-white mb-2">Conecta tu Controlador</h4>
+                <p class="text-slate-300 text-xs md:text-sm leading-relaxed">
+                    Enchufa tu teclado MIDI por cable USB OTG o empareja tu adaptador Bluetooth MIDI (CME Widi, Roland, etc.). Reconocimiento instantáneo sin instalar drivers.
                 </p>
             </div>
 
-            <!-- Feature 2 -->
-            <div class="glass-panel p-8 border border-slate-800 hover:border-cyan-500/40 transition-colors group">
-                <div class="w-14 h-14 rounded-2xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 mb-6 group-hover:scale-110 transition-transform">
-                    <svg class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
-                    </svg>
-                </div>
-                <h3 class="text-xl font-bold text-white mb-3">FluidSynth .SF2 SoundFonts</h3>
-                <p class="text-slate-300 text-sm leading-relaxed">
-                    Carga instrumentos de worship, sintetizadores analógicos, coros y pianos en formato SoundFont .sf2, optimizados para consumir poca memoria RAM sin perder fidelidad acústica.
+            <div class="glass-panel p-6 rounded-3xl border border-white/10 text-center relative flex flex-col items-center">
+                <span class="w-10 h-10 rounded-full bg-cyan-500/20 text-cyan-400 border border-cyan-500/40 flex items-center justify-center font-black text-lg mb-4 tabular-nums">2</span>
+                <h4 class="text-lg font-bold text-white mb-2">Arma tus Splits y Layers</h4>
+                <p class="text-slate-300 text-xs md:text-sm leading-relaxed">
+                    Carga tus librerías .sf2 favoritas de piano, pads y leads. Ajusta visualmente las zonas sobre el teclado y asigna colores neón a cada instrumento.
                 </p>
             </div>
 
-            <!-- Feature 3 -->
-            <div class="glass-panel p-8 border border-slate-800 hover:border-teal-500/40 transition-colors group">
-                <div class="w-14 h-14 rounded-2xl bg-teal-500/10 border border-teal-500/30 flex items-center justify-center text-teal-400 mb-6 group-hover:scale-110 transition-transform">
-                    <svg class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z" />
-                    </svg>
-                </div>
-                <h3 class="text-xl font-bold text-white mb-3">Seamless Spillover</h3>
-                <p class="text-slate-300 text-sm leading-relaxed">
-                    Al pasar de una canción rápida a una balada suave, las notas sostenidas con el pedal de sustain no se apagan bruscamente. El cambio de patch es 100% fluido e ininterrumpido.
-                </p>
-            </div>
-
-            <!-- Feature 4 -->
-            <div class="glass-panel p-8 border border-slate-800 hover:border-yellow-500/40 transition-colors group">
-                <div class="w-14 h-14 rounded-2xl bg-yellow-500/10 border border-yellow-500/30 flex items-center justify-center text-yellow-400 mb-6 group-hover:scale-110 transition-transform">
-                    <svg class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
-                    </svg>
-                </div>
-                <h3 class="text-xl font-bold text-white mb-3">Modo Mixer nanoKONTROL</h3>
-                <p class="text-slate-300 text-sm leading-relaxed">
-                    Conecta un Korg nanoKONTROL2 o cualquier controlador con faders mediante cable USB OTG y controla los volúmenes de tus capas exactamente como lo haces en MainStage.
-                </p>
-            </div>
-
-            <!-- Feature 5 -->
-            <div class="glass-panel p-8 border border-slate-800 hover:border-indigo-500/40 transition-colors group">
-                <div class="w-14 h-14 rounded-2xl bg-indigo-500/10 border border-indigo-500/30 flex items-center justify-center text-indigo-400 mb-6 group-hover:scale-110 transition-transform">
-                    <svg class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 100-6 3 3 0 000 6z" />
-                    </svg>
-                </div>
-                <h3 class="text-xl font-bold text-white mb-3">Audio en Segundo Plano</h3>
-                <p class="text-slate-300 text-sm leading-relaxed">
-                    El servicio de audio continúa sonando sin interrupción aunque apagues la pantalla de tu tablet para ahorrar batería o abras una aplicación de partituras como MobileSheets.
-                </p>
-            </div>
-
-            <!-- Feature 6 -->
-            <div class="glass-panel p-8 border border-slate-800 hover:border-pink-500/40 transition-colors group">
-                <div class="w-14 h-14 rounded-2xl bg-pink-500/10 border border-pink-500/30 flex items-center justify-center text-pink-400 mb-6 group-hover:scale-110 transition-transform">
-                    <svg class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071c3.904-3.905 10.236-3.905 14.141 0M1.394 9.393c5.857-5.857 15.355-5.857 21.213 0" />
-                    </svg>
-                </div>
-                <h3 class="text-xl font-bold text-white mb-3">USB & Bluetooth MIDI</h3>
-                <p class="text-slate-300 text-sm leading-relaxed">
-                    Soporte directo para teclados Yamaha, Roland, Nord, Arturia, Novation o adaptadores Bluetooth MIDI (CME Widi Master, etc.) sin controladores adicionales.
+            <div class="glass-panel p-6 rounded-3xl border border-white/10 text-center relative flex flex-col items-center">
+                <span class="w-10 h-10 rounded-full bg-teal-500/20 text-teal-400 border border-teal-500/40 flex items-center justify-center font-black text-lg mb-4 tabular-nums">3</span>
+                <h4 class="text-lg font-bold text-white mb-2">Toca con Total Seguridad</h4>
+                <p class="text-slate-300 text-xs md:text-sm leading-relaxed">
+                    Controla el volumen de tus capas con los faders, activa el Pad continuo para transiciones y olvídate para siempre de cargar una laptop al escenario.
                 </p>
             </div>
         </div>
     </section>
 
-    <!-- SECTION: GOOGLE PLAY CLOSED BETA TESTER REGISTRATION -->
+    <!-- ========================================== -->
+    <!-- SECTION: TELEGRAM COMMUNITY                -->
+    <!-- ========================================== -->
+    <section class="py-12 max-w-5xl mx-auto px-4">
+        <div class="relative glass-panel rounded-3xl p-8 md:p-12 border border-[#0088cc]/40 bg-gradient-to-b from-[#0088cc]/10 via-slate-950/80 to-slate-950/90 shadow-2xl shadow-[#0088cc]/10 overflow-hidden" style="box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.15), 0 20px 40px -15px rgba(0, 136, 204, 0.25);">
+            <div class="absolute -right-24 -top-24 w-80 h-80 bg-[#0088cc]/15 rounded-full blur-3xl pointer-events-none"></div>
+
+            <div class="flex flex-col md:flex-row items-center justify-between gap-8 relative z-10">
+                <div class="max-w-2xl text-center md:text-left">
+                    <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#0088cc]/15 border border-[#0088cc]/30 text-[#29b6f6] text-xs font-bold uppercase tracking-wider mb-4">
+                        <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.74-.55 2.92-1.27 4.86-2.11 5.83-2.51 2.78-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .38z"/>
+                        </svg>
+                        <span>Comunidad Oficial en Telegram</span>
+                    </div>
+
+                    <h2 class="text-3xl md:text-4xl font-black text-white tracking-tight mb-3 [text-wrap:balance]">
+                        Únete al Grupo Oficial de Stage Keys Live
+                    </h2>
+
+                    <p class="text-slate-300 text-sm md:text-base leading-relaxed mb-6 [text-wrap:pretty]">
+                        Un espacio creado para tecladistas, pianistas y músicos worship que usan o quieren usar la app. Comparte tus experiencias en el escenario, recomienda configuraciones, intercambia librerías SoundFont (.sf2) y habla directamente con Tute López.
+                    </p>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs text-slate-300">
+                        <div class="flex items-center gap-2 p-2.5 rounded-xl bg-slate-900/60 border border-slate-800">
+                            <span class="text-emerald-400 font-bold">✓</span>
+                            <span>Setups & Controladores</span>
+                        </div>
+                        <div class="flex items-center gap-2 p-2.5 rounded-xl bg-slate-900/60 border border-slate-800">
+                            <span class="text-cyan-400 font-bold">✓</span>
+                            <span>SoundFonts .SF2 & Presets</span>
+                        </div>
+                        <div class="flex items-center gap-2 p-2.5 rounded-xl bg-slate-900/60 border border-slate-800">
+                            <span class="text-[#29b6f6] font-bold">✓</span>
+                            <span>Feedback de Actualizaciones</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex flex-col items-center gap-3 shrink-0">
+                    <a 
+                        href="https://t.me/StageKeysLiveComunity" 
+                        target="_blank" 
+                        rel="noopener noreferrer" 
+                        class="btn-interact flex items-center gap-3 px-8 py-4 rounded-2xl bg-gradient-to-r from-[#0088cc] via-[#0099e6] to-[#00b4d8] hover:from-[#0077b5] hover:to-[#00a0c2] text-white font-black text-base shadow-xl shadow-[#0088cc]/30 border border-cyan-300/30 transform hover:scale-[1.03] active:scale-[0.98] transition-all cursor-pointer text-center"
+                        style="box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.3), 0 15px 30px -10px rgba(0, 136, 204, 0.5);"
+                    >
+                        <svg class="w-6 h-6 fill-current shrink-0" viewBox="0 0 24 24">
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.74-.55 2.92-1.27 4.86-2.11 5.83-2.51 2.78-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .38z"/>
+                        </svg>
+                        <span>Unirme al Grupo de Telegram</span>
+                    </a>
+                    <span class="text-xs text-slate-400 font-mono">t.me/StageKeysLiveComunity</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SECTION: GOOGLE PLAY CLOSED BETA TESTER    -->
+    <!-- ========================================== -->
     <section id="beta-tester" class="py-16 max-w-4xl mx-auto px-4 scroll-mt-24">
-        <div class="glass-panel p-8 md:p-12 border-2 border-emerald-500/50 shadow-2xl shadow-emerald-950/40 relative overflow-hidden">
-            <div class="absolute -right-20 -top-20 w-80 h-80 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="glass-panel p-8 md:p-12 rounded-3xl border-2 border-emerald-500/50 shadow-2xl shadow-emerald-950/40 relative overflow-hidden" style="box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.15), 0 25px 50px -12px rgba(16, 185, 129, 0.2);">
+            <div class="absolute -right-20 -top-20 w-80 h-80 bg-emerald-500/15 rounded-full blur-3xl pointer-events-none"></div>
 
             <div class="flex items-center gap-3 text-emerald-400 mb-3">
-                <svg class="w-6 h-6 animate-spin" style="animation-duration: 3s;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg class="w-6 h-6 animate-spin" style="animation-duration: 4s;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                 </svg>
-                <span class="text-xs md:text-sm font-black uppercase tracking-widest">Pista de Pruebas Cerradas (Closed Testing)</span>
+                <span class="text-xs md:text-sm font-black uppercase tracking-widest">Closed Testing Track • Acceso Exclusivo</span>
             </div>
 
-            <h2 class="text-3xl md:text-4xl font-black text-white mb-4">
+            <h2 class="text-3xl md:text-4xl font-black text-white mb-4 [text-wrap:balance]">
                 Únete como Beta Tester en Google Play
             </h2>
 
-            <p class="text-slate-300 text-base md:text-lg mb-6 leading-relaxed">
-                Google Play Console exige que una aplicación nueva sea probada de forma continua por al menos <strong class="text-emerald-400">14 a 20 evaluadores</strong> registrados antes de permitir su publicación abierta a todo el público.
+            <p class="text-slate-300 text-base md:text-lg mb-6 leading-relaxed [text-wrap:pretty]">
+                Google Play Console exige que una aplicación de audio sea evaluada continuamente por evaluadores registrados antes de permitir su publicación abierta a todo el público.
             </p>
-            <p class="text-slate-400 text-sm mb-8">
-                Si tienes un celular o tablet Android y quieres tener acceso anticipado exclusivo, ingresa tu <strong>correo de Google (Gmail)</strong> con el que accedes a tu Play Store:
+            <p class="text-slate-400 text-sm mb-8 [text-wrap:pretty]">
+                Si tienes un celular o tablet Android y quieres ser de los primeros músicos en el mundo en probar Stage Keys Live, registra tu <strong>correo de Google (Gmail)</strong> con el que accedes a Google Play:
             </p>
 
-            <!-- Form -->
+            <!-- Form with Concentric Alignment -->
             <form id="beta-tester-form" class="space-y-4">
                 <div>
                     <label for="tester-email" class="block text-sm font-semibold text-slate-200 mb-1.5">
@@ -297,10 +476,10 @@ const pageDescription = "Stage Keys Live es una app para Android desarrollada co
                         type="email" 
                         id="tester-email" 
                         required 
-                        placeholder="tu-correo@gmail.com" 
-                        class="w-full px-4 py-3.5 rounded-xl bg-slate-950/70 border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-transparent transition-all"
+                        placeholder="tu-cuenta@gmail.com" 
+                        class="w-full px-4 py-3.5 rounded-2xl bg-slate-950/70 border border-slate-700/80 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-transparent transition-all"
                     />
-                    <span class="text-xs text-slate-500 mt-1 block">Debe ser la cuenta de Google vinculada a tu celular o tablet.</span>
+                    <span class="text-xs text-slate-500 mt-1 block">Debe ser la cuenta Gmail con la que descargas apps en tu teléfono o tablet Android.</span>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -311,8 +490,8 @@ const pageDescription = "Stage Keys Live es una app para Android desarrollada co
                         <input 
                             type="text" 
                             id="tester-device" 
-                            placeholder="Ej: Samsung Galaxy Tab S8, Xiaomi Pad 6..." 
-                            class="w-full px-4 py-3 rounded-xl bg-slate-950/70 border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-400 transition-all text-sm"
+                            placeholder="Ej: Xiaomi Pad 6, Samsung Tab S8..." 
+                            class="w-full px-4 py-3 rounded-xl bg-slate-950/70 border border-slate-700/80 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-400 transition-all text-sm"
                         />
                     </div>
                     <div>
@@ -323,7 +502,7 @@ const pageDescription = "Stage Keys Live es una app para Android desarrollada co
                             type="text" 
                             id="tester-controller" 
                             placeholder="Ej: Arturia KeyLab, Korg nanoKONTROL2..." 
-                            class="w-full px-4 py-3 rounded-xl bg-slate-950/70 border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-400 transition-all text-sm"
+                            class="w-full px-4 py-3 rounded-xl bg-slate-950/70 border border-slate-700/80 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-400 transition-all text-sm"
                         />
                     </div>
                 </div>
@@ -333,7 +512,7 @@ const pageDescription = "Stage Keys Live es una app para Android desarrollada co
                 <button 
                     type="submit" 
                     id="tester-submit-btn" 
-                    class="w-full py-4 rounded-xl bg-gradient-to-r from-emerald-500 to-cyan-500 hover:from-emerald-400 hover:to-cyan-400 text-slate-950 font-black text-base transition-all transform hover:scale-[1.01] shadow-xl shadow-emerald-500/25 flex items-center justify-center gap-2 cursor-pointer"
+                    class="w-full py-4 rounded-2xl bg-gradient-to-r from-emerald-500 via-teal-400 to-cyan-500 hover:from-emerald-400 hover:to-cyan-400 text-slate-950 font-black text-base shadow-xl shadow-emerald-500/25 border border-emerald-300/40 transform hover:scale-[1.01] active:scale-[0.98] transition-all flex items-center justify-center gap-2 cursor-pointer"
                 >
                     <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
@@ -344,33 +523,35 @@ const pageDescription = "Stage Keys Live es una app para Android desarrollada co
         </div>
     </section>
 
-    <!-- SECTION: FEATURE REQUESTS & SUGGESTIONS -->
+    <!-- ========================================== -->
+    <!-- SECTION: FEATURE REQUESTS & SUGGESTIONS    -->
+    <!-- ========================================== -->
     <section class="py-16 max-w-4xl mx-auto px-4">
-        <div class="glass-panel p-8 md:p-12 border border-slate-800 relative">
+        <div class="glass-panel p-8 md:p-12 rounded-3xl border border-white/10 relative" style="box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.08);">
             <div class="text-center mb-8">
                 <span class="text-xs uppercase tracking-widest text-teal-400 font-bold block mb-2">Comunidad & Desarrollo Abierto</span>
-                <h2 class="text-3xl md:text-4xl font-extrabold text-white">¿Qué función sueñas tener?</h2>
-                <p class="text-slate-400 max-w-lg mx-auto mt-2">
-                    Estamos construyendo la app junto con la comunidad. Comparte tu idea o elige una de las sugerencias rápidas abajo:
+                <h2 class="text-3xl md:text-4xl font-extrabold text-white tracking-tight [text-wrap:balance]">¿Qué función sueñas tener?</h2>
+                <p class="text-slate-400 max-w-lg mx-auto mt-2 text-sm md:text-base [text-wrap:pretty]">
+                    Estamos construyendo la app junto a tecladistas reales. Haz clic en una sugerencia rápida o escribe la tuya:
                 </p>
             </div>
 
-            <!-- Quick Pill Chips -->
+            <!-- Quick Pill Chips (Click to fill) -->
             <div class="flex flex-wrap gap-2.5 justify-center mb-8">
-                <button type="button" class="quick-pill px-3 py-1.5 rounded-full bg-slate-800/80 hover:bg-emerald-500/20 text-slate-300 hover:text-emerald-300 border border-slate-700 hover:border-emerald-500/50 text-xs font-medium transition-all">
+                <button type="button" class="quick-pill px-3 py-1.5 rounded-full bg-slate-800/80 hover:bg-emerald-500/20 text-slate-300 hover:text-emerald-300 border border-slate-700 hover:border-emerald-500/50 text-xs font-medium transition-all cursor-pointer">
                     🎛 Mapeo MIDI Learn para botones de pads
                 </button>
-                <button type="button" class="quick-pill px-3 py-1.5 rounded-full bg-slate-800/80 hover:bg-emerald-500/20 text-slate-300 hover:text-emerald-300 border border-slate-700 hover:border-emerald-500/50 text-xs font-medium transition-all">
-                    🎧 Salida independiente de Click para baterista
+                <button type="button" class="quick-pill px-3 py-1.5 rounded-full bg-slate-800/80 hover:bg-emerald-500/20 text-slate-300 hover:text-emerald-300 border border-slate-700 hover:border-emerald-500/50 text-xs font-medium transition-all cursor-pointer">
+                    🎧 Salida de audio multicanal (Click por canal L/R)
                 </button>
-                <button type="button" class="quick-pill px-3 py-1.5 rounded-full bg-slate-800/80 hover:bg-emerald-500/20 text-slate-300 hover:text-emerald-300 border border-slate-700 hover:border-emerald-500/50 text-xs font-medium transition-all">
-                    ✨ Efecto Shimmer Reverb integrado
+                <button type="button" class="quick-pill px-3 py-1.5 rounded-full bg-slate-800/80 hover:bg-emerald-500/20 text-slate-300 hover:text-emerald-300 border border-slate-700 hover:border-emerald-500/50 text-xs font-medium transition-all cursor-pointer">
+                    ✨ Efecto Shimmer Reverb con ajuste de brillo
                 </button>
-                <button type="button" class="quick-pill px-3 py-1.5 rounded-full bg-slate-800/80 hover:bg-emerald-500/20 text-slate-300 hover:text-emerald-300 border border-slate-700 hover:border-emerald-500/50 text-xs font-medium transition-all">
-                    📱 Modo pantalla horizontal para tablets 10"
+                <button type="button" class="quick-pill px-3 py-1.5 rounded-full bg-slate-800/80 hover:bg-emerald-500/20 text-slate-300 hover:text-emerald-300 border border-slate-700 hover:border-emerald-500/50 text-xs font-medium transition-all cursor-pointer">
+                    🎹 Arpegiador MIDI con sincronización de BPM
                 </button>
-                <button type="button" class="quick-pill px-3 py-1.5 rounded-full bg-slate-800/80 hover:bg-emerald-500/20 text-slate-300 hover:text-emerald-300 border border-slate-700 hover:border-emerald-500/50 text-xs font-medium transition-all">
-                    🎹 Arpegiador sincronizado por BPM
+                <button type="button" class="quick-pill px-3 py-1.5 rounded-full bg-slate-800/80 hover:bg-emerald-500/20 text-slate-300 hover:text-emerald-300 border border-slate-700 hover:border-emerald-500/50 text-xs font-medium transition-all cursor-pointer">
+                    ☁️ Sincronización de Conciertos con Google Drive
                 </button>
             </div>
 
@@ -384,8 +565,8 @@ const pageDescription = "Stage Keys Live es una app para Android desarrollada co
                         id="suggestion-text" 
                         rows="3" 
                         required 
-                        placeholder="Ej: Sería genial poder cambiar parches con los pads de mi controlador Novation..." 
-                        class="w-full px-4 py-3 rounded-xl bg-slate-950/70 border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-teal-400 transition-all text-sm"
+                        placeholder="Ej: Sería genial poder disparar los pads ambientales desde los pads físicos de mi controlador Novation Launchkey..." 
+                        class="w-full px-4 py-3 rounded-2xl bg-slate-950/70 border border-slate-700/80 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-teal-400 transition-all text-sm"
                     ></textarea>
                 </div>
 
@@ -397,8 +578,8 @@ const pageDescription = "Stage Keys Live es una app para Android desarrollada co
                         <input 
                             type="text" 
                             id="suggestion-author" 
-                            placeholder="Ej: Mateo" 
-                            class="w-full px-4 py-2.5 rounded-xl bg-slate-950/70 border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-teal-400 transition-all text-sm"
+                            placeholder="Ej: David M." 
+                            class="w-full px-4 py-2.5 rounded-xl bg-slate-950/70 border border-slate-700/80 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-teal-400 transition-all text-sm"
                         />
                     </div>
                     <div>
@@ -409,7 +590,7 @@ const pageDescription = "Stage Keys Live es una app para Android desarrollada co
                             type="text" 
                             id="suggestion-contact" 
                             placeholder="@usuario o email" 
-                            class="w-full px-4 py-2.5 rounded-xl bg-slate-950/70 border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-teal-400 transition-all text-sm"
+                            class="w-full px-4 py-2.5 rounded-xl bg-slate-950/70 border border-slate-700/80 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-teal-400 transition-all text-sm"
                         />
                     </div>
                 </div>
@@ -419,7 +600,7 @@ const pageDescription = "Stage Keys Live es una app para Android desarrollada co
                 <button 
                     type="submit" 
                     id="suggestion-submit-btn" 
-                    class="w-full py-3.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-teal-500/40 text-teal-300 font-bold text-sm transition-all hover:scale-[1.01] flex items-center justify-center gap-2 cursor-pointer"
+                    class="w-full py-3.5 rounded-2xl bg-slate-900/90 hover:bg-slate-800 border border-teal-500/40 text-teal-300 font-bold text-sm transition-all hover:scale-[1.01] active:scale-[0.98] flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-teal-950/20"
                 >
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
@@ -430,68 +611,193 @@ const pageDescription = "Stage Keys Live es una app para Android desarrollada co
         </div>
     </section>
 
-    <!-- SECTION: FAQ -->
-    <section class="py-16 max-w-4xl mx-auto px-4">
+    <!-- ========================================== -->
+    <!-- SECTION: FAQ                               -->
+    <!-- ========================================== -->
+    <section class="py-16 max-w-4xl mx-auto px-4 mb-16">
         <div class="text-center mb-10">
             <h2 class="text-3xl font-bold text-white mb-2">Preguntas Frecuentes</h2>
-            <p class="text-slate-400 text-sm">Todo lo que necesitas saber antes del lanzamiento.</p>
+            <p class="text-slate-400 text-sm">Todo lo que necesitas saber antes de tocar en vivo.</p>
         </div>
 
         <div class="space-y-4">
-            <details class="glass-panel p-5 rounded-2xl group border border-slate-800 cursor-pointer">
+            <details class="glass-panel p-5 rounded-2xl group border border-slate-800 cursor-pointer transition-all">
                 <summary class="flex justify-between items-center font-bold text-white text-base">
-                    <span>¿Qué versión de Android necesito?</span>
-                    <span class="text-emerald-400 group-open:rotate-180 transition-transform">▼</span>
+                    <span>¿Qué versión de Android necesito para tener baja latencia?</span>
+                    <span class="text-emerald-400 group-open:rotate-180 transition-transform duration-300">▼</span>
                 </summary>
-                <p class="text-slate-300 text-sm mt-3 leading-relaxed">
-                    Stage Keys Live está optimizado para dispositivos con <strong>Android 8.0 (Oreo) o superior</strong> que cuenten con soporte para USB OTG (Host MIDI). Para disfrutar de la mínima latencia con el motor Google Oboe, se recomiendan dispositivos con Android 10+.
+                <p class="text-slate-300 text-sm mt-3 leading-relaxed [text-wrap:pretty]">
+                    Stage Keys Live es compatible desde <strong>Android 8.0 (Oreo)</strong> en adelante con soporte USB OTG. Para disfrutar del motor Google Oboe con la menor latencia posible (&lt;10ms), se recomiendan dispositivos con <strong>Android 10 o superior</strong> que cuenten con soporte para el subsistema AAudio nativo.
                 </p>
             </details>
 
-            <details class="glass-panel p-5 rounded-2xl group border border-slate-800 cursor-pointer">
+            <details class="glass-panel p-5 rounded-2xl group border border-slate-800 cursor-pointer transition-all">
                 <summary class="flex justify-between items-center font-bold text-white text-base">
-                    <span>¿Necesito una interfaz de audio externa?</span>
-                    <span class="text-emerald-400 group-open:rotate-180 transition-transform">▼</span>
+                    <span>¿Necesito una interfaz de audio externa para salir a consola?</span>
+                    <span class="text-emerald-400 group-open:rotate-180 transition-transform duration-300">▼</span>
                 </summary>
-                <p class="text-slate-300 text-sm mt-3 leading-relaxed">
-                    No es obligatoria. Puedes conectar auriculares o enviar la salida de audio directamente desde el conector jack de 3.5mm o adaptador USB-C de tu teléfono. Sin embargo, para tocar en iglesias y auditorios grandes, puedes conectar cualquier interfaz USB class-compliant (Focusrite, Behringer, M-Audio) mediante un hub USB-C.
+                <p class="text-slate-300 text-sm mt-3 leading-relaxed [text-wrap:pretty]">
+                    No es obligatoria. Puedes usar el conector de auriculares de 3.5mm o un dongle USB-C estándar directo a una caja directa (DI Box). Sin embargo, si cuentas con una interfaz USB class-compliant (Focusrite Scarlett, Behringer UMC, M-Audio, Presonus), puedes conectarla mediante un hub USB-C y la app enviará audio estéreo en 24-bit/48kHz con total nitidez.
                 </p>
             </details>
 
-            <details class="glass-panel p-5 rounded-2xl group border border-slate-800 cursor-pointer">
+            <details class="glass-panel p-5 rounded-2xl group border border-slate-800 cursor-pointer transition-all">
                 <summary class="flex justify-between items-center font-bold text-white text-base">
                     <span>¿Dónde consigo las librerías .sf2 para cargar en la app?</span>
-                    <span class="text-emerald-400 group-open:rotate-180 transition-transform">▼</span>
+                    <span class="text-emerald-400 group-open:rotate-180 transition-transform duration-300">▼</span>
                 </summary>
-                <p class="text-slate-300 text-sm mt-3 leading-relaxed">
-                    ¡Aquí mismo en <a href="/recursos" class="text-emerald-400 underline font-semibold">TuteLopez Music</a>! Compartimos continuamente SoundFonts worship gratuitos optimizados especialmente para teléfonos y tablets.
+                <p class="text-slate-300 text-sm mt-3 leading-relaxed [text-wrap:pretty]">
+                    ¡Aquí mismo en <a href="/recursos" class="text-emerald-400 underline font-semibold">TuteLopez Music</a>! Compartimos periódicamente SoundFonts worship optimizados para dispositivos móviles (Nord Stage 3 Piano, Yamaha S90, Pianos Eléctricos Dyno, Pads atmosféricos y Sintetizadores).
                 </p>
             </details>
 
-            <details class="glass-panel p-5 rounded-2xl group border border-slate-800 cursor-pointer">
+            <details class="glass-panel p-5 rounded-2xl group border border-slate-800 cursor-pointer transition-all">
                 <summary class="flex justify-between items-center font-bold text-white text-base">
-                    <span>¿Cuándo estará lista en la Play Store?</span>
-                    <span class="text-emerald-400 group-open:rotate-180 transition-transform">▼</span>
+                    <span>¿Qué controladores MIDI físicos son compatibles?</span>
+                    <span class="text-emerald-400 group-open:rotate-180 transition-transform duration-300">▼</span>
                 </summary>
-                <p class="text-slate-300 text-sm mt-3 leading-relaxed">
-                    Estamos en la etapa final de optimización de los faders del mixer y puliendo la curva de latencia en Oboe. Si te registras como beta tester con tu Gmail en el formulario de arriba, recibirás la invitación directa por correo en cuanto abramos el cupo.
+                <p class="text-slate-300 text-sm mt-3 leading-relaxed [text-wrap:pretty]">
+                    Prácticamente cualquier controlador MIDI con salida USB o Bluetooth: Korg nanoKONTROL2, Arturia KeyLab, Novation Launchkey, Roland A-49, Nektar, M-Audio Keystation, adaptadores Bluetooth CME Widi Master y teclados de escenario tradicionales conectados por cable USB host (Yamaha CP/Motif, Nord Stage, Roland Juno).
                 </p>
             </details>
         </div>
     </section>
 
-    <!-- Modal Lightbox for Screenshots -->
+    <!-- Modal Lightbox for Screenshots (Full 2400x1080 View) -->
     <div id="image-modal" class="fixed inset-0 z-50 bg-black/90 backdrop-blur-md hidden flex items-center justify-center p-4">
-        <div class="relative max-w-5xl w-full">
-            <button id="modal-close" class="absolute -top-12 right-0 text-white hover:text-emerald-400 text-3xl font-bold p-2 cursor-pointer">&times;</button>
-            <img id="modal-img" src="" alt="Screenshot" class="w-full max-h-[85vh] object-contain rounded-2xl border border-slate-700 shadow-2xl" />
+        <div class="relative max-w-6xl w-full">
+            <button id="modal-close" class="absolute -top-12 right-0 text-white hover:text-emerald-400 text-3xl font-bold p-2 cursor-pointer transition-colors">&times;</button>
+            <img id="modal-img" src="" alt="Screenshot Full Resolution" class="w-full max-h-[85vh] object-contain rounded-2xl border border-slate-700 shadow-2xl" />
         </div>
     </div>
 </MainLayout>
 
 <script>
+    import gsap from 'gsap';
+
     document.addEventListener('DOMContentLoaded', () => {
-        // --- 1. LIVE LIKES COUNTER & INTERACTION ---
+        // --- 1. GSAP ENTRANCE ANIMATIONS (Make Interfaces Feel Better) ---
+        gsap.from('.hero-anim', {
+            y: 28,
+            opacity: 0,
+            duration: 0.85,
+            stagger: 0.08,
+            ease: 'power3.out'
+        });
+
+        // Floating ambient glow subtle drift
+        const ambientGlow = document.getElementById('ambient-glow');
+        if (ambientGlow) {
+            gsap.to(ambientGlow, {
+                scale: 1.15,
+                opacity: 0.8,
+                duration: 6,
+                repeat: -1,
+                yoyo: true,
+                ease: 'sine.inOut'
+            });
+        }
+
+        // --- 2. INTERACTIVE APP SHOWCASE TABS ---
+        const tabsData: Record<string, { img: string; badge: string; title: string; desc: string; tags: string[] }> = {
+            mixer: {
+                img: '/images/stagekeys/stage-mixer.jpg',
+                badge: 'Mixer & Virtual Keyboard',
+                title: 'Mixer en Vivo & Teclado Táctil',
+                desc: 'Control de faders por canal, medidores VU reactivos, perillas de Reverb, Chorus y Cutoff, BPM con Tap Tempo, botón REC y teclado táctil en pantalla con rueda de modulación y pitch bend.',
+                tags: ['Faders Virtuales', '120 BPM • Tap', 'VU Meters']
+            },
+            pads: {
+                img: '/images/stagekeys/stage-pads.jpg',
+                badge: 'Ambient Worship Pads',
+                title: 'Pads Atmosféricos Continuos (12 Tonos)',
+                desc: 'Motor de drones continuos (Shimmer Pad, Warm Pad) en las 12 tonalidades musicales. Cambia de canción con crossfade suave sin silencios incómodos en medio de la ministración.',
+                tags: ['12 Tonalidades', 'Shimmer Reverb', 'Crossfade Suave']
+            },
+            splits: {
+                img: '/images/stagekeys/stage-splits.jpg',
+                badge: 'Split & Layer Zones',
+                title: 'Editor Visual de Teclado y Divisiones',
+                desc: 'Configura rangos de notas de A0 a C8 arrastrando directamente en la barra táctil. Asigna bajos a la mano izquierda, piano al centro y leads a la derecha con colores neón independientes.',
+                tags: ['Octavas A0 - C8', 'Zonas por Color', 'Velocity Curves']
+            },
+            midi: {
+                img: '/images/stagekeys/stage-midi.jpg',
+                badge: 'MIDI Learn System',
+                title: 'Mapeo Físico MIDI en Tiempo Real',
+                desc: 'Conecta cualquier superficie como Korg nanoKONTROL2 o teclado maestro. Asigna faders, perillas de efectos y botones de mute con solo un toque usando la función MIDI Learn instantánea.',
+                tags: ['nanoKONTROL2', 'USB OTG & BLE', 'Program Change']
+            },
+            audio: {
+                img: '/images/stagekeys/stage-audio.jpg',
+                badge: 'Google Oboe C++ Engine',
+                title: 'Ajustes de Audio de Baja Latencia',
+                desc: 'Control directo del subsistema de audio nativo de Android: selección de sample rate (48kHz), tamaño de buffer, diagnóstico de latencia y contador de xRuns en tiempo real.',
+                tags: ['< 10ms Latencia', '48 kHz / 24-bit', 'xRuns Diagnostic']
+            },
+            dashboard: {
+                img: '/images/stagekeys/stage-dashboard.jpg',
+                badge: 'Concert Manager',
+                title: 'Gestor de Sets & Conciertos',
+                desc: 'Organiza repertorios para cada culto o concierto, importa y exporta archivos .skz y sincroniza automáticamente tus configuraciones en la nube con Google Drive.',
+                tags: ['Copia Google Drive', 'Sets .skz', 'Cero Laptop']
+            }
+        };
+
+        const tabButtons = document.querySelectorAll('.tab-btn');
+        const showcaseImg = document.getElementById('showcase-img') as HTMLImageElement | null;
+        const showcaseCard = document.getElementById('showcase-card');
+        const showcaseBadge = document.getElementById('showcase-badge');
+        const showcaseTitle = document.getElementById('showcase-title');
+        const showcaseDesc = document.getElementById('showcase-desc');
+        const showcaseTags = document.getElementById('showcase-tags');
+
+        tabButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const tabKey = btn.getAttribute('data-tab') || 'mixer';
+                const data = tabsData[tabKey];
+                if (!data) return;
+
+                // Update active button classes
+                tabButtons.forEach(b => {
+                    b.classList.remove('bg-emerald-500/20', 'text-emerald-300', 'border-emerald-500/40', 'shadow-lg', 'shadow-emerald-950/20');
+                    b.classList.add('bg-slate-900/60', 'text-slate-400', 'border-slate-800');
+                });
+                btn.classList.remove('bg-slate-900/60', 'text-slate-400', 'border-slate-800');
+                btn.classList.add('bg-emerald-500/20', 'text-emerald-300', 'border-emerald-500/40', 'shadow-lg', 'shadow-emerald-950/20');
+
+                // GSAP Transition on Image & Texts
+                if (showcaseImg && showcaseCard) {
+                    gsap.to(showcaseImg, {
+                        opacity: 0.3,
+                        scale: 0.98,
+                        duration: 0.18,
+                        ease: 'power2.in',
+                        onComplete: () => {
+                            showcaseImg.src = data.img;
+                            showcaseCard.setAttribute('data-img', data.img);
+                            if (showcaseBadge) showcaseBadge.textContent = data.badge;
+                            if (showcaseTitle) showcaseTitle.textContent = data.title;
+                            if (showcaseDesc) showcaseDesc.textContent = data.desc;
+                            if (showcaseTags) {
+                                showcaseTags.innerHTML = data.tags.map(t => 
+                                    `<span class="px-2.5 py-1 rounded-md bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs font-bold">${t}</span>`
+                                ).join('');
+                            }
+
+                            gsap.to(showcaseImg, {
+                                opacity: 1,
+                                scale: 1,
+                                duration: 0.35,
+                                ease: 'power3.out'
+                            });
+                        }
+                    });
+                }
+            });
+        });
+
+        // --- 3. LIVE LIKE COUNTER WITH GSAP FLOATING HEARTS ---
         const likeBtn = document.getElementById('like-btn');
         const likeCounter = document.getElementById('like-counter');
         const likeHeartIcon = document.getElementById('like-heart-icon');
@@ -506,7 +812,7 @@ const pageDescription = "Stage Keys Live es una app para Android desarrollada co
                     }
                 }
             } catch (e) {
-                if (likeCounter) likeCounter.textContent = '142';
+                if (likeCounter) likeCounter.textContent = '148';
             }
         }
         fetchStats();
@@ -516,22 +822,56 @@ const pageDescription = "Stage Keys Live es una app para Android desarrollada co
             likeBtn.classList.add('bg-rose-500/20', 'border-rose-500');
         }
 
+        function createFloatingHeart(x: number, y: number) {
+            const heart = document.createElement('div');
+            heart.innerHTML = '❤️';
+            heart.style.position = 'fixed';
+            heart.style.left = `${x}px`;
+            heart.style.top = `${y}px`;
+            heart.style.fontSize = `${Math.random() * 12 + 16}px`;
+            heart.style.pointerEvents = 'none';
+            heart.style.zIndex = '9999';
+            document.body.appendChild(heart);
+
+            gsap.to(heart, {
+                y: y - 80 - Math.random() * 50,
+                x: x + (Math.random() - 0.5) * 60,
+                opacity: 0,
+                scale: 1.4,
+                duration: 1.2,
+                ease: 'power2.out',
+                onComplete: () => heart.remove()
+            });
+        }
+
         if (likeBtn) {
-            likeBtn.addEventListener('click', async () => {
-                if (hasLiked) {
-                    // Feedback visual
-                    likeBtn.classList.add('scale-110');
-                    setTimeout(() => likeBtn.classList.remove('scale-110'), 200);
-                    return;
+            likeBtn.addEventListener('click', async (e) => {
+                const rect = likeBtn.getBoundingClientRect();
+                const clickX = e.clientX || (rect.left + rect.width / 2);
+                const clickY = e.clientY || rect.top;
+
+                // Spawn 3 floating hearts
+                for (let i = 0; i < 3; i++) {
+                    setTimeout(() => createFloatingHeart(clickX, clickY), i * 120);
                 }
+
+                // Bounce like icon with GSAP
+                if (likeHeartIcon) {
+                    gsap.fromTo(likeHeartIcon, 
+                        { scale: 0.8 }, 
+                        { scale: 1.35, duration: 0.25, yoyo: true, repeat: 1, ease: 'back.out(2)' }
+                    );
+                }
+
+                if (hasLiked) return;
 
                 // Optimistic UI
                 hasLiked = true;
                 localStorage.setItem('stagekeys_liked', 'true');
                 likeBtn.classList.add('bg-rose-500/20', 'border-rose-500');
                 if (likeCounter) {
-                    const current = parseInt(likeCounter.textContent || '142', 10);
-                    likeCounter.textContent = (isNaN(current) ? 143 : current + 1).toString();
+                    const current = parseInt(likeCounter.textContent || '148', 10);
+                    likeCounter.textContent = (isNaN(current) ? 149 : current + 1).toString();
                 }
 
                 try {
@@ -552,7 +892,7 @@ const pageDescription = "Stage Keys Live es una app para Android desarrollada co
             });
         }
 
-        // --- 2. BETA TESTER FORM ---
+        // --- 4. BETA TESTER FORM ---
         const testerForm = document.getElementById('beta-tester-form');
         const testerEmail = document.getElementById('tester-email') as HTMLInputElement | null;
         const testerDevice = document.getElementById('tester-device') as HTMLInputElement | null;
@@ -571,7 +911,7 @@ const pageDescription = "Stage Keys Live es una app para Android desarrollada co
 
                 if (testerSubmitBtn) {
                     testerSubmitBtn.setAttribute('disabled', 'true');
-                    testerSubmitBtn.textContent = 'Registrando...';
+                    testerSubmitBtn.textContent = 'Registrando en Google Play...';
                 }
 
                 try {
@@ -621,7 +961,7 @@ const pageDescription = "Stage Keys Live es una app para Android desarrollada co
             });
         }
 
-        // --- 3. SUGGESTIONS FORM ---
+        // --- 5. COMMUNITY SUGGESTIONS ---
         const suggestionForm = document.getElementById('suggestion-form');
         const suggestionText = document.getElementById('suggestion-text') as HTMLTextAreaElement | null;
         const suggestionAuthor = document.getElementById('suggestion-author') as HTMLInputElement | null;
@@ -629,13 +969,13 @@ const pageDescription = "Stage Keys Live es una app para Android desarrollada co
         const suggestionFeedback = document.getElementById('suggestion-feedback');
         const suggestionSubmitBtn = document.getElementById('suggestion-submit-btn');
 
-        // Quick pills click to fill
         document.querySelectorAll('.quick-pill').forEach(pill => {
             pill.addEventListener('click', () => {
                 const text = pill.textContent?.trim() || '';
                 if (suggestionText) {
                     suggestionText.value = text;
                     suggestionText.focus();
+                    gsap.fromTo(suggestionText, { scale: 0.99 }, { scale: 1, duration: 0.2 });
                 }
             });
         });
@@ -651,7 +991,7 @@ const pageDescription = "Stage Keys Live es una app para Android desarrollada co
 
                 if (suggestionSubmitBtn) {
                     suggestionSubmitBtn.setAttribute('disabled', 'true');
-                    suggestionSubmitBtn.textContent = 'Enviando...';
+                    suggestionSubmitBtn.textContent = 'Enviando sugerencia...';
                 }
 
                 try {
@@ -701,7 +1041,7 @@ const pageDescription = "Stage Keys Live es una app para Android desarrollada co
             });
         }
 
-        // --- 4. LIGHTBOX MODAL ---
+        // --- 6. LIGHTBOX MODAL ---
         const modal = document.getElementById('image-modal');
         const modalImg = document.getElementById('modal-img') as HTMLImageElement | null;
         const modalClose = document.getElementById('modal-close');
@@ -712,6 +1052,7 @@ const pageDescription = "Stage Keys Live es una app para Android desarrollada co
                 if (modal && modalImg && src) {
                     modalImg.src = src;
                     modal.classList.remove('hidden');
+                    gsap.fromTo(modalImg, { scale: 0.9, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.3, ease: 'power3.out' });
                 }
             });
         });
