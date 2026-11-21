@@ -12,6 +12,8 @@ const client = createClient({
 });
 
 export const COMMUNITY_LINK = 'https://t.me/+O4dufR129f4yZWE5';
+export const STAGEKEYS_COMMUNITY_LINK = 'https://t.me/StageKeysLiveComunity';
+export const STAGEKEYS_WEB_LINK = 'https://tutelopezmusic.com/stage-keys-live';
 
 export const COMMUNITY_TEMPLATES = [
     {

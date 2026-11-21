@@ -21,6 +21,53 @@ const client = createClient({
 });
 
 const COMMUNITY_LINK = 'https://t.me/+O4dufR129f4yZWE5';
+const STAGEKEYS_COMMUNITY_LINK = 'https://t.me/StageKeysLiveComunity';
+const STAGEKEYS_WEB_LINK = 'https://tutelopezmusic.com/stage-keys-live';
+
+const STAGEKEYS_INVITE_TEMPLATES = [
+    {
+        title: "🎹 ¡Únete a la Comunidad Oficial de Stage Keys Live en Telegram! 🔥",
+        body: "¿Tocas el teclado en vivo o en tu iglesia y quieres dejar la laptop en casa?\n\n" +
+              "Creamos este grupo exclusivo para tecladistas, pianistas y productores que usan o quieren probar **Stage Keys Live** para Android:\n\n" +
+              "✨ *¿Qué compartimos en el grupo?*\n" +
+              "• 🎹 Setups en vivo y configuración de controladores MIDI (USB OTG y Bluetooth)\n" +
+              "• 📂 Intercambio de librerías SoundFont (.sf2), Pianos Worship y Ambient Pads\n" +
+              "• ⚡ Tips para latencia ultra-baja (<10ms) con motor Google Oboe C++\n" +
+              "• 🛠 Feedback directo con Tute López para nuevas funciones\n" +
+              "• 🎟 Novedades y acceso al Closed Testing Track de Google Play\n\n" +
+              "¡Súmate a la conversación y comparte con colegas de todo el mundo! 👇",
+        btn: "💬 Unirme al Grupo Stage Keys Live"
+    },
+    {
+        title: "🚀 Comunidad de Tecladistas: Stage Keys Live para Android 🎹✨",
+        body: "¡La comunidad de **Stage Keys Live** no para de crecer!\n\n" +
+              "Si buscas transformar tu celular o tablet Android en una Live Performance Workstation con Splits, Layers y SoundFonts .sf2 sin cortes ni latencia:\n\n" +
+              "🔥 *Este grupo es para ti:*\n" +
+              "✅ Resuelve dudas sobre conexiones MIDI (nanoKONTROL, Novation, Arturia)\n" +
+              "✅ Descarga y recomienda SoundFonts optimizados para worship\n" +
+              "✅ Vota por las próximas actualizaciones y mejoras de la app\n" +
+              "✅ Mira cómo otros músicos arman sus sets y conciertos en directo\n\n" +
+              "¡Entra gratis a la comunidad oficial tocando el botón abajo!",
+        btn: "🚀 Entrar al Grupo Oficial"
+    }
+];
+
+function getStageKeysInviteMessage(templateIndex = 0) {
+    const template = STAGEKEYS_INVITE_TEMPLATES[templateIndex % STAGEKEYS_INVITE_TEMPLATES.length];
+    const text = `*${template.title}*\n\n${template.body}`;
+    const shareText = `🎹 ¡Únete a la comunidad de Stage Keys Live para tecladistas en vivo! Descarga presets .sf2, comparte setups y habla con el desarrollador:`;
+    const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(STAGEKEYS_COMMUNITY_LINK)}&text=${encodeURIComponent(shareText)}`;
+
+    const keyboard = Markup.inlineKeyboard([
+        [Markup.button.url(template.btn, STAGEKEYS_COMMUNITY_LINK)],
+        [
+            Markup.button.url('🚀 Ver App en la Web', STAGEKEYS_WEB_LINK),
+            Markup.button.url('📲 Compartir en Grupos', shareUrl)
+        ]
+    ]);
+
+    return { text, keyboard, title: template.title, shareUrl };
+}
 
 const COMMUNITY_TEMPLATES = [
     {
@@ -656,8 +703,9 @@ bot.start((ctx) => {
         msg += `\n\n🛠 *Comandos de Control / Admin:*\n` +
                `⚙️ /panel - Control de mensajes diarios (Pausar/Reanudar)\n` +
                `📊 /stats - Métricas y estadísticas en tiempo real\n` +
+               `👥 /invitar_stagekeys - Invitar a la comunidad de Stage Keys Live (Canal y Grupos)\n` +
                `🚀 /promocionar_app - Publicar anuncio de Stage Keys Live en el canal\n` +
-               `💬 /comunidad - Enviar invitación al grupo de la comunidad\n` +
+               `💬 /comunidad - Enviar invitación al grupo de la comunidad TuteLopez\n` +
                `⏸ /pausar - Pausar mensajes automáticos diarios\n` +
                `▶️ /despausar - Reanudar mensajes automáticos diarios\n` +
                `📢 /enviar_ahora - Publicar un recurso ahora al canal\n` +
@@ -698,7 +746,26 @@ bot.hears(/(contraseña|password|clave|pass)/i, (ctx, next) => {
     ctx.reply('🔑 Recuerda que la contraseña para descomprimir todos nuestros archivos es:\n\n`tutelopezmusic`', { parse_mode: 'Markdown' });
 });
 
-// Auto-respuesta rápida para el grupo / comunidad
+// Auto-respuesta rápida para el grupo / comunidad de Stage Keys Live
+bot.hears(/(stage\s*keys.*(grupo|comunidad)|(grupo|comunidad).*stage\s*keys)/i, (ctx, next) => {
+    if (ctx.message.text && ctx.message.text.startsWith('/')) return next();
+    if (ctx.message.forward_origin || ctx.message.forward_from_chat || ctx.message.photo || ctx.message.document) return next();
+    ctx.reply(
+        `🎹 *Grupo Oficial de Stage Keys Live en Telegram*\n\n` +
+        `¡Únete a la comunidad de tecladistas, comparte SoundFonts (.sf2), presets worship y habla sobre Stage Keys Live!\n\n` +
+        `👉 [Toca aquí para unirte al Grupo](${STAGEKEYS_COMMUNITY_LINK})`,
+        {
+            parse_mode: 'Markdown',
+            disable_web_page_preview: true,
+            ...Markup.inlineKeyboard([
+                [Markup.button.url('💬 Entrar al Grupo Stage Keys', STAGEKEYS_COMMUNITY_LINK)],
+                [Markup.button.url('🚀 Ver App en la Web', STAGEKEYS_WEB_LINK)]
+            ])
+        }
+    );
+});
+
+// Auto-respuesta rápida para el grupo / comunidad general TuteLopez Music
 bot.hears(/(grupo|comunidad|chat)/i, (ctx, next) => {
     if (ctx.message.text && ctx.message.text.startsWith('/')) return next();
     if (ctx.message.forward_origin || ctx.message.forward_from_chat || ctx.message.photo || ctx.message.document) return next();
@@ -917,6 +984,9 @@ async function sendControlPanel(ctx, isEdit = false) {
                 Markup.button.callback('🚀 Promocionar Stage Keys Live', 'promo_stagekeys')
             ],
             [
+                Markup.button.callback('👥 Invitar Comunidad Stage Keys', 'invite_stagekeys_community')
+            ],
+            [
                 Markup.button.callback('📈 Ver Estadísticas', 'open_stats'),
                 Markup.button.callback('🔄 Actualizar Panel', 'cron_status')
             ]
@@ -1128,9 +1198,9 @@ async function sendStageKeysPromoNow(ctx) {
             `👉 <b>¡Entra a la web, dale Like al proyecto y anota tu correo de Google para ser de los primeros Beta Testers!</b>`;
 
         const keyboard = Markup.inlineKeyboard([
-            [Markup.button.url('🚀 Ver App & Ser Beta Tester', 'https://tutelopezmusic.com/stage-keys-live')],
+            [Markup.button.url('🚀 Ver App & Ser Beta Tester', STAGEKEYS_WEB_LINK)],
             [
-                Markup.button.url('💬 Grupo de la Comunidad', COMMUNITY_LINK),
+                Markup.button.url('💬 Grupo Comunidad Stage Keys', STAGEKEYS_COMMUNITY_LINK),
                 Markup.button.url('🐙 GitHub Repo', 'https://github.com/tutelopez/StageKeysLive')
             ]
         ]);
@@ -1145,6 +1215,57 @@ async function sendStageKeysPromoNow(ctx) {
     } catch (error) {
         console.error('Error al promocionar app:', error);
         ctx.reply(`❌ Error al promocionar app: ${error.message}`);
+    }
+}
+
+async function sendStageKeysCommunityInvite(ctx, targetChatId = null) {
+    if (!isAdmin(ctx)) return ctx.reply('⛔ No tienes permisos para usar este comando.');
+
+    try {
+        const { text, keyboard, title, shareUrl } = getStageKeysInviteMessage(0);
+
+        // Si se especificó un destino (ej: /invitar_stagekeys @mi_grupo o chat_id) o si se envió en un grupo
+        let destination = targetChatId;
+        if (!destination && ctx.chat && (ctx.chat.type === 'group' || ctx.chat.type === 'supergroup')) {
+            destination = ctx.chat.id;
+        }
+
+        if (destination) {
+            await bot.telegram.sendMessage(destination, text, {
+                parse_mode: 'Markdown',
+                disable_web_page_preview: true,
+                ...keyboard
+            });
+            return ctx.reply(`✅ *Invitación a la comunidad de Stage Keys Live enviada con éxito a:* \`${destination}\``, { parse_mode: 'Markdown' });
+        }
+
+        // Publicar en el canal oficial @tutelopezmusic
+        await bot.telegram.sendMessage('@tutelopezmusic', text, {
+            parse_mode: 'Markdown',
+            disable_web_page_preview: true,
+            ...keyboard
+        });
+
+        // Entregar al admin la tarjeta con acceso rápido para compartir a cualquier grupo o canal
+        const adminKeyboard = Markup.inlineKeyboard([
+            [Markup.button.url('📲 Reenviar / Compartir en Grupos', shareUrl)],
+            [Markup.button.url('💬 Abrir Grupo Stage Keys Live', STAGEKEYS_COMMUNITY_LINK)],
+            [Markup.button.callback('🔄 Enviar Variante 2 al Canal', 'invite_stagekeys_variant2')],
+            [Markup.button.callback('⚙️ Volver al Panel', 'cron_status')]
+        ]);
+
+        await ctx.reply(
+            `✅ *¡Invitación a la Comunidad de Stage Keys Live enviada con éxito a @tutelopezmusic!*\n\n` +
+            `📋 *Para compartir en tus grupos y otros canales:*\n` +
+            `1. Pulsa *"📲 Reenviar / Compartir en Grupos"* para abrir el selector nativo de Telegram y enviarlo a cualquier grupo, chat o contacto en 1 clic.\n` +
+            `2. También puedes usar:\n` +
+            `   \`/invitar_stagekeys @nombre_de_tu_grupo\`\n` +
+            `   o escribir \`/invitar_stagekeys\` directamente dentro de cualquier grupo donde el bot sea administrador.`,
+            { parse_mode: 'Markdown', ...adminKeyboard }
+        );
+    } catch (error) {
+        console.error('Error enviando invitacion de Stage Keys:', error);
+        ctx.reply(`❌ Error al enviar invitación: ${error.message}`);
     }
 }
 
@@ -1225,6 +1346,17 @@ bot.command(['promocionar_app', 'promo_stagekeys', 'stagekeys'], async (ctx) => 
     await sendStageKeysPromoNow(ctx);
 });
 
+bot.command(['invitar_stagekeys', 'comunidad_stagekeys', 'invitar_sk', 'stagekeys_comunidad'], async (ctx) => {
+    if (!isAdmin(ctx)) return ctx.reply('⛔ No tienes permisos para usar este comando.');
+    const args = ctx.message.text.split(' ').slice(1).join(' ').trim();
+    await sendStageKeysCommunityInvite(ctx, args || null);
+});
+
+bot.hears(['👥 Invitar Comunidad Stage Keys', 'Invitar Stage Keys'], async (ctx) => {
+    if (!isAdmin(ctx)) return;
+    await sendStageKeysCommunityInvite(ctx);
+});
+
 bot.command('mi_id', (ctx) => {
     ctx.reply(`🆔 Tu Telegram ID es: \`${ctx.from.id}\`\n👤 Tu usuario: @${ctx.from.username || 'sin_username'}`, { parse_mode: 'Markdown' });
 });
@@ -1292,6 +1424,28 @@ bot.action('promo_stagekeys', async (ctx) => {
     if (!isAdmin(ctx)) return ctx.answerCbQuery('⛔ Sin permisos.');
     await ctx.answerCbQuery('Publicando anuncio en el canal...');
     await sendStageKeysPromoNow(ctx);
+});
+
+bot.action('invite_stagekeys_community', async (ctx) => {
+    if (!isAdmin(ctx)) return ctx.answerCbQuery('⛔ Sin permisos.');
+    await ctx.answerCbQuery('Preparando invitación de Stage Keys...');
+    await sendStageKeysCommunityInvite(ctx);
+});
+
+bot.action('invite_stagekeys_variant2', async (ctx) => {
+    if (!isAdmin(ctx)) return ctx.answerCbQuery('⛔ Sin permisos.');
+    await ctx.answerCbQuery('Enviando variante 2 al canal...');
+    try {
+        const { text, keyboard } = getStageKeysInviteMessage(1);
+        await bot.telegram.sendMessage('@tutelopezmusic', text, {
+            parse_mode: 'Markdown',
+            disable_web_page_preview: true,
+            ...keyboard
+        });
+        await ctx.reply('✅ *Variante 2 de invitación enviada al canal @tutelopezmusic con éxito.*', { parse_mode: 'Markdown' });
+    } catch (e) {
+        ctx.reply(`❌ Error al enviar variante: ${e.message}`);
+    }
 });
 
 
