@@ -1,0 +1,72 @@
+---
+import MainLayout from '../../layouts/MainLayout.astro';
+---
+
+<MainLayout title="Política de datos de Stage Keys Live - TuteLopez Music" description="Qué datos usa la app Stage Keys Live para Android, para qué y cómo se guardan.">
+    <div class="max-w-4xl mx-auto py-12 px-4 sm:px-6">
+        <h1 class="text-4xl font-extrabold text-white mb-8">Política de tratamiento de datos de Stage Keys Live</h1>
+
+        <div class="prose prose-invert prose-lg max-w-none text-slate-300">
+            <p><strong>Última actualización:</strong> 25 de noviembre de 2026</p>
+            <p>Esta política aplica a la aplicación <strong>Stage Keys Live</strong> para Android (paquete <code>com.tutelopezmusic.stagekeyslive</code>), desarrollada por Mateo López (TuteLopez Music). Para el sitio web rige la <a href="/privacidad">Política de Privacidad general</a>.</p>
+
+            <h2>1. Resumen</h2>
+            <ul>
+                <li>Tus conciertos, patches y archivos SF2 se guardan <strong>en tu teléfono</strong>.</li>
+                <li>Si iniciás sesión con Google y activás el respaldo, se copian <strong>a tu propio Google Drive</strong>. Nosotros no tenemos acceso a esos archivos.</li>
+                <li>No vendemos datos ni mostramos publicidad dentro de la app.</li>
+            </ul>
+
+            <h2>2. Datos que se guardan en tu dispositivo</h2>
+            <ul>
+                <li>Conciertos, patches, mezclas, mapeos MIDI, ajustes de audio y copias de seguridad locales.</li>
+                <li>Los archivos SoundFont (.sf2) que importás.</li>
+                <li>El nombre y tipo de los controladores MIDI e interfaces de audio que conectás, solo para recordar su configuración.</li>
+            </ul>
+            <p>Estos datos no salen del teléfono salvo que vos los exportes, compartas o respaldes.</p>
+
+            <h2>3. Inicio de sesión con Google (opcional)</h2>
+            <p>Si iniciás sesión, usamos Firebase Authentication de Google para obtener tu nombre, correo y foto de perfil. Se usan para mostrar tu nombre en la app y para el respaldo en Drive.</p>
+
+            <h2>4. Respaldo en Google Drive (opcional)</h2>
+            <p>La app usa el permiso <code>drive.file</code>: solo puede ver y modificar los archivos que ella misma creó en tu Drive (tus conciertos, configuración y SF2 respaldados). No puede leer el resto de tu Drive. Podés borrar esos archivos desde Drive cuando quieras.</p>
+
+            <h2>5. Diagnóstico y estadísticas de uso</h2>
+            <ul>
+                <li><strong>Firebase Crashlytics</strong>: si la app se cierra por un error, envía un informe técnico (modelo de teléfono, versión de Android, versión de la app y el error). No incluye tus conciertos ni tus archivos.</li>
+                <li><strong>Google Analytics para Firebase</strong>: estadísticas anónimas de uso (por ejemplo, cuántas personas abren la app y qué pantallas usan) para mejorarla.</li>
+                <li><strong>Soporte</strong>: cuando tocás "Soporte" en la app, podés enviar un informe de diagnóstico por Telegram. Solo se envía si vos lo mandás.</li>
+            </ul>
+
+            <h2>6. Compras</h2>
+            <p>Si la app ofrece una versión Pro, el pago lo procesa <strong>Google Play</strong>. No recibimos ni guardamos los datos de tu tarjeta; solo recibimos la confirmación de la compra para activar las funciones Pro.</p>
+
+            <h2>7. Permisos de Android</h2>
+            <ul>
+                <li><strong>Internet y estado de red</strong>: inicio de sesión, respaldo en Drive y diagnóstico.</li>
+                <li><strong>Servicio en primer plano y notificaciones</strong>: para que el sonido siga funcionando con la pantalla apagada o la app en segundo plano.</li>
+                <li><strong>USB y MIDI</strong>: para conectar teclados, controladores e interfaces de audio.</li>
+            </ul>
+            <p>La app no usa el micrófono, la cámara, tus contactos ni tu ubicación.</p>
+
+            <h2>8. Con quién se comparten datos</h2>
+            <p>Solo con Google, como proveedor de los servicios mencionados (Firebase, Drive, Play). No se comparten con otros terceros.</p>
+
+            <h2>9. Conservación y borrado</h2>
+            <ul>
+                <li>Los datos locales se borran al desinstalar la app o desde Ajustes de Android.</li>
+                <li>Los respaldos en Drive se borran desde tu Drive.</li>
+                <li>Para borrar tu cuenta y los datos asociados de Firebase, escribinos por Telegram o desde la página de <a href="/contacto">contacto</a>. Lo hacemos en un plazo máximo de 30 días.</li>
+            </ul>
+
+            <h2>10. Menores</h2>
+            <p>La app no está dirigida a menores de 13 años y no recopila datos de ellos a sabiendas.</p>
+
+            <h2>11. Tus derechos</h2>
+            <p>Podés pedir acceso, corrección o borrado de tus datos personales, según la ley de tu país (por ejemplo, la Ley 25.326 de Argentina, la Ley 1581 de Colombia o el RGPD europeo). Contacto: <a href="https://t.me/StageKeysLiveComunity" target="_blank" rel="noopener noreferrer">comunidad de Telegram</a> o la página de <a href="/contacto">contacto</a>.</p>
+
+            <h2>12. Cambios</h2>
+            <p>Si esta política cambia, actualizamos la fecha de arriba y lo avisamos en la comunidad de Telegram.</p>
+        </div>
+    </div>
+</MainLayout>
