@@ -7,14 +7,14 @@ import MainLayout from '../../layouts/MainLayout.astro';
         <h1 class="text-4xl font-extrabold text-white mb-8">Política de tratamiento de datos de Stage Keys Live</h1>
 
         <div class="prose prose-invert prose-lg max-w-none text-slate-300">
-            <p><strong>Última actualización:</strong> 25 de noviembre de 2026</p>
+            <p><strong>Última actualización:</strong> 26 de noviembre de 2026</p>
             <p>Esta política aplica a la aplicación <strong>Stage Keys Live</strong> para Android (paquete <code>com.tutelopezmusic.stagekeyslive</code>), desarrollada por Mateo López (TuteLopez Music). Para el sitio web rige la <a href="/privacidad">Política de Privacidad general</a>.</p>
 
             <h2>1. Resumen</h2>
             <ul>
                 <li>Tus conciertos, patches y archivos SF2 se guardan <strong>en tu teléfono</strong>.</li>
                 <li>Si iniciás sesión con Google y activás el respaldo, se copian <strong>a tu propio Google Drive</strong>. Nosotros no tenemos acceso a esos archivos.</li>
-                <li>No vendemos datos ni mostramos publicidad dentro de la app.</li>
+                <li>No vendemos datos, no mostramos publicidad y la app no usa el ID de publicidad de Android.</li>
             </ul>
 
             <h2>2. Datos que se guardan en tu dispositivo</h2>
@@ -35,11 +35,12 @@ import MainLayout from '../../layouts/MainLayout.astro';
             <ul>
                 <li><strong>Firebase Crashlytics</strong>: si la app se cierra por un error, envía un informe técnico (modelo de teléfono, versión de Android, versión de la app y el error). No incluye tus conciertos ni tus archivos.</li>
                 <li><strong>Google Analytics para Firebase</strong>: estadísticas anónimas de uso (por ejemplo, cuántas personas abren la app y qué pantallas usan) para mejorarla.</li>
+                <li>Crashlytics y Analytics usan un identificador de instalación de Firebase, que no es el ID de publicidad y no se usa para anuncios. La recolección del ID de publicidad está desactivada en la app.</li>
                 <li><strong>Soporte</strong>: cuando tocás "Soporte" en la app, podés enviar un informe de diagnóstico por Telegram. Solo se envía si vos lo mandás.</li>
             </ul>
 
             <h2>6. Compras</h2>
-            <p>Si la app ofrece una versión Pro, el pago lo procesa <strong>Google Play</strong>. No recibimos ni guardamos los datos de tu tarjeta; solo recibimos la confirmación de la compra para activar las funciones Pro.</p>
+            <p><strong>Stage Keys Live Pro</strong> es una compra única dentro de la app, procesada por <strong>Google Play</strong> (Google Play Billing). No recibimos ni guardamos los datos de tu tarjeta ni de tu medio de pago. La app solo recibe la confirmación de la compra y guarda en tu teléfono que tenés Pro, para activar sus funciones también sin conexión.</p>
 
             <h2>7. Permisos de Android</h2>
             <ul>
@@ -50,13 +51,21 @@ import MainLayout from '../../layouts/MainLayout.astro';
             <p>La app no usa el micrófono, la cámara, tus contactos ni tu ubicación.</p>
 
             <h2>8. Con quién se comparten datos</h2>
-            <p>Solo con Google, como proveedor de los servicios mencionados (Firebase, Drive, Play). No se comparten con otros terceros.</p>
+            <p>Con Google, como proveedor de los servicios mencionados (Firebase, Drive, Play), y con <strong>Telegram</strong> solo cuando vos nos escribís por ahí o nos mandás un informe de soporte. No se venden ni se comparten con otros terceros.</p>
 
-            <h2>9. Conservación y borrado</h2>
+            <h2 id="borrar-cuenta">9. Cómo borrar tu cuenta y tus datos</h2>
+            <p>Para pedir que borremos tu cuenta de Stage Keys Live y los datos asociados:</p>
+            <ol>
+                <li>Escribinos por la <a href="https://t.me/StageKeysLiveComunity" target="_blank" rel="noopener noreferrer">comunidad de Telegram</a> o desde la página de <a href="/contacto">contacto</a>, con el asunto "Borrar mi cuenta de Stage Keys Live".</li>
+                <li>Indicá el correo de Google con el que iniciaste sesión en la app.</li>
+                <li>Te confirmamos cuando esté hecho, en un plazo máximo de 30 días.</li>
+            </ol>
+            <p><strong>Qué se borra:</strong> tu cuenta de Firebase Authentication (nombre, correo, foto e identificador de usuario) y los informes de diagnóstico asociados que se puedan identificar.</p>
+            <p><strong>Qué borrás vos:</strong></p>
             <ul>
-                <li>Los datos locales se borran al desinstalar la app o desde Ajustes de Android.</li>
-                <li>Los respaldos en Drive se borran desde tu Drive.</li>
-                <li>Para borrar tu cuenta y los datos asociados de Firebase, escribinos por Telegram o desde la página de <a href="/contacto">contacto</a>. Lo hacemos en un plazo máximo de 30 días.</li>
+                <li>Los datos locales (conciertos, patches y SF2): se borran al desinstalar la app o desde Ajustes de Android → Apps → Stage Keys Live → Almacenamiento.</li>
+                <li>Los respaldos en Google Drive: son archivos tuyos y se borran desde tu Drive.</li>
+                <li>La compra de Pro queda registrada en tu cuenta de Google Play, que es de Google.</li>
             </ul>
 
             <h2>10. Menores</h2>
